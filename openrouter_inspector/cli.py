@@ -97,7 +97,7 @@ def _print_models(models: list[ModelInfo], output_format: str) -> None:
         return
 
     table = Table(title="OpenRouter Models", box=box.SIMPLE_HEAVY)
-    table.add_column("Name", style="white", no_wrap=False, overflow="ellipsis", max_width=30)
+    table.add_column("Name", style="white", no_wrap=False, overflow="ellipsis", max_width=25)
     table.add_column("ID", style="cyan", no_wrap=True)
     table.add_column("Context", justify="right", max_width=8)
     table.add_column("Input", justify="right", max_width=9)
