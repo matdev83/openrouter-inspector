@@ -109,7 +109,9 @@ class TestOpenRouterClient:
         # Note: We can't easily test this without accessing private attributes
 
     @pytest.mark.asyncio
-    async def test_get_models_success(self, test_api_key, sample_models_response, httpx_mock):
+    async def test_get_models_success(
+        self, test_api_key, sample_models_response, httpx_mock
+    ):
         """Test successful models retrieval."""
         httpx_mock.add_response(
             method="GET",
@@ -136,7 +138,9 @@ class TestOpenRouterClient:
         assert models[1].context_length == 200000
 
     @pytest.mark.asyncio
-    async def test_get_models_alternative_response_format(self, test_api_key, httpx_mock):
+    async def test_get_models_alternative_response_format(
+        self, test_api_key, httpx_mock
+    ):
         """Test models retrieval with alternative response format."""
         response_data = {
             "models": [

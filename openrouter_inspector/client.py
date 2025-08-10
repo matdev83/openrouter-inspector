@@ -26,7 +26,7 @@ from .models import (
 
 # CacheManager removed; inline simple no-op cache interface if needed
 class CacheManager:
-    def __init__(self, ttl: int = 300) -> None:
+    def __init__(self) -> None:
         self._store: Dict[str, Any] = {}
 
     def get(self, key: str) -> Optional[Any]:

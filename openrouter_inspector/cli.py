@@ -528,11 +528,6 @@ def search(
     default="table",
 )
 @click.option(
-    "--per-1m",
-    is_flag=True,
-    help="Scale prices to per 1M tokens for prompt/completion (default)",
-)
-@click.option(
     "--min-quant",
     type=str,
     help="Minimum quantization (e.g., fp8). Unspecified quant is included.",
@@ -626,7 +621,6 @@ def endpoints(
     ctx: click.Context,
     model_id: str,
     output_format: str,
-    per_1m: bool,
     sort_by: str,
     desc: bool,
     min_quant: str | None,

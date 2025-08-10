@@ -77,5 +77,4 @@ def test_check_functional_when_online():
     assert result.exit_code == 0
     assert result.output.strip() == "Functional"
 
-
     # Web-metric-based checks removed

@@ -1,7 +1,5 @@
 """Unit tests for exception hierarchy."""
 
-import pytest
-
 from openrouter_inspector.exceptions import (
     APIError,
     AuthenticationError,
@@ -40,8 +38,6 @@ class TestOpenRouterError:
         # Test validation error
         validation_error = ValidationError("Validation error")
         assert isinstance(validation_error, OpenRouterError)
-
-        # Web scraping exceptions removed
 
 
 class TestAPIError:
@@ -82,7 +78,3 @@ class TestValidationError:
         error = ValidationError("Invalid data format")
         assert str(error) == "Invalid data format"
         assert isinstance(error, OpenRouterError)
-
-
-# Web scraping exceptions removed; tests skipped
-pytest.skip("web exceptions removed", allow_module_level=True)

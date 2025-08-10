@@ -88,11 +88,15 @@ class TestListCommandMultipleFilters:
 
             assert result.exit_code == 0
             assert "Meta Llama 3 Free" in result.output
-            assert "Meta Llama 3\n" not in result.output  # Has "meta" but not "free" - check for line break to avoid substring match
+            assert (
+                "Meta Llama 3\n" not in result.output
+            )  # Has "meta" but not "free" - check for line break to avoid substring match
             assert "GPT-4" not in result.output  # Has neither
             assert "Claude 3" not in result.output  # Has neither
 
-    def test_list_multiple_filters_case_insensitive(self, runner, mock_models, monkeypatch):
+    def test_list_multiple_filters_case_insensitive(
+        self, runner, mock_models, monkeypatch
+    ):
         """Test list command with multiple filters is case-insensitive."""
         monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
 
@@ -106,7 +110,9 @@ class TestListCommandMultipleFilters:
 
             assert result.exit_code == 0
             assert "Meta Llama 3 Free" in result.output
-            assert "Meta Llama 3\n" not in result.output  # Has "meta" but not "free" - check for line break to avoid substring match
+            assert (
+                "Meta Llama 3\n" not in result.output
+            )  # Has "meta" but not "free" - check for line break to avoid substring match
 
     def test_list_multiple_filters_no_matches(self, runner, mock_models, monkeypatch):
         """Test list command with multiple filters that match nothing."""
@@ -124,7 +130,9 @@ class TestListCommandMultipleFilters:
             # Should show empty table or no results message
             assert "OpenRouter Models" in result.output  # Table title still shown
 
-    def test_list_multiple_filters_all_match_same_model(self, runner, mock_models, monkeypatch):
+    def test_list_multiple_filters_all_match_same_model(
+        self, runner, mock_models, monkeypatch
+    ):
         """Test list command where all filters match the same model."""
         monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
 
@@ -158,7 +166,9 @@ class TestListCommandMultipleFilters:
             assert "GPT-4" in result.output
             assert "Claude 3" in result.output
 
-    def test_list_with_providers_multiple_filters(self, runner, mock_models, monkeypatch):
+    def test_list_with_providers_multiple_filters(
+        self, runner, mock_models, monkeypatch
+    ):
         """Test list command with --with-providers and multiple filters."""
         monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
 
@@ -166,9 +176,13 @@ class TestListCommandMultipleFilters:
             mock_client = AsyncMock()
             mock_client_class.return_value.__aenter__.return_value = mock_client
             mock_client.get_models.return_value = mock_models
-            mock_client.get_model_providers.return_value = []  # No providers for simplicity
+            mock_client.get_model_providers.return_value = (
+                []
+            )  # No providers for simplicity
 
-            result = runner.invoke(root_cli, ["list", "--with-providers", "meta", "free"])
+            result = runner.invoke(
+                root_cli, ["list", "--with-providers", "meta", "free"]
+            )
 
             assert result.exit_code == 0
             assert "Meta Llama 3 Free" in result.output
@@ -200,7 +214,9 @@ class TestListCommandMultipleFilters:
             assert "8K" in result.output  # Context formatting
             assert "$0.00" in result.output  # Free model pricing
 
-    def test_list_json_output_with_multiple_filters(self, runner, mock_models, monkeypatch):
+    def test_list_json_output_with_multiple_filters(
+        self, runner, mock_models, monkeypatch
+    ):
         """Test list command with multiple filters and JSON output."""
         monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
 
@@ -209,9 +225,13 @@ class TestListCommandMultipleFilters:
             mock_client_class.return_value.__aenter__.return_value = mock_client
             mock_client.get_models.return_value = mock_models
 
-            result = runner.invoke(root_cli, ["list", "--format", "json", "meta", "free"])
+            result = runner.invoke(
+                root_cli, ["list", "--format", "json", "meta", "free"]
+            )
 
             assert result.exit_code == 0
             assert "meta/llama-3-free" in result.output
             assert "Meta Llama 3 Free" in result.output
-            assert '"id": "meta/llama-3",' not in result.output  # Should not be included - check for exact JSON field
+            assert (
+                '"id": "meta/llama-3",' not in result.output
+            )  # Should not be included - check for exact JSON field

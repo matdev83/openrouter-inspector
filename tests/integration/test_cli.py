@@ -19,9 +19,6 @@ def test_missing_api_key_shows_friendly_error(monkeypatch):
     assert "OPENROUTER_API_KEY is required" in result.output
 
 
-@pytest.mark.skip(
-    reason="Brittle HTTP mock sequence; covered by unit tests for client; manual runtime validated."
-)
 def test_offers_partial_match_resolves(httpx_mock, monkeypatch):
     # Set a fake API key
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
@@ -44,15 +41,14 @@ def test_offers_partial_match_resolves(httpx_mock, monkeypatch):
         status_code=200,
     )
 
-    # For partial id path, have providers 404 so legacy path stops quickly
+    # Mock the exact model ID lookup failing initially (to trigger partial match logic)
     httpx_mock.add_response(
         method="GET",
-        url="https://openrouter.ai/api/v1/models/deepseek-r1/providers",
-        json={"error": {"message": "Not Found"}},
+        url="https://openrouter.ai/api/v1/models/deepseek-r1/endpoints",
         status_code=404,
     )
 
-    # Endpoints for resolved id (new path)
+    # Endpoints for resolved id
     httpx_mock.add_response(
         method="GET",
         url="https://openrouter.ai/api/v1/models/deepseek/deepseek-r1/endpoints",

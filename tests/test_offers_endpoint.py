@@ -52,7 +52,9 @@ class TestOffersEndpointRegression:
     """Regression test for offers endpoint URL format."""
 
     @pytest.mark.asyncio
-    async def test_offers_url_format_regression(self, test_api_key, sample_offers_response):
+    async def test_offers_url_format_regression(
+        self, test_api_key, sample_offers_response
+    ):
         """Regression test for offers endpoint URL format.
 
         This test verifies the URL format used by get_model_providers.

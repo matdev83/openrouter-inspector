@@ -23,7 +23,9 @@ class TestOutputFormatting:
         """CLI test runner."""
         return CliRunner()
 
-    def create_mock_provider(self, name, supports_image=False, quantization: Optional[str] = "fp16"):
+    def create_mock_provider(
+        self, name, supports_image=False, quantization: Optional[str] = "fp16"
+    ):
         """Create a mock provider (API-only)."""
         supported_params = ["reasoning"]
         if supports_image:
@@ -132,9 +134,13 @@ class TestOutputFormatting:
     def test_quantization_formatting(self, runner):
         """Test quantization formatting in table output."""
         # Test normal quantization
-        provider_normal = self.create_mock_provider("NormalProvider", quantization="fp16")
+        provider_normal = self.create_mock_provider(
+            "NormalProvider", quantization="fp16"
+        )
         # Test unknown quantization
-        provider_unknown = self.create_mock_provider("UnknownProvider", quantization="unknown")
+        provider_unknown = self.create_mock_provider(
+            "UnknownProvider", quantization="unknown"
+        )
         # Test None quantization
         provider_none = self.create_mock_provider("NoneProvider", quantization=None)
 
@@ -162,8 +168,12 @@ class TestOutputFormatting:
 
     def test_image_support_detection(self, runner):
         """Test image support detection in table output."""
-        provider_with_image = self.create_mock_provider("ImageProvider", supports_image=True)
-        provider_without_image = self.create_mock_provider("NoImageProvider", supports_image=False)
+        provider_with_image = self.create_mock_provider(
+            "ImageProvider", supports_image=True
+        )
+        provider_without_image = self.create_mock_provider(
+            "NoImageProvider", supports_image=False
+        )
         all_providers = [provider_with_image, provider_without_image]
 
         with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
@@ -241,7 +251,9 @@ class TestOutputFormatting:
                 ) as mock_method:
                     mock_method.return_value = all_providers
 
-                    result = runner.invoke(cli, ["endpoints", "test/model", "--reasoning"])
+                    result = runner.invoke(
+                        cli, ["endpoints", "test/model", "--reasoning"]
+                    )
 
                     assert result.exit_code == 0
                     assert "ReasoningProvider" in result.output
@@ -317,7 +329,9 @@ class TestOutputFormatting:
                 ) as mock_method:
                     mock_method.return_value = all_providers
 
-                    result = runner.invoke(cli, ["endpoints", "test/model", "--no-tools"])
+                    result = runner.invoke(
+                        cli, ["endpoints", "test/model", "--no-tools"]
+                    )
 
                     assert result.exit_code == 0
                     # Ensure 'ToolsProvider' does not appear as a standalone provider name
@@ -620,6 +634,7 @@ class TestOutputFormatting:
                     assert result.exit_code == 0
                     # Use word boundaries to avoid partial matches
                     import re
+
                     assert re.search(r"\bImageProviderXYZ\b", result.output) is None
                     assert "NoImageProviderABC" in result.output
 
@@ -737,6 +752,9 @@ class TestOutputFormatting:
                     assert result.exit_code == 0
                     # Use word boundaries to avoid partial matches
                     import re
-                    assert re.search(r"\bAllFeaturesProviderXYZ\b", result.output) is None
+
+                    assert (
+                        re.search(r"\bAllFeaturesProviderXYZ\b", result.output) is None
+                    )
                     assert "NoImageProviderABC" in result.output
                     assert "NoToolsProvider" not in result.output
