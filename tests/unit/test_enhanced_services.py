@@ -5,16 +5,18 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-import pytest
 pytest.skip("web scraping removed", allow_module_level=True)
-from openrouter_inspector.models import (
-    EnhancedProviderDetails,
-    ProviderDetails,
-    ProviderInfo,
-    WebProviderData,
-    WebScrapedData,
-)
-from openrouter_inspector.services import ModelService
+
+# These imports are needed for the skipped tests
+# from openrouter_inspector.models import (
+#     EnhancedProviderDetails,
+#     ProviderDetails,
+#     ProviderInfo,
+#     WebProviderData,
+#     WebScrapedData,
+# )
+# from openrouter_inspector.services import ModelService
+# from openrouter_inspector.exceptions import WebScrapingError
 
 
 class TestModelServiceEnhanced:
@@ -340,7 +342,8 @@ class TestModelServiceEnhanced:
             model_id="test-model",
             providers=[
                 WebProviderData(
-                    provider_name="deepinfra", throughput_tps=15.2  # Lowercase
+                    provider_name="deepinfra",
+                    throughput_tps=15.2,  # Lowercase
                 )
             ],
             source_url="https://example.com",
@@ -376,7 +379,8 @@ class TestModelServiceEnhanced:
             model_id="test-model",
             providers=[
                 WebProviderData(
-                    provider_name="OpenAI", throughput_tps=20.5  # Without suffix
+                    provider_name="OpenAI",
+                    throughput_tps=20.5,  # Without suffix
                 )
             ],
             source_url="https://example.com",

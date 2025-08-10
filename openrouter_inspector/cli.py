@@ -7,7 +7,6 @@ import json
 import logging
 import os
 from decimal import Decimal
-from typing import Union
 
 import click
 import yaml
@@ -25,7 +24,7 @@ console = Console(width=200)
 logger = logging.getLogger(__name__)
 
 
-def fmt_money(value: Union[Decimal, float]) -> str:
+def fmt_money(value: Decimal | float) -> str:
     """Format a monetary value to 2 decimal places.
 
     Args:
@@ -39,10 +38,10 @@ def fmt_money(value: Union[Decimal, float]) -> str:
 
 def fmt_k(value: int) -> str:
     """Format a numeric value to thousands with K suffix.
-    
+
     Args:
         value: The numeric value to format
-        
+
     Returns:
         A formatted string with K suffix (e.g., 128000 -> 128K)
     """
@@ -51,10 +50,10 @@ def fmt_k(value: int) -> str:
 
 def fmt_price(value: float) -> str:
     """Format a price value to dollar amount with 2 decimal places.
-    
+
     Args:
         value: The price value to format (per token)
-        
+
     Returns:
         A formatted string with dollar sign and 2 decimal places (e.g., 0.000001 -> $1.00)
     """
@@ -97,7 +96,9 @@ def _print_models(models: list[ModelInfo], output_format: str) -> None:
         return
 
     table = Table(title="OpenRouter Models", box=box.SIMPLE_HEAVY)
-    table.add_column("Name", style="white", no_wrap=False, overflow="ellipsis", max_width=25)
+    table.add_column(
+        "Name", style="white", no_wrap=False, overflow="ellipsis", max_width=25
+    )
     table.add_column("ID", style="cyan", no_wrap=True)
     table.add_column("Context", justify="right", max_width=8)
     table.add_column("Input", justify="right", max_width=9)
@@ -108,7 +109,9 @@ def _print_models(models: list[ModelInfo], output_format: str) -> None:
         output_price = m.pricing.get("completion")
         input_price_str = fmt_price(input_price) if input_price is not None else "—"
         output_price_str = fmt_price(output_price) if output_price is not None else "—"
-        table.add_row(m.name, m.id, fmt_k(m.context_length), input_price_str, output_price_str)
+        table.add_row(
+            m.name, m.id, fmt_k(m.context_length), input_price_str, output_price_str
+        )
     console.print(table)
 
 
@@ -256,7 +259,13 @@ def cli(
                             pass
 
                         table = Table(title="OpenRouter Models", box=box.SIMPLE_HEAVY)
-                        table.add_column("Name", style="white", no_wrap=False, overflow="ellipsis", max_width=25)
+                        table.add_column(
+                            "Name",
+                            style="white",
+                            no_wrap=False,
+                            overflow="ellipsis",
+                            max_width=25,
+                        )
                         table.add_column("ID", style="cyan", no_wrap=True)
                         table.add_column("Context", justify="right", max_width=8)
                         table.add_column("Input", justify="right", max_width=9)
@@ -265,9 +274,24 @@ def cli(
                         for m, cnt in rows:
                             input_price = m.pricing.get("prompt")
                             output_price = m.pricing.get("completion")
-                            input_price_str = fmt_price(input_price) if input_price is not None else "—"
-                            output_price_str = fmt_price(output_price) if output_price is not None else "—"
-                            table.add_row(m.name, m.id, fmt_k(m.context_length), input_price_str, output_price_str, str(cnt))
+                            input_price_str = (
+                                fmt_price(input_price)
+                                if input_price is not None
+                                else "—"
+                            )
+                            output_price_str = (
+                                fmt_price(output_price)
+                                if output_price is not None
+                                else "—"
+                            )
+                            table.add_row(
+                                m.name,
+                                m.id,
+                                fmt_k(m.context_length),
+                                input_price_str,
+                                output_price_str,
+                                str(cnt),
+                            )
                         console.print(table)
                     else:
                         _print_models(models, output_format.lower())
@@ -297,7 +321,7 @@ def cli(
 
 
 @cli.command("list")
-@click.argument("filter", required=False)
+@click.argument("filters", nargs=-1, required=False)
 @click.option(
     "--format",
     "output_format",
@@ -329,14 +353,14 @@ def cli(
 @click.pass_context
 def list_models(
     ctx: click.Context,
-    filter: str | None,
+    filters: tuple[str, ...],
     output_format: str,
     with_providers: bool,
     sort_by: str,
     desc: bool,
     log_level: str | None,
 ) -> None:
-    """List all available models. Optionally filter by substring."""
+    """List all available models. Optionally filter by multiple substrings (AND logic)."""
     _configure_logging(log_level)
     api_key: str = ctx.obj["api_key"]
 
@@ -344,9 +368,18 @@ def list_models(
         async with client_mod.OpenRouterClient(api_key) as client:
             services_mod.ModelService(client)
             models = await client.get_models()
-            if filter:
-                q = filter.lower()
-                models = [m for m in models if q in m.id.lower() or q in m.name.lower()]
+            if filters:
+                # Convert filters to lowercase for case-insensitive matching
+                filter_terms = [f.lower() for f in filters]
+                # Apply AND logic: model must match ALL filter terms
+                models = [
+                    m
+                    for m in models
+                    if all(
+                        term in m.id.lower() or term in m.name.lower()
+                        for term in filter_terms
+                    )
+                ]
             # Sorting before optional providers counting
             key_fn = (
                 (lambda m: m.id.lower())
@@ -379,7 +412,13 @@ def list_models(
                     rows.sort(key=lambda t: t[1], reverse=desc)
 
                 table = Table(title="OpenRouter Models", box=box.SIMPLE_HEAVY)
-                table.add_column("Name", style="white", no_wrap=False, overflow="ellipsis", max_width=25)
+                table.add_column(
+                    "Name",
+                    style="white",
+                    no_wrap=False,
+                    overflow="ellipsis",
+                    max_width=25,
+                )
                 table.add_column("ID", style="cyan", no_wrap=True)
                 table.add_column("Context", justify="right", max_width=8)
                 table.add_column("Input", justify="right", max_width=9)
@@ -388,9 +427,20 @@ def list_models(
                 for m, cnt in rows:
                     input_price = m.pricing.get("prompt")
                     output_price = m.pricing.get("completion")
-                    input_price_str = fmt_price(input_price) if input_price is not None else "—"
-                    output_price_str = fmt_price(output_price) if output_price is not None else "—"
-                    table.add_row(m.name, m.id, fmt_k(m.context_length), input_price_str, output_price_str, str(cnt))
+                    input_price_str = (
+                        fmt_price(input_price) if input_price is not None else "—"
+                    )
+                    output_price_str = (
+                        fmt_price(output_price) if output_price is not None else "—"
+                    )
+                    table.add_row(
+                        m.name,
+                        m.id,
+                        fmt_k(m.context_length),
+                        input_price_str,
+                        output_price_str,
+                        str(cnt),
+                    )
                 console.print(table)
             else:
                 _print_models(models, output_format.lower())
@@ -847,7 +897,7 @@ def endpoints(
                 def fmt_k(v: int | None) -> str:
                     if v is None:
                         return "—"
-                    return f"{int(round(v/1000))}K"
+                    return f"{int(round(v / 1000))}K"
 
                 # Per 1M tokens pricing
                 price_in = p.pricing.get("prompt") if p.pricing else None

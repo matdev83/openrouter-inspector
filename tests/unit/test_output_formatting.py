@@ -1,7 +1,7 @@
 """Unit tests for output formatting enhancements."""
 
-from datetime import datetime
 import re
+from datetime import datetime
 from typing import Optional
 from unittest.mock import AsyncMock, patch
 
@@ -28,7 +28,7 @@ class TestOutputFormatting:
         supported_params = ["reasoning"]
         if supports_image:
             supported_params.append("image")
-            
+
         provider_info = ProviderInfo(
             provider_name=name,
             model_id="test/model",
@@ -137,7 +137,7 @@ class TestOutputFormatting:
         provider_unknown = self.create_mock_provider("UnknownProvider", quantization="unknown")
         # Test None quantization
         provider_none = self.create_mock_provider("NoneProvider", quantization=None)
-        
+
         all_providers = [provider_normal, provider_unknown, provider_none]
 
         with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
@@ -555,13 +555,13 @@ class TestOutputFormatting:
         """Test --img filter."""
         # Create providers with different image support
         provider_with_image = self.create_mock_provider_with_features(
-            "ImageProvider", 
+            "ImageProvider",
             input_price=0.000001,
             output_price=0.000002,
         )
         # Manually modify the provider to support image
         provider_with_image.provider.supported_parameters = ["reasoning", "image"]
-        
+
         provider_without_image = self.create_mock_provider_with_features(
             "NoImageProvider",
             input_price=0.000001,
@@ -569,7 +569,7 @@ class TestOutputFormatting:
         )
         # Manually modify the provider to not support image
         provider_without_image.provider.supported_parameters = ["reasoning"]
-        
+
         all_providers = [provider_with_image, provider_without_image]
 
         with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
@@ -590,13 +590,13 @@ class TestOutputFormatting:
         """Test --no-img filter."""
         # Create providers with different image support
         provider_with_image = self.create_mock_provider_with_features(
-            "ImageProviderXYZ", 
+            "ImageProviderXYZ",
             input_price=0.000001,
             output_price=0.000002,
         )
         # Manually modify the provider to support image
         provider_with_image.provider.supported_parameters = ["reasoning", "image"]
-        
+
         provider_without_image = self.create_mock_provider_with_features(
             "NoImageProviderABC",
             input_price=0.000001,
@@ -604,7 +604,7 @@ class TestOutputFormatting:
         )
         # Manually modify the provider to not support image
         provider_without_image.provider.supported_parameters = ["reasoning"]
-        
+
         all_providers = [provider_with_image, provider_without_image]
 
         with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
@@ -634,7 +634,7 @@ class TestOutputFormatting:
             output_price=0.000002,
         )
         provider_all.provider.supported_parameters = ["reasoning", "image", "tools"]
-        
+
         # Provider without image
         provider_no_img = self.create_mock_provider_with_features(
             "NoImageProvider",
@@ -644,7 +644,7 @@ class TestOutputFormatting:
             output_price=0.000002,
         )
         provider_no_img.provider.supported_parameters = ["reasoning", "tools"]
-        
+
         # Provider without tools
         provider_no_tools = self.create_mock_provider_with_features(
             "NoToolsProvider",
@@ -654,7 +654,7 @@ class TestOutputFormatting:
             output_price=0.000002,
         )
         provider_no_tools.provider.supported_parameters = ["reasoning", "image"]
-        
+
         all_providers = [provider_all, provider_no_img, provider_no_tools]
 
         with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
@@ -692,7 +692,7 @@ class TestOutputFormatting:
             output_price=0.000002,
         )
         provider_all.provider.supported_parameters = ["reasoning", "image", "tools"]
-        
+
         # Provider without image
         provider_no_img = self.create_mock_provider_with_features(
             "NoImageProviderABC",
@@ -702,7 +702,7 @@ class TestOutputFormatting:
             output_price=0.000002,
         )
         provider_no_img.provider.supported_parameters = ["reasoning", "tools"]
-        
+
         # Provider without tools
         provider_no_tools = self.create_mock_provider_with_features(
             "NoToolsProvider",
@@ -712,7 +712,7 @@ class TestOutputFormatting:
             output_price=0.000002,
         )
         provider_no_tools.provider.supported_parameters = ["reasoning", "image"]
-        
+
         all_providers = [provider_all, provider_no_img, provider_no_tools]
 
         with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):

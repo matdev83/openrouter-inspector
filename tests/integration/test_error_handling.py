@@ -6,8 +6,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from click.testing import CliRunner
 
-import pytest
 pytest.skip("web scraping error handling removed", allow_module_level=True)
+
+# These imports are needed for the skipped tests
+# from openrouter_inspector.models import ProviderDetails, ProviderInfo
+# from openrouter_inspector.services import WebScrapingService
+# from openrouter_inspector.exceptions import PageNotFoundError, WebScrapingError, WebTimeoutError
+# from openrouter_inspector.cli import cli
 
 
 class TestErrorHandlingAndGracefulDegradation:
@@ -46,7 +51,7 @@ class TestErrorHandlingAndGracefulDegradation:
 
         service = WebScrapingService(mock_config, WebCacheManager(ttl=1800))
 
-        with patch.object(service, 'session') as mock_session:
+        with patch.object(service, "session") as mock_session:
             mock_response = MagicMock()
             mock_response.status_code = 404
             mock_session.get.return_value = mock_response
@@ -64,14 +69,14 @@ class TestErrorHandlingAndGracefulDegradation:
 
         service = WebScrapingService(mock_config, WebCacheManager(ttl=1800))
 
-        with patch.object(service, 'session') as mock_session:
+        with patch.object(service, "session") as mock_session:
             # Always return 500 error
             mock_response = MagicMock()
             mock_response.status_code = 500
             mock_response.raise_for_status.side_effect = Exception("Server error")
             mock_session.get.return_value = mock_response
 
-            with patch('asyncio.sleep', new_callable=AsyncMock):
+            with patch("asyncio.sleep", new_callable=AsyncMock):
                 with pytest.raises(WebScrapingError):
                     await service._fetch_html_with_retry("https://test.com")
 
@@ -108,7 +113,9 @@ class TestErrorHandlingAndGracefulDegradation:
                     assert result.exit_code == 0
                     # Should not show web data columns
                     assert "TPS" not in result.output
-                    assert "Latency" not in result.output and "Late" not in result.output
+                    assert (
+                        "Latency" not in result.output and "Late" not in result.output
+                    )
                     assert "Uptime" not in result.output and "Upt" not in result.output
                     # Should show API data
                     assert "TestProvider" in result.output
@@ -175,7 +182,9 @@ class TestErrorHandlingAndGracefulDegradation:
         ]
 
         for error in non_retryable_errors:
-            assert not service._is_retryable_error(error), f"Should not be retryable: {error}"
+            assert not service._is_retryable_error(error), (
+                f"Should not be retryable: {error}"
+            )
 
     def test_debug_logging_for_web_errors(self, mock_api_provider, caplog):
         """Test that web scraping errors are logged at debug level."""
@@ -204,14 +213,23 @@ class TestErrorHandlingAndGracefulDegradation:
                     mock_client.get_models.return_value = []
 
                     with caplog.at_level(logging.DEBUG):
-                        result = runner.invoke(cli, ["--log-level", "DEBUG", "endpoints", "test/model"])
+                        result = runner.invoke(
+                            cli, ["--log-level", "DEBUG", "endpoints", "test/model"]
+                        )
 
                     # Should succeed with fallback
                     assert result.exit_code == 0
 
                     # Check that debug logging occurred
-                    debug_messages = [record.message for record in caplog.records if record.levelno == logging.DEBUG]
-                    assert any("fallback" in msg.lower() or "web" in msg.lower() for msg in debug_messages)
+                    debug_messages = [
+                        record.message
+                        for record in caplog.records
+                        if record.levelno == logging.DEBUG
+                    ]
+                    assert any(
+                        "fallback" in msg.lower() or "web" in msg.lower()
+                        for msg in debug_messages
+                    )
 
     @pytest.mark.asyncio
     async def test_circuit_breaker_pattern(self, mock_config):
@@ -221,13 +239,13 @@ class TestErrorHandlingAndGracefulDegradation:
         service = WebScrapingService(mock_config, WebCacheManager(ttl=1800))
 
         # Simulate multiple consecutive failures
-        with patch.object(service, 'session') as mock_session:
+        with patch.object(service, "session") as mock_session:
             mock_response = MagicMock()
             mock_response.status_code = 500
             mock_response.raise_for_status.side_effect = Exception("Server error")
             mock_session.get.return_value = mock_response
 
-            with patch('asyncio.sleep', new_callable=AsyncMock):
+            with patch("asyncio.sleep", new_callable=AsyncMock):
                 # Multiple calls should all fail after retries
                 for _ in range(3):
                     with pytest.raises(WebScrapingError):
@@ -254,7 +272,9 @@ class TestErrorHandlingAndGracefulDegradation:
                     mock_client.get_model_providers.return_value = [mock_api_provider]
                     mock_client.get_models.return_value = []
 
-                    result_no_web = runner.invoke(cli, ["endpoints", "test/model", "--no-web-scraping"])
+                    result_no_web = runner.invoke(
+                        cli, ["endpoints", "test/model", "--no-web-scraping"]
+                    )
 
             # Test 2: Web scraping failure fallback
             with patch(

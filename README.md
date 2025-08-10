@@ -100,6 +100,9 @@ openrouter-inspector list
 # List models filtered by substring (matches id or display name)
 openrouter-inspector list "openai"
 
+# List models with multiple filters (AND logic)
+openrouter-inspector list "meta" "free"
+
 # Search models by name/id with optional filters
 openrouter-inspector search "gpt-4" --min-context 128000 --supports-tools
 
@@ -116,6 +119,9 @@ openrouter-inspector --list
 # List filtered models
 openrouter-inspector --list --search "anthropic"
 
+# List models with multiple filters (AND logic)
+openrouter-inspector --list --search "meta free"
+
 # Simple search (same as subcommand without extra filters)
 openrouter-inspector --search "gpt-4"
 ```
@@ -125,17 +131,33 @@ openrouter-inspector --search "gpt-4"
 #### list
 
 ```bash
-openrouter-inspector list [filter] [--with-providers] [--sort-by id|name|context|providers] [--desc] [--format table|json|yaml]
+openrouter-inspector list [filters...] [--with-providers] [--sort-by id|name|context|providers] [--desc] [--format table|json|yaml]
 ```
 
-- Displays all available models.
-- Optional positional `filter` performs a case-insensitive substring match against model id and name.
+- Displays all available models with enhanced table output (Name, ID, Context, Input/Output pricing).
+- Optional positional `filters` performs case-insensitive substring matches against model id and name using AND logic.
+- Context values are displayed with K suffix (e.g., 128K).
+- Input/Output prices are shown per million tokens in USD.
 
 Options:
 - `--format [table|json|yaml]` (default: table)
 - `--with-providers` add a Providers column (makes extra API calls per model)
 - `--sort-by [id|name|context|providers]` (default: id)
 - `--desc` sort descending
+
+Examples:
+```bash
+# List all models
+openrouter-inspector list
+
+# List models containing "openai" 
+openrouter-inspector list "openai"
+
+# List models containing BOTH "meta" AND "free"
+openrouter-inspector list "meta" "free"
+
+# List models with providers count
+openrouter-inspector list --with-providers
 
 #### search
 
@@ -192,8 +214,14 @@ Options:
 # Top-level listing filtered by vendor substring
 openrouter-inspector list "google"
 
+# List models with multiple filters (AND logic)
+openrouter-inspector list "meta" "free"
+
 # Lightweight list + filter
 openrouter-inspector --list --search "openai"
+
+# Lightweight list with multiple filters (AND logic)
+openrouter-inspector --list --search "meta free"
 
 # Endpoints with filters and sorting: min quant fp8, min context 128K, sort by price_out desc
 openrouter-inspector endpoints deepseek/deepseek-r1 --min-quant fp8 --min-context 128K --sort-by price_out --desc

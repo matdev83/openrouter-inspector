@@ -104,7 +104,8 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
-
+"tests/integration/test_error_handling.py" = ["F821"]
+"tests/unit/test_enhanced_services.py" = ["F821"]
 # MyPy configuration
 [tool.mypy]
 python_version = "3.9"

@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 
-
 @pytest.fixture
 def test_api_key():
     """Test API key fixture."""
