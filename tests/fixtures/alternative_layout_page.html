@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alternative Layout - OpenRouter</title>
+</head>
+<body>
+    <div class="container">
+        <h1>test/alternative-layout-model</h1>
+        
+        <!-- Card-based layout instead of table -->
+        <div class="providers-grid">
+            <div class="provider-offer">
+                <div class="provider-name">DeepInfra</div>
+                <div class="metrics">
+                    <span class="metric">Throughput: 22.3 TPS</span>
+                    <span class="metric">Latency: 0.75s</span>
+                    <span class="metric">Uptime: 99.7%</span>
+                </div>
+                <div class="pricing">
+                    <span>Input: $0.05/1M tokens</span>
+                    <span>Output: $0.12/1M tokens</span>
+                </div>
+            </div>
+            
+            <div class="provider-offer">
+                <h4 class="title">Lambda Labs</h4>
+                <div class="performance-info">
+                    <p>Performance: 18.9 tokens per second</p>
+                    <p>Response time: 950ms</p>
+                    <p>Availability: 98.5%</p>
+                </div>
+                <div class="cost">
+                    <span>$0.06 input, $0.14 output per 1M tokens</span>
+                </div>
+            </div>
+            
+            <div class="provider-offer">
+                <section class="provider-header">
+                    <h3>Together AI</h3>
+                </section>
+                <section class="stats">
+                    <div>TPS: 25.1</div>
+                    <div>Latency: 0.62 seconds</div>
+                    <div>Uptime: 99.9%</div>
+                </section>
+            </div>
+            
+            <!-- Provider with partial data -->
+            <div class="provider-offer">
+                <h4>Fireworks</h4>
+                <div class="limited-info">
+                    <p>Uptime: 97.8%</p>
+                    <p>Pricing available on request</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mixed content with some provider mentions -->
+        <div class="additional-info">
+            <p>Other providers like Anthropic and OpenAI may be available through different endpoints.</p>
+            <p>Performance varies: some achieve 30+ TPS while others focus on quality over speed.</p>
+        </div>
+    </div>
+</body>
+</html>

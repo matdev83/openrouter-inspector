@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Malformed Page - OpenRouter</title>
+</head>
+<body>
+    <div class="container">
+        <h1>test/malformed-model</h1>
+        
+        <!-- Table with inconsistent structure -->
+        <table class="provider-table">
+            <thead>
+                <tr>
+                    <th>Provider</th>
+                    <th>Throughput</th>
+                    <th>Latency</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Provider1</td>
+                    <td>10.5 TPS</td>
+                    <td>1.2s</td>
+                </tr>
+                <tr>
+                    <!-- Missing cells -->
+                    <td>Provider2</td>
+                </tr>
+                <tr>
+                    <!-- Too many cells -->
+                    <td>Provider3</td>
+                    <td>8.2 TPS</td>
+                    <td>0.9s</td>
+                    <td>Extra Cell</td>
+                    <td>Another Extra</td>
+                </tr>
+                <tr>
+                    <!-- Empty provider name -->
+                    <td></td>
+                    <td>5.0 TPS</td>
+                    <td>2.1s</td>
+                </tr>
+                <tr>
+                    <!-- Invalid metric values -->
+                    <td>Provider4</td>
+                    <td>invalid TPS</td>
+                    <td>bad latency</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Non-table provider data -->
+        <div class="provider-cards">
+            <div class="provider-card">
+                <h3>CardProvider1</h3>
+                <p>Performance: 15.0 tokens/s</p>
+                <p>Response time: 800ms</p>
+                <p>Availability: 99.1%</p>
+            </div>
+            
+            <div class="provider-card">
+                <!-- Missing provider name -->
+                <p>Throughput: 12.5 TPS</p>
+                <p>Latency: 1.1s</p>
+            </div>
+            
+            <div class="provider-card">
+                <h4>CardProvider2</h4>
+                <!-- No metrics -->
+                <p>This provider has no performance data</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
