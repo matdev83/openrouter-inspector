@@ -45,7 +45,6 @@ openrouter-inspector/
 │   ├── client.py           # API client
 │   ├── services.py         # Business logic
 │   ├── models.py           # Data models
-│   ├── config.py           # Configuration
 │   └── utils.py            # Utilities
 ├── tests/                  # Test suite
 │   ├── unit/              # Unit tests
@@ -88,7 +87,7 @@ Set your OpenRouter API key via environment variable (required):
 export OPENROUTER_API_KEY=sk-or-...
 ```
 
-For security, the CLI does not accept API keys via command-line flags. It reads the key only from `OPENROUTER_API_KEY` (or an optional config file you control). If the key is missing or invalid, the CLI shows a friendly error and exits.
+For security, the CLI does not accept API keys via command-line flags. It reads the key only from the `OPENROUTER_API_KEY` environment variable. If the key is missing or invalid, the CLI shows a friendly error and exits.
 
 ### Quick starts
 
@@ -101,17 +100,11 @@ openrouter-inspector list
 # List models filtered by substring (matches id or display name)
 openrouter-inspector list "openai"
 
-# Search models semantically with optional filters
+# Search models by name/id with optional filters
 openrouter-inspector search "gpt-4" --min-context 128000 --supports-tools
 
-# Show provider offers for a model with pricing per 1K tokens
-openrouter-inspector providers deepseek/deepseek-r1 --per-1k
-
-# Filter provider offers to a specific provider and require tools
-openrouter-inspector providers openai/gpt-4o --provider OpenAI --tools --per-1k
-
-# Detailed provider offers (exact model id), prices per 1M tokens
-openrouter-inspector offers deepseek/deepseek-r1 --per-1m
+# Detailed provider endpoints (exact model id), prices per 1M tokens
+openrouter-inspector endpoints deepseek/deepseek-r1 --per-1m
 ```
 
 Lightweight flags (no subcommand):
@@ -158,30 +151,11 @@ Options:
 - `--reasoning-only`
 - `--format [table|json|yaml]`
 
-#### providers
+
+#### endpoints
 
 ```bash
-openrouter-inspector providers MODEL_ID [options]
-```
-
-Lists provider-specific offers for a given model (`author/slug`), including per-provider:
-- status, uptime (last 30m)
-- context length, max completion tokens
-- tool calling support, reasoning support
-- quantization
-- pricing (input/output tokens)
-
-Options:
-- `--per-1k` show prices per 1,000 tokens (recommended)
-- `--provider PROVIDER` filter to provider slug (repeatable)
-- `--tools` require tool calling support
-- `--reasoning` require reasoning support
-- `--format [table|json|yaml]`
-
-#### offers
-
-```bash
-openrouter-inspector offers MODEL_ID [--min-quant VALUE] [--min-context VALUE] [--sort-by provider|model|quant|context|maxout|price_in|price_out] [--desc] [--per-1m] [--format table|json|yaml]
+openrouter-inspector endpoints MODEL_ID [--min-quant VALUE] [--min-context VALUE] [--sort-by provider|model|quant|context|maxout|price_in|price_out] [--desc] [--per-1m] [--format table|json|yaml]
 ```
 
 Shows detailed provider offers for an exact model id (`author/slug`), with:
@@ -196,6 +170,22 @@ Filters and sorting:
 - `--sort-by [provider|model|quant|context|maxout|price_in|price_out]` (default: provider)
 - `--desc` sort descending
 
+#### check
+
+```bash
+openrouter-inspector check MODEL_ID PROVIDER_NAME ENDPOINT_NAME
+```
+
+Checks a specific provider endpoint's health using OpenRouter API status. Web-scraped metrics have been removed.
+
+Behavior:
+- Returns one of: `Functional`, `Disabled`.
+- If API indicates provider is offline/disabled or not available → `Disabled`.
+- Otherwise → `Functional`.
+
+Options:
+- `--log-level [CRITICAL|ERROR|WARNING|INFO|DEBUG|NOTSET]` set logging level
+
 ### Examples
 
 ```bash
@@ -205,14 +195,8 @@ openrouter-inspector list "google"
 # Lightweight list + filter
 openrouter-inspector --list --search "openai"
 
-# Providers view for Claude 3.7 Sonnet, prices per 1k, only providers with tools
-openrouter-inspector providers anthropic/claude-3.7-sonnet --tools --per-1k
-
-# Providers view for DeepSeek R1, only DeepInfra endpoints
-openrouter-inspector providers deepseek/deepseek-r1 --provider DeepInfra --per-1k
-
-# Offers with filters and sorting: min quant fp8, min context 128K, sort by price_out desc
-openrouter-inspector offers deepseek/deepseek-r1 --min-quant fp8 --min-context 128K --sort-by price_out --desc
+# Endpoints with filters and sorting: min quant fp8, min context 128K, sort by price_out desc
+openrouter-inspector endpoints deepseek/deepseek-r1 --min-quant fp8 --min-context 128K --sort-by price_out --desc
 
 # Lightweight mode with sorting
 openrouter-inspector --list --search "openai" --sort-by name

@@ -1,19 +1,20 @@
 """Unit tests for data models."""
 
-import pytest
 from datetime import datetime
+
+import pytest
 from pydantic import ValidationError
 
 from openrouter_inspector.models import (
+    EnhancedProviderDetails,
     ModelInfo,
-    ProviderInfo,
-    ProviderDetails,
-    SearchFilters,
     ModelsResponse,
+    ProviderDetails,
+    ProviderInfo,
     ProvidersResponse,
+    SearchFilters,
     WebProviderData,
     WebScrapedData,
-    EnhancedProviderDetails,
 )
 
 
@@ -706,8 +707,8 @@ class TestEnhancedProviderDetails:
         assert enhanced.provider.provider_name == "MatchingProvider"
         assert enhanced.web_data.provider_name == "MatchingProvider"
 
-    def test_invalid_enhanced_provider_details_mismatched_names(self):
-        """Test validation error for mismatched provider names."""
+    def test_enhanced_provider_details_allows_mismatched_names(self):
+        """Test that EnhancedProviderDetails allows mismatched provider names for fuzzy matching."""
         provider_info = ProviderInfo(
             provider_name="ProviderA",
             model_id="test-model-1",
@@ -716,7 +717,7 @@ class TestEnhancedProviderDetails:
         )
 
         web_data = WebProviderData(
-            provider_name="ProviderB",  # Different name
+            provider_name="ProviderB",  # Different name - should be allowed for fuzzy matching
             throughput_tps=15.2,
         )
 
@@ -726,10 +727,10 @@ class TestEnhancedProviderDetails:
             "web_data": web_data,
         }
 
-        with pytest.raises(ValidationError) as exc_info:
-            EnhancedProviderDetails(**enhanced_data)
-
-        assert "must match provider info provider name" in str(exc_info.value)
+        # This should not raise an error - fuzzy matching is handled at the service layer
+        enhanced_provider = EnhancedProviderDetails(**enhanced_data)
+        assert enhanced_provider.provider.provider_name == "ProviderA"
+        assert enhanced_provider.web_data.provider_name == "ProviderB"
 
 
 class TestWebScrapingModelsSerialization:

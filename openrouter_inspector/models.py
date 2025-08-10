@@ -1,9 +1,8 @@
 """Data models for OpenRouter CLI using Pydantic for validation."""
 
 from datetime import datetime
-from typing import Dict, List, Optional, Any, Union
+from typing import Any, Dict, List, Optional, Union
 
-from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -119,11 +118,13 @@ class ModelsResponse(BaseModel):
 
 class WebProviderData(BaseModel):
     """Additional provider data scraped from web interface."""
-    
+
     provider_name: str = Field(..., description="Name of the provider")
     quantization: Optional[str] = Field(None, description="Quantization method used")
     context_window: Optional[int] = Field(None, description="Context window size")
-    max_completion_tokens: Optional[int] = Field(None, description="Max completion tokens")
+    max_completion_tokens: Optional[int] = Field(
+        None, description="Max completion tokens"
+    )
     throughput_tps: Optional[float] = Field(
         None, ge=0, description="Throughput in tokens per second"
     )
@@ -156,7 +157,7 @@ class WebProviderData(BaseModel):
 
 class WebScrapedData(BaseModel):
     """Container for all web-scraped data for a model."""
-    
+
     model_id: str = Field(..., description="Model identifier")
     providers: List[WebProviderData] = Field(
         default_factory=list, description="List of provider web data"
@@ -177,7 +178,7 @@ class WebScrapedData(BaseModel):
 
 class EnhancedProviderDetails(BaseModel):
     """Provider details enhanced with web-scraped data."""
-    
+
     provider: ProviderInfo = Field(..., description="Provider information from API")
     availability: bool = Field(
         default=True, description="Whether the provider is currently available"
@@ -187,15 +188,8 @@ class EnhancedProviderDetails(BaseModel):
         None, description="Additional web-scraped metrics"
     )
 
-    @field_validator("web_data")
-    @classmethod
-    def validate_web_data_provider_match(cls, v: Optional[WebProviderData], info: Any) -> Optional[WebProviderData]:
-        """Ensure web data provider name matches the provider info if both are present."""
-        if v is not None and info.data and "provider" in info.data:
-            provider_info = info.data["provider"]
-            if hasattr(provider_info, "provider_name") and v.provider_name != provider_info.provider_name:
-                raise ValueError("Web data provider name must match provider info provider name")
-        return v
+    # Note: We allow fuzzy matching between API and web provider names
+    # so we don't validate exact name matches here
 
 
 class ProvidersResponse(BaseModel):

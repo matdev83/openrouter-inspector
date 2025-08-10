@@ -1,6 +1,5 @@
-import os
-from click.testing import CliRunner
 import pytest
+from click.testing import CliRunner
 
 from openrouter_inspector import cli as root_cli
 
@@ -9,7 +8,7 @@ def test_cli_help_shows_without_args():
     runner = CliRunner()
     result = runner.invoke(root_cli, [])
     assert result.exit_code == 0
-    assert "OpenRouter CLI tool" in result.output
+    assert "OpenRouter Inspector" in result.output
 
 
 def test_missing_api_key_shows_friendly_error(monkeypatch):
@@ -20,7 +19,9 @@ def test_missing_api_key_shows_friendly_error(monkeypatch):
     assert "OPENROUTER_API_KEY is required" in result.output
 
 
-@pytest.mark.skip(reason="Brittle HTTP mock sequence; covered by unit tests for client; manual runtime validated.")
+@pytest.mark.skip(
+    reason="Brittle HTTP mock sequence; covered by unit tests for client; manual runtime validated."
+)
 def test_offers_partial_match_resolves(httpx_mock, monkeypatch):
     # Set a fake API key
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
@@ -76,7 +77,9 @@ def test_offers_partial_match_resolves(httpx_mock, monkeypatch):
 
     runner = CliRunner()
     # Use a partial id to trigger resolution
-    result = runner.invoke(root_cli, ["offers", "deepseek-r1"], catch_exceptions=False)
+    result = runner.invoke(
+        root_cli, ["endpoints", "deepseek-r1"], catch_exceptions=False
+    )
     assert result.exit_code == 0
     assert "Offers for deepseek/deepseek-r1" in result.output
     # Provider name may be trimmed from endpoint name; just assert core fields exist

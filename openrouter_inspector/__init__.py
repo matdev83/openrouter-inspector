@@ -4,6 +4,7 @@ __version__ = "0.1.0"
 __author__ = "OpenRouter Inspector Team"
 __email__ = "support@example.com"
 
+# Re-export the click group as package-level entry point while keeping module importable for patching
 from .cli import cli
 
 __all__ = ["cli", "__version__"]
