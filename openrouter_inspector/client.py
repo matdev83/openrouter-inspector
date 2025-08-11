@@ -121,6 +121,8 @@ class OpenRouterClient:
         exc_tb: Opt[TracebackType],
     ) -> None:
         """Async context manager exit."""
+        # Silence unused variable warnings - these are required for context manager protocol
+        _ = exc_type, exc_val, exc_tb
         await self.close()
 
     async def close(self) -> None:
@@ -242,6 +244,66 @@ class OpenRouterClient:
 
         # This should never be reached, but just in case
         raise APIError("Maximum retries exceeded")
+
+    async def create_chat_completion(
+        self,
+        *,
+        model: str,
+        messages: List[Dict[str, Any]],
+        provider_order: Optional[List[str]] = None,
+        allow_fallbacks: Optional[bool] = None,
+        timeout_seconds: int | None = None,
+        extra_headers: Optional[Dict[str, str]] = None,
+        extra_body: Optional[Dict[str, Any]] = None,
+    ) -> tuple[Dict[str, Any], Dict[str, str]]:
+        """Call OpenRouter chat completions endpoint.
+
+        Args:
+            model: Model ID (author/slug).
+            messages: OpenAI-compatible messages list.
+            provider_order: Optional explicit provider order to try.
+            allow_fallbacks: When False, do not allow fallback providers.
+            timeout_seconds: Per-request timeout override.
+            extra_headers: Optional headers to include.
+            extra_body: Optional extra body fields to merge.
+
+        Returns:
+            Tuple of (response_json, response_headers).
+        """
+        body: Dict[str, Any] = {
+            "model": model,
+            "messages": messages,
+        }
+        if provider_order is not None or allow_fallbacks is not None:
+            provider_pref: Dict[str, Any] = {}
+            if provider_order is not None:
+                provider_pref["order"] = provider_order
+            if allow_fallbacks is not None:
+                provider_pref["allow_fallbacks"] = allow_fallbacks
+            body["provider"] = provider_pref
+        if extra_body:
+            body.update(extra_body)
+
+        headers: Dict[str, str] = {}
+        if extra_headers:
+            headers.update(extra_headers)
+
+        request_kwargs: Dict[str, Any] = {"json": body}
+        if headers:
+            request_kwargs["headers"] = headers
+        if timeout_seconds is not None:
+            try:
+                request_kwargs["timeout"] = httpx.Timeout(timeout_seconds)
+            except Exception:
+                request_kwargs["timeout"] = timeout_seconds
+
+        response = await self._make_request(
+            "POST", "/chat/completions", **request_kwargs
+        )
+        try:
+            return response.json(), dict(response.headers)
+        except Exception as e:
+            raise APIError(f"Invalid JSON response: {e}") from e
 
     async def get_models(self) -> List[ModelInfo]:
         """Retrieve all available models from OpenRouter API.

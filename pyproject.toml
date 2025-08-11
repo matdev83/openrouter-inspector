@@ -35,7 +35,6 @@ dependencies = [
     "click>=8.0.0",
     "httpx>=0.24.0",
     "pydantic>=2.0.0",
-    "pyyaml>=6.0",
     "rich>=13.0.0",
 ]
 
@@ -60,7 +59,7 @@ Documentation = "https://github.com/example/openrouter-cli#readme"
 "Bug Tracker" = "https://github.com/example/openrouter-cli/issues"
 
 [project.scripts]
-openrouter-inspector = "openrouter_inspector:cli"
+openrouter-inspector = "openrouter_inspector.__main__:main"
 
 # Black configuration
 [tool.black]

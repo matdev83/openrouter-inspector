@@ -103,9 +103,6 @@ openrouter-inspector list "openai"
 # List models with multiple filters (AND logic)
 openrouter-inspector list "meta" "free"
 
-# Search models by name/id with optional filters
-openrouter-inspector search "gpt-4" --min-context 128000 --supports-tools
-
 # Detailed provider endpoints (exact model id), prices per 1M tokens
 openrouter-inspector endpoints deepseek/deepseek-r1 --per-1m
 ```
@@ -115,15 +112,19 @@ Lightweight flags (no subcommand):
 ```bash
 # List all models
 openrouter-inspector --list
+```
 
-# List filtered models
-openrouter-inspector --list --search "anthropic"
+Direct search (without explicit command):
 
-# List models with multiple filters (AND logic)
-openrouter-inspector --list --search "meta free"
+```bash
+# Search for models containing "openai"
+openrouter-inspector openai
 
-# Simple search (same as subcommand without extra filters)
-openrouter-inspector --search "gpt-4"
+# Search for models containing "gpt-4"
+openrouter-inspector gpt-4
+
+# Search with multiple terms (AND logic)
+openrouter-inspector openai gpt
 ```
 
 ### Commands
@@ -159,21 +160,6 @@ openrouter-inspector list "meta" "free"
 # List models with providers count
 openrouter-inspector list --with-providers
 
-#### search
-
-```bash
-openrouter-inspector search QUERY [options]
-```
-
-Searches models by name/id with optional filters.
-
-Options:
-- `--min-context INT` minimum context window
-- `--supports-tools` or `--no-supports-tools`
-- `--reasoning-only`
-- `--format [table|json|yaml]`
-
-
 #### endpoints
 
 ```bash
@@ -208,6 +194,64 @@ Behavior:
 Options:
 - `--log-level [CRITICAL|ERROR|WARNING|INFO|DEBUG|NOTSET]` set logging level
 
+#### ping
+
+```bash
+openrouter-inspector ping MODEL_ID [PROVIDER_NAME]
+openrouter-inspector ping MODEL_ID@PROVIDER_NAME
+
+# Examples
+openrouter-inspector ping openai/o4-mini
+openrouter-inspector ping deepseek/deepseek-chat-v3-0324:free Chutes
+openrouter-inspector ping deepseek/deepseek-chat-v3-0324:free@Chutes
+```
+
+- Performs an end-to-end chat completion call to verify the functional state of a model or a specific provider endpoint.
+- Uses a tiny “Ping/Pong” prompt and minimizes completion size for a fast and inexpensive check.
+- When a provider is specified (positional or `@` shorthand), the request pins routing order to that provider and disables fallbacks.
+- Prints the provider that served the request, token usage, USD cost (unrounded when provided by the API), measured latency, and effective TTL.
+
+Behavior:
+- Default timeout: 60s. Change via `--timeout <seconds>`.
+- Reasoning minimized by default for low-cost pings (reasoning.effort=low, exclude=true; legacy include_reasoning=false).
+- Caps `max_tokens` to 4 for expected “Pong” reply.
+- Dynamically formats latency: `<1000ms` prints in `ms`; `>=1s` prints in seconds with two decimals (e.g., `1.63s`).
+
+Options:
+- `--timeout <seconds>`: Per-request timeout override (defaults to 60 if missing or invalid).
+- `--log-level [CRITICAL|ERROR|WARNING|INFO|DEBUG|NOTSET]`: Set logging level.
+
+Example output:
+
+```
+
+Pinging https://openrouter.ai/api/v1/chat/completions/deepseek/deepseek-chat-v3-0324:free@Chutes with 28 input tokens:
+Reply from: https://openrouter.ai/api/v1/chat/completions/deepseek/deepseek-chat-v3-0324:free@Chutes tokens: 4 cost: $0.0000021 time=1.59s TTL=60s
+
+```
+
+Concrete example (from a real run)
+
+```bash
+openrouter-inspector ping tngtech/deepseek-r1t2-chimera:free@Chutes --timeout 60
+```
+
+Output
+
+```
+
+Pinging https://openrouter.ai/api/v1/chat/completions/tngtech/deepseek-r1t2-chimera:free@Chutes with 26 input tokens:
+Reply from: https://openrouter.ai/api/v1/chat/completions/tngtech/deepseek-r1t2-chimera:free@Chutes tokens: 4 cost: $0.00 time=2.50s TTL=60s
+
+```
+
+Notes:
+- Provider pinning uses the OpenRouter provider routing preferences (order, allow_fallbacks=false when a provider is specified). See provider routing docs for details.
+
+> ⚠️ **Warning**
+>
+> Running `ping` against paid endpoints will make a real completion call and can consume your API credits. It is not a simulated or “no-op” health check. Use with care on metered providers.
+
 ### Examples
 
 ```bash
@@ -217,17 +261,11 @@ openrouter-inspector list "google"
 # List models with multiple filters (AND logic)
 openrouter-inspector list "meta" "free"
 
-# Lightweight list + filter
-openrouter-inspector --list --search "openai"
-
-# Lightweight list with multiple filters (AND logic)
-openrouter-inspector --list --search "meta free"
-
 # Endpoints with filters and sorting: min quant fp8, min context 128K, sort by price_out desc
 openrouter-inspector endpoints deepseek/deepseek-r1 --min-quant fp8 --min-context 128K --sort-by price_out --desc
 
 # Lightweight mode with sorting
-openrouter-inspector --list --search "openai" --sort-by name
+openrouter-inspector --list --sort-by name
 ```
 
 ## Notes

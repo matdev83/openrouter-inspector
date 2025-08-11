@@ -87,24 +87,6 @@ class TestOutputFormatting:
                     assert result.exit_code == 0
                     assert "provider_name" in result.output
 
-    def test_offers_yaml_output(self, runner):
-        mock_provider = self.create_mock_provider("TestProvider")
-
-        with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
-            with patch("openrouter_inspector.client.OpenRouterClient") as mock_client:
-                mock_client.return_value.__aenter__.return_value = AsyncMock()
-                with patch(
-                    "openrouter_inspector.services.ModelService.get_model_providers"
-                ) as mock_method:
-                    mock_method.return_value = [mock_provider]
-
-                    result = runner.invoke(
-                        cli, ["endpoints", "test/model", "--format", "yaml"]
-                    )
-
-                    assert result.exit_code == 0
-                    assert "provider_name" in result.output
-
     # Web metric columns removed from offers table
 
     def test_table_layout_api_only(self, runner):
