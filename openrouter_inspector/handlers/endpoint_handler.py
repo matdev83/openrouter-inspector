@@ -47,8 +47,8 @@ class EndpointHandler:
         try:
             api_offers = await self.model_service.get_model_providers(model_id)
             return model_id, (api_offers or [])
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Exact match providers fetch failed for '{model_id}': {e}")
 
         # Search for candidates by substring
         try:
@@ -68,7 +68,10 @@ class EndpointHandler:
             try:
                 api_offers = await self.model_service.get_model_providers(resolved)
                 return resolved, (api_offers or [])
-            except Exception:
+            except Exception as e:
+                logger.debug(
+                    f"Exact-match resolved providers fetch failed for '{resolved}': {e}"
+                )
                 return resolved, []
 
         # If multiple candidates, try each one until we find one that works
@@ -101,7 +104,10 @@ class EndpointHandler:
             try:
                 api_offers = await self.model_service.get_model_providers(resolved)
                 return resolved, (api_offers or [])
-            except Exception:
+            except Exception as e:
+                logger.debug(
+                    f"Single-candidate providers fetch failed for '{resolved}': {e}"
+                )
                 return resolved, []
 
         # No matches found

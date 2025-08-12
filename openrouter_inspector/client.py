@@ -75,29 +75,32 @@ class OpenRouterClient:
         Accepts ISO strings (with optional trailing 'Z'), integer/float timestamps in
         seconds or milliseconds, and falls back to current time when parsing fails.
         """
-        try:
-            if isinstance(value, str):
-                s = value
-                if s.endswith("Z"):
-                    s = s[:-1] + "+00:00"
+        if isinstance(value, str):
+            s = value
+            if s.endswith("Z"):
+                s = s[:-1] + "+00:00"
+            try:
+                return datetime.fromisoformat(s)
+            except ValueError:
+                # Try numeric string timestamp
                 try:
-                    return datetime.fromisoformat(s)
-                except Exception:
-                    # Try numeric string timestamp
-                    try:
-                        tsf = float(s)
-                        if tsf > 1_000_000_000_000:  # ms
-                            tsf = tsf / 1000.0
-                        return datetime.fromtimestamp(tsf)
-                    except Exception:
-                        return datetime.now()
-            if isinstance(value, (int, float)):
-                tsf = float(value)
+                    tsf = float(s)
+                except ValueError:
+                    return datetime.now()
                 if tsf > 1_000_000_000_000:  # ms
                     tsf = tsf / 1000.0
+                try:
+                    return datetime.fromtimestamp(tsf)
+                except (OverflowError, OSError, ValueError):
+                    return datetime.now()
+        if isinstance(value, (int, float)):
+            tsf = float(value)
+            if tsf > 1_000_000_000_000:  # ms
+                tsf = tsf / 1000.0
+            try:
                 return datetime.fromtimestamp(tsf)
-        except Exception:
-            pass
+            except (OverflowError, OSError, ValueError):
+                return datetime.now()
         return datetime.now()
 
     async def __aenter__(self) -> "OpenRouterClient":
@@ -287,10 +290,8 @@ class OpenRouterClient:
         if headers:
             request_kwargs["headers"] = headers
         if timeout_seconds is not None:
-            try:
-                request_kwargs["timeout"] = httpx.Timeout(timeout_seconds)
-            except Exception:
-                request_kwargs["timeout"] = timeout_seconds
+            # httpx.Timeout validates values; if invalid, let httpx raise at request time
+            request_kwargs["timeout"] = httpx.Timeout(timeout_seconds)
 
         response = await self._make_request(
             "POST",
@@ -300,7 +301,7 @@ class OpenRouterClient:
         )
         try:
             return response.json(), dict(response.headers)
-        except Exception as e:
+        except (ValueError, TypeError) as e:
             raise APIError(f"Invalid JSON response: {e}") from e
 
     async def get_models(self) -> List[ModelInfo]:
@@ -344,12 +345,13 @@ class OpenRouterClient:
                     raw_pricing = model_data.get("pricing", {}) or {}
                     pricing: Dict[str, float] = {}
                     for k, v in raw_pricing.items():
+                        f_val = None
                         try:
-                            f = float(v)
-                            if f >= 0:
-                                pricing[k] = f
-                        except Exception:
-                            continue
+                            f_val = float(v)
+                        except (TypeError, ValueError):
+                            f_val = None
+                        if f_val is not None and f_val >= 0:
+                            pricing[k] = f_val
 
                     model_info = ModelInfo(
                         id=model_data["id"],
@@ -467,11 +469,13 @@ class OpenRouterClient:
                     raw_pricing = provider_data.get("pricing", {}) or {}
                     pricing: Dict[str, float] = {}
                     for k, v in raw_pricing.items():
+                        f_val = None
                         try:
-                            pricing[k] = float(v)
-                        except Exception:
-                            # If not numeric, skip
-                            continue
+                            f_val = float(v)
+                        except (TypeError, ValueError):
+                            f_val = None
+                        if f_val is not None:
+                            pricing[k] = f_val
 
                     # Uptime could be a fraction (0..1) or percentage (0..100)
                     uptime_val = provider_data.get("uptime_last_30m")
@@ -484,7 +488,7 @@ class OpenRouterClient:
                     else:
                         try:
                             uptime_pct = float(uptime_val)
-                        except Exception:
+                        except (TypeError, ValueError):
                             uptime_pct = 100.0
 
                     # Normalize status to string label when numeric

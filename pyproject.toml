@@ -52,6 +52,8 @@ dev = [
     "mypy>=1.0.0",
     "pre-commit>=3.0.0",
     "vulture>=2.0",
+    "bandit[toml]>=1.7.5",
+    "safety>=3.2.0",
 ]
 
 # Testing dependencies
@@ -80,6 +82,12 @@ build = [
     "hatch-vcs>=0.3.0",
 ]
 
+# Security tooling
+security = [
+    "bandit[toml]>=1.7.5",
+    "safety>=3.2.0",
+]
+
 # Complete development environment
 complete = [
     "black>=23.0.0",
@@ -87,6 +95,8 @@ complete = [
     "mypy>=1.0.0",
     "pre-commit>=3.0.0",
     "vulture>=2.0",
+    "bandit[toml]>=1.7.5",
+    "safety>=3.2.0",
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
     "pytest-cov>=4.0.0",
@@ -110,6 +120,8 @@ all = [
     "mypy>=1.0.0",
     "pre-commit>=3.0.0",
     "vulture>=2.0",
+    "bandit[toml]>=1.7.5",
+    "safety>=3.2.0",
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
     "pytest-cov>=4.0.0",

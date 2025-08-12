@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+from contextlib import suppress
 
 import click
 
@@ -146,10 +147,8 @@ def cli(
 
             async with client as c:
                 # Ensure service uses the entered client (tests patch __aenter__)
-                try:
+                with suppress(AttributeError):
                     model_service.client = c
-                except Exception:
-                    pass
                 # Use ListCommand for list functionality with entered client
                 list_cmd = ListCommand(
                     c, model_service, table_formatter, json_formatter
@@ -259,10 +258,8 @@ def list_models(
         )
 
         async with client as c:
-            try:
+            with suppress(AttributeError):
                 model_service.client = c
-            except Exception:
-                pass
             list_cmd = ListCommand(c, model_service, table_formatter, json_formatter)
 
             output = await list_cmd.execute(
@@ -414,10 +411,8 @@ def endpoints(
         )
 
         async with client as c:
-            try:
+            with suppress(AttributeError):
                 model_service.client = c
-            except Exception:
-                pass
             endpoints_cmd = EndpointsCommand(
                 c, model_service, table_formatter, json_formatter
             )
@@ -484,10 +479,8 @@ def check_command(
         )
 
         async with client as c:
-            try:
+            with suppress(AttributeError):
                 model_service.client = c
-            except Exception:
-                pass
             check_cmd = CheckCommand(c, model_service, table_formatter, json_formatter)
 
             try:
@@ -544,10 +537,8 @@ def search_command(
             utils.create_command_dependencies(api_key)
         )
         async with client as c:
-            try:
+            with suppress(AttributeError):
                 model_service.client = c
-            except Exception:
-                pass
             list_cmd = ListCommand(c, model_service, table_formatter, json_formatter)
             output = await list_cmd.execute(
                 filters=filters,
