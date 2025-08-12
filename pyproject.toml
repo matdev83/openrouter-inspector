@@ -41,6 +41,7 @@ dependencies = [
     "httpx>=0.24.0",
     "pydantic>=2.0.0",
     "rich>=13.0.0",
+    "tomli>=2.0.1; python_version < \"3.11\"",
 ]
 
 [project.optional-dependencies]
@@ -126,10 +127,10 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/example/openrouter-cli"
-Repository = "https://github.com/example/openrouter-cli"
-Documentation = "https://github.com/example/openrouter-cli#readme"
-"Bug Tracker" = "https://github.com/example/openrouter-cli/issues"
+Homepage = "https://github.com/matdev83/openrouter-inspector/"
+Repository = "https://github.com/matdev83/openrouter-inspector/"
+Documentation = "https://github.com/matdev83/openrouter-inspector#readme"
+"Bug Tracker" = "https://github.com/matdev83/openrouter-inspector/issues"
 
 [project.scripts]
 openrouter-inspector = "openrouter_inspector.__main__:main"
@@ -334,8 +335,7 @@ ignore_names = ["_*", "test_*"]
 make_whitelist = true
 min_confidence = 80
 sort_by_size = true
-# Band
-it security configuration
+# Bandit security configuration
 [tool.bandit]
 exclude_dirs = ["tests", ".venv", "build", "dist"]
 skips = ["B101", "B601"]  # Skip assert_used and shell_injection_process_args
