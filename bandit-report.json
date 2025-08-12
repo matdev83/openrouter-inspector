@@ -1,17 +1,17 @@
 {
   "errors": [],
-  "generated_at": "2025-08-12T15:59:14Z",
+  "generated_at": "2025-08-12T16:12:08Z",
   "metrics": {
     "_totals": {
-      "CONFIDENCE.HIGH": 10,
+      "CONFIDENCE.HIGH": 1,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 10,
+      "SEVERITY.LOW": 1,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 2838,
+      "loc": 2839,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -55,28 +55,28 @@
       "skipped_tests": 0
     },
     "openrouter_inspector\\cli.py": {
-      "CONFIDENCE.HIGH": 6,
+      "CONFIDENCE.HIGH": 1,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 6,
+      "SEVERITY.LOW": 1,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 606,
+      "loc": 597,
       "nosec": 0,
       "skipped_tests": 0
     },
     "openrouter_inspector\\client.py": {
-      "CONFIDENCE.HIGH": 3,
+      "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 3,
+      "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 490,
+      "loc": 494,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -237,15 +237,15 @@
       "skipped_tests": 0
     },
     "openrouter_inspector\\handlers\\endpoint_handler.py": {
-      "CONFIDENCE.HIGH": 1,
+      "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 1,
+      "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 218,
+      "loc": 224,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -315,217 +315,5 @@
       "skipped_tests": 0
     }
   },
-  "results": [
-    {
-      "code": "150                     model_service.client = c\n151                 except Exception:\n152                     pass\n153                 # Use ListCommand for list functionality with entered client\n",
-      "col_offset": 16,
-      "end_col_offset": 24,
-      "filename": "openrouter_inspector\\cli.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 151,
-      "line_range": [
-        151,
-        152
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "263                 model_service.client = c\n264             except Exception:\n265                 pass\n266             list_cmd = ListCommand(c, model_service, table_formatter, json_formatter)\n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "openrouter_inspector\\cli.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 264,
-      "line_range": [
-        264,
-        265
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "418                 model_service.client = c\n419             except Exception:\n420                 pass\n421             endpoints_cmd = EndpointsCommand(\n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "openrouter_inspector\\cli.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 419,
-      "line_range": [
-        419,
-        420
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "488                 model_service.client = c\n489             except Exception:\n490                 pass\n491             check_cmd = CheckCommand(c, model_service, table_formatter, json_formatter)\n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "openrouter_inspector\\cli.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 489,
-      "line_range": [
-        489,
-        490
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "548                 model_service.client = c\n549             except Exception:\n550                 pass\n551             list_cmd = ListCommand(c, model_service, table_formatter, json_formatter)\n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "openrouter_inspector\\cli.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 549,
-      "line_range": [
-        549,
-        550
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "655                 model_service.client = c\n656             except Exception:\n657                 pass\n658             cmd = PingCommand(c, model_service, table_formatter, json_formatter)\n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "openrouter_inspector\\cli.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 656,
-      "line_range": [
-        656,
-        657
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "98                 return datetime.fromtimestamp(tsf)\n99         except Exception:\n100             pass\n101         return datetime.now()\n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "openrouter_inspector\\client.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 99,
-      "line_range": [
-        99,
-        100
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "350                                 pricing[k] = f\n351                         except Exception:\n352                             continue\n353 \n",
-      "col_offset": 24,
-      "end_col_offset": 36,
-      "filename": "openrouter_inspector\\client.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Continue detected.",
-      "line_number": 351,
-      "line_range": [
-        351,
-        352
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b112_try_except_continue.html",
-      "test_id": "B112",
-      "test_name": "try_except_continue"
-    },
-    {
-      "code": "471                             pricing[k] = float(v)\n472                         except Exception:\n473                             # If not numeric, skip\n474                             continue\n475 \n",
-      "col_offset": 24,
-      "end_col_offset": 36,
-      "filename": "openrouter_inspector\\client.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Continue detected.",
-      "line_number": 472,
-      "line_range": [
-        472,
-        473,
-        474
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b112_try_except_continue.html",
-      "test_id": "B112",
-      "test_name": "try_except_continue"
-    },
-    {
-      "code": "49             return model_id, (api_offers or [])\n50         except Exception:\n51             pass\n52 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "openrouter_inspector\\handlers\\endpoint_handler.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 50,
-      "line_range": [
-        50,
-        51
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    }
-  ]
+  "results": []
 }

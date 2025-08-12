@@ -178,9 +178,12 @@ config.json
 # Cache directories
 .cache/
 .ruff_cache/
+
+# Other
 .dev
 .kiro
 .kiro/*
 .crush
 .crush/*
 data/*
+bandit-report.json

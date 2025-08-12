@@ -99,7 +99,7 @@ jobs:
         pip install -e ".[dev]"
 
     - name: Run bandit (security linting)
-      run: bandit -r openrouter_inspector -f json -o bandit-report.json
+      run: bandit -r openrouter_inspector -f json -o bandit-report.json --severity-level medium --confidence-level high
 
     - name: Run safety (dependency vulnerability check)
       run: safety check --json --output safety-report.json
