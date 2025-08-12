@@ -63,18 +63,6 @@ jobs:
             f.write(f'BADGE_COLOR={color}\n')
         PY
 
-    - name: Update tests badge (Gist)
-      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11' && env.BADGE_MESSAGE
-      uses: schneegans/dynamic-badges-action@v1.7.0
-      continue-on-error: true
-      with:
-        auth: ${{ secrets.GIST_TOKEN }}
-        gistID: ${{ secrets.TESTS_BADGE_GIST_ID }}
-        filename: openrouter-inspector-tests.json
-        label: ${{ env.BADGE_LABEL }}
-        message: ${{ env.BADGE_MESSAGE }}
-        color: ${{ env.BADGE_COLOR }}
-
     - name: Upload test results
       uses: dorny/test-reporter@v1
       if: ${{ (success() || failure()) && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
