@@ -1,10 +1,9 @@
 """Formatting utilities for consistent string conversions."""
 
 from decimal import Decimal
-from typing import Union
 
 
-def fmt_money(value: Union[Decimal, float]) -> str:
+def fmt_money(value: Decimal | float) -> str:
     """Format a monetary value to 2 decimal places.
 
     Args:

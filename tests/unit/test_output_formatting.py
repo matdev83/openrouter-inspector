@@ -2,7 +2,6 @@
 
 import re
 from datetime import datetime
-from typing import Optional
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -24,7 +23,7 @@ class TestOutputFormatting:
         return CliRunner()
 
     def create_mock_provider(
-        self, name, supports_image=False, quantization: Optional[str] = "fp16"
+        self, name, supports_image=False, quantization: str | None = "fp16"
     ):
         """Create a mock provider (API-only)."""
         supported_params = ["reasoning"]
