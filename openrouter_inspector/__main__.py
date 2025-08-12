@@ -2,12 +2,11 @@
 """Main entry point for the openrouter-inspector CLI."""
 
 import sys
-from typing import List, Optional
 
 from .cli import cli
 
 
-def main(args: Optional[List[str]] = None) -> None:
+def main(args: list[str] | None = None) -> None:
     """Run the CLI with the given arguments."""
     if args is None:
         args = sys.argv[1:]

@@ -4,8 +4,7 @@ import asyncio
 import logging
 from datetime import datetime
 from types import TracebackType
-from typing import Any, Dict, List, Optional, Type
-from typing import Optional as Opt
+from typing import Any
 from urllib.parse import urljoin
 
 import httpx
@@ -93,7 +92,7 @@ class OpenRouterClient:
                     return datetime.fromtimestamp(tsf)
                 except (OverflowError, OSError, ValueError):
                     return datetime.now()
-        if isinstance(value, (int, float)):
+        if isinstance(value, int | float):
             tsf = float(value)
             if tsf > 1_000_000_000_000:  # ms
                 tsf = tsf / 1000.0
@@ -109,9 +108,9 @@ class OpenRouterClient:
 
     async def __aexit__(
         self,
-        exc_type: Opt[Type[BaseException]],
-        exc_val: Opt[BaseException],
-        exc_tb: Opt[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         """Async context manager exit."""
         # Silence unused variable warnings - these are required for context manager protocol
@@ -246,14 +245,14 @@ class OpenRouterClient:
         self,
         *,
         model: str,
-        messages: List[Dict[str, Any]],
-        provider_order: Optional[List[str]] = None,
-        allow_fallbacks: Optional[bool] = None,
-        timeout_seconds: Optional[int] = None,
-        extra_headers: Optional[Dict[str, str]] = None,
-        extra_body: Optional[Dict[str, Any]] = None,
+        messages: list[dict[str, Any]],
+        provider_order: list[str] | None = None,
+        allow_fallbacks: bool | None = None,
+        timeout_seconds: int | None = None,
+        extra_headers: dict[str, str] | None = None,
+        extra_body: dict[str, Any] | None = None,
         retries_enabled: bool = True,
-    ) -> tuple[Dict[str, Any], Dict[str, str]]:
+    ) -> tuple[dict[str, Any], dict[str, str]]:
         """Call OpenRouter chat completions endpoint.
 
         Args:
@@ -268,12 +267,12 @@ class OpenRouterClient:
         Returns:
             Tuple of (response_json, response_headers).
         """
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "model": model,
             "messages": messages,
         }
         if provider_order is not None or allow_fallbacks is not None:
-            provider_pref: Dict[str, Any] = {}
+            provider_pref: dict[str, Any] = {}
             if provider_order is not None:
                 provider_pref["order"] = provider_order
             if allow_fallbacks is not None:
@@ -282,11 +281,11 @@ class OpenRouterClient:
         if extra_body:
             body.update(extra_body)
 
-        headers: Dict[str, str] = {}
+        headers: dict[str, str] = {}
         if extra_headers:
             headers.update(extra_headers)
 
-        request_kwargs: Dict[str, Any] = {"json": body}
+        request_kwargs: dict[str, Any] = {"json": body}
         if headers:
             request_kwargs["headers"] = headers
         if timeout_seconds is not None:
@@ -304,7 +303,7 @@ class OpenRouterClient:
         except (ValueError, TypeError) as e:
             raise APIError(f"Invalid JSON response: {e}") from e
 
-    async def get_models(self) -> List[ModelInfo]:
+    async def get_models(self) -> list[ModelInfo]:
         """Retrieve all available models from OpenRouter API.
 
         Returns:
@@ -322,7 +321,7 @@ class OpenRouterClient:
                 if isinstance(cached, list):
                     return cached
             response = await self._make_request("GET", "/models")
-            data: Dict[str, Any] = response.json()
+            data: dict[str, Any] = response.json()
 
             # Parse response data
             if "data" in data:
@@ -330,7 +329,7 @@ class OpenRouterClient:
             else:
                 models_data = data.get("models", [])
 
-            models: List[ModelInfo] = []
+            models: list[ModelInfo] = []
             for model_data in models_data:
                 try:
                     # Transform API response to match our ModelInfo structure
@@ -343,7 +342,7 @@ class OpenRouterClient:
 
                     # Sanitize pricing: coerce to float, drop negative/invalid
                     raw_pricing = model_data.get("pricing", {}) or {}
-                    pricing: Dict[str, float] = {}
+                    pricing: dict[str, float] = {}
                     for k, v in raw_pricing.items():
                         f_val = None
                         try:
@@ -376,11 +375,11 @@ class OpenRouterClient:
         except PydanticValidationError as e:
             raise ValidationError(f"Invalid response data: {e}") from e
         except Exception as e:
-            if isinstance(e, (APIError, AuthenticationError, RateLimitError)):
+            if isinstance(e, APIError | AuthenticationError | RateLimitError):
                 raise
             raise APIError(f"Failed to retrieve models: {e}") from e
 
-    async def get_model_providers(self, model_name: str) -> List[ProviderDetails]:
+    async def get_model_providers(self, model_name: str) -> list[ProviderDetails]:
         """Get all providers for a specific model.
 
         Args:
@@ -407,7 +406,7 @@ class OpenRouterClient:
             response = await self._make_request(
                 "GET", f"/models/{model_name}/endpoints"
             )
-            data: Dict[str, Any] = response.json()
+            data: dict[str, Any] = response.json()
             # Handle different API response structures
             providers_data = []
             if isinstance(data, dict):
@@ -430,7 +429,7 @@ class OpenRouterClient:
 
             if not providers_data:
                 models_response = await self._make_request("GET", "/models")
-                models_data: Dict[str, Any] = models_response.json()
+                models_data: dict[str, Any] = models_response.json()
                 for model_data in models_data.get(
                     "data", models_data.get("models", [])
                 ):
@@ -442,7 +441,7 @@ class OpenRouterClient:
                         break
             # If still empty, propagate empty list (caller can decide)
 
-            providers: List[ProviderDetails] = []
+            providers: list[ProviderDetails] = []
             for provider_data in providers_data:
                 try:
                     sp = provider_data.get("supported_parameters")
@@ -467,7 +466,7 @@ class OpenRouterClient:
 
                     # Pricing may be numeric strings; coerce to float where possible
                     raw_pricing = provider_data.get("pricing", {}) or {}
-                    pricing: Dict[str, float] = {}
+                    pricing: dict[str, float] = {}
                     for k, v in raw_pricing.items():
                         f_val = None
                         try:
@@ -483,7 +482,7 @@ class OpenRouterClient:
                         uptime_val = provider_data.get(
                             "uptime_30min"
                         ) or provider_data.get("uptime")
-                    if isinstance(uptime_val, (int, float)) and uptime_val <= 1.5:
+                    if isinstance(uptime_val, int | float) and uptime_val <= 1.5:
                         uptime_pct = float(uptime_val) * 100.0
                     else:
                         try:
@@ -493,8 +492,8 @@ class OpenRouterClient:
 
                     # Normalize status to string label when numeric
                     raw_status = provider_data.get("status")
-                    status_str: Optional[str]
-                    if isinstance(raw_status, (int, float)):
+                    status_str: str | None
+                    if isinstance(raw_status, int | float):
                         status_str = (
                             "offline" if int(raw_status) == 0 else str(int(raw_status))
                         )
@@ -566,7 +565,7 @@ class OpenRouterClient:
         except PydanticValidationError as e:
             raise ValidationError(f"Invalid provider response data: {e}") from e
         except Exception as e:
-            if isinstance(e, (APIError, AuthenticationError, RateLimitError)):
+            if isinstance(e, APIError | AuthenticationError | RateLimitError):
                 raise
             raise APIError(
                 f"Failed to retrieve providers for model '{model_name}': {e}"

@@ -6,8 +6,9 @@ import asyncio
 import json
 import statistics
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from .base_command import BaseCommand
 

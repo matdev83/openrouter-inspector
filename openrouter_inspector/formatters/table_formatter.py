@@ -1,7 +1,7 @@
 """Table output formatter using Rich."""
 
 from decimal import Decimal
-from typing import Any, List, Optional, Union
+from typing import Any
 
 from rich import box
 from rich.console import Console
@@ -14,7 +14,7 @@ from .base import BaseFormatter
 class TableFormatter(BaseFormatter):
     """Formats output as Rich tables."""
 
-    def __init__(self, console: Optional[Console] = None):
+    def __init__(self, console: Console | None = None):
         """Initialize the table formatter.
 
         Args:
@@ -22,7 +22,7 @@ class TableFormatter(BaseFormatter):
         """
         self.console = console or Console(width=200)
 
-    def format_models(self, models: List[ModelInfo], **kwargs: Any) -> str:
+    def format_models(self, models: list[ModelInfo], **kwargs: Any) -> str:
         """Format models as a Rich table.
 
         Args:
@@ -155,7 +155,7 @@ class TableFormatter(BaseFormatter):
 
         return output
 
-    def format_providers(self, providers: List[ProviderDetails], **kwargs: Any) -> str:
+    def format_providers(self, providers: list[ProviderDetails], **kwargs: Any) -> str:
         """Format provider details as a Rich table.
 
         Args:
@@ -256,11 +256,11 @@ class TableFormatter(BaseFormatter):
             )
         return capture.get()
 
-    def _fmt_money(self, value: Union[Decimal, float]) -> str:
+    def _fmt_money(self, value: Decimal | float) -> str:
         """Format a monetary value to 2 decimal places."""
         return f"{Decimal(value).quantize(Decimal('0.01')):.2f}"
 
-    def _fmt_k(self, value: Optional[int]) -> str:
+    def _fmt_k(self, value: int | None) -> str:
         """Format a numeric value to thousands with K suffix."""
         if value is None:
             return "—"
@@ -295,8 +295,8 @@ class TableFormatter(BaseFormatter):
         return False
 
     def _format_status(
-        self, status: Optional[str], uptime: float
-    ) -> tuple[str, Optional[str]]:
+        self, status: str | None, uptime: float
+    ) -> tuple[str, str | None]:
         """Format endpoint status with appropriate styling.
 
         Args:

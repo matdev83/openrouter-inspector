@@ -1,7 +1,7 @@
 """JSON output formatter."""
 
 import json
-from typing import Any, List
+from typing import Any
 
 from ..models import ModelInfo, ProviderDetails
 from .base import BaseFormatter
@@ -10,7 +10,7 @@ from .base import BaseFormatter
 class JsonFormatter(BaseFormatter):
     """Formats output as JSON."""
 
-    def format_models(self, models: List[ModelInfo], **kwargs: Any) -> str:
+    def format_models(self, models: list[ModelInfo], **kwargs: Any) -> str:
         """Format models as JSON.
 
         Args:
@@ -22,7 +22,7 @@ class JsonFormatter(BaseFormatter):
         """
         return json.dumps([m.model_dump() for m in models], indent=2, default=str)
 
-    def format_providers(self, providers: List[ProviderDetails], **kwargs: Any) -> str:
+    def format_providers(self, providers: list[ProviderDetails], **kwargs: Any) -> str:
         """Format provider details as JSON.
 
         Args:
