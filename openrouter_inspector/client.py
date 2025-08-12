@@ -23,17 +23,7 @@ from .models import (
     ProviderInfo,
 )
 
-
 # CacheManager removed; inline simple no-op cache interface if needed
-class CacheManager:
-    def __init__(self) -> None:
-        self._store: Dict[str, Any] = {}
-
-    def get(self, key: str) -> Optional[Any]:
-        return None
-
-    def set(self, key: str, value: Any) -> None:
-        pass
 
 
 logger = logging.getLogger(__name__)
@@ -134,6 +124,8 @@ class OpenRouterClient:
         self,
         method: str,
         endpoint: str,
+        *,
+        retries_enabled: bool = True,
         **kwargs: Any,
     ) -> httpx.Response:
         """Make HTTP request with retry logic and error handling.
@@ -153,7 +145,9 @@ class OpenRouterClient:
         """
         url = urljoin(self.base_url + "/", endpoint.lstrip("/"))
 
-        for attempt in range(self.max_retries + 1):
+        max_attempts = self.max_retries + 1 if retries_enabled else 1
+
+        for attempt in range(max_attempts):
             try:
                 logger.debug(
                     f"Making {method} request to {url} (attempt {attempt + 1})"
@@ -252,9 +246,10 @@ class OpenRouterClient:
         messages: List[Dict[str, Any]],
         provider_order: Optional[List[str]] = None,
         allow_fallbacks: Optional[bool] = None,
-        timeout_seconds: int | None = None,
+        timeout_seconds: Optional[int] = None,
         extra_headers: Optional[Dict[str, str]] = None,
         extra_body: Optional[Dict[str, Any]] = None,
+        retries_enabled: bool = True,
     ) -> tuple[Dict[str, Any], Dict[str, str]]:
         """Call OpenRouter chat completions endpoint.
 
@@ -298,7 +293,10 @@ class OpenRouterClient:
                 request_kwargs["timeout"] = timeout_seconds
 
         response = await self._make_request(
-            "POST", "/chat/completions", **request_kwargs
+            "POST",
+            "/chat/completions",
+            retries_enabled=retries_enabled,
+            **request_kwargs,
         )
         try:
             return response.json(), dict(response.headers)

@@ -1,11 +1,17 @@
 """Unit tests for handler classes."""
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock
-
-from openrouter_inspector.handlers import ModelHandler, ProviderHandler, EndpointHandler
-from openrouter_inspector.models import ModelInfo, SearchFilters, ProviderDetails, ProviderInfo
 from datetime import datetime
+from unittest.mock import AsyncMock
+
+import pytest
+
+from openrouter_inspector.handlers import EndpointHandler, ModelHandler, ProviderHandler
+from openrouter_inspector.models import (
+    ModelInfo,
+    ProviderDetails,
+    ProviderInfo,
+    SearchFilters,
+)
 
 
 class TestModelHandler:
@@ -44,7 +50,9 @@ class TestModelHandler:
         ]
 
     @pytest.mark.asyncio
-    async def test_list_models_basic(self, model_handler, mock_model_service, sample_models):
+    async def test_list_models_basic(
+        self, model_handler, mock_model_service, sample_models
+    ):
         """Test basic model listing functionality."""
         mock_model_service.search_models.return_value = sample_models
         filters = SearchFilters()
@@ -55,7 +63,9 @@ class TestModelHandler:
         mock_model_service.search_models.assert_called_once_with("", filters)
 
     @pytest.mark.asyncio
-    async def test_list_models_with_text_filters(self, model_handler, mock_model_service, sample_models):
+    async def test_list_models_with_text_filters(
+        self, model_handler, mock_model_service, sample_models
+    ):
         """Test model listing with text filters."""
         mock_model_service.search_models.return_value = sample_models
         filters = SearchFilters()
@@ -68,7 +78,9 @@ class TestModelHandler:
         assert result[0].id == "meta/llama-3"
 
     @pytest.mark.asyncio
-    async def test_search_models(self, model_handler, mock_model_service, sample_models):
+    async def test_search_models(
+        self, model_handler, mock_model_service, sample_models
+    ):
         """Test model searching functionality."""
         mock_model_service.search_models.return_value = sample_models
         filters = SearchFilters()
@@ -82,7 +94,7 @@ class TestModelHandler:
     def test_sort_models_by_id(self, model_handler, sample_models):
         """Test sorting models by ID."""
         result = model_handler._sort_models(sample_models, "id")
-        
+
         # Should be sorted by ID (meta comes before openai)
         assert result[0].id == "meta/llama-3"
         assert result[1].id == "openai/gpt-4"
@@ -90,7 +102,7 @@ class TestModelHandler:
     def test_sort_models_by_context(self, model_handler, sample_models):
         """Test sorting models by context length."""
         result = model_handler._sort_models(sample_models, "context")
-        
+
         # Should be sorted by context length (8192 < 32768)
         assert result[0].context_length == 8192
         assert result[1].context_length == 32768
@@ -136,7 +148,9 @@ class TestProviderHandler:
         ]
 
     @pytest.mark.asyncio
-    async def test_get_model_providers(self, provider_handler, mock_client, sample_provider_details):
+    async def test_get_model_providers(
+        self, provider_handler, mock_client, sample_provider_details
+    ):
         """Test getting providers for a model."""
         mock_client.get_model_providers.return_value = sample_provider_details
         model_id = "test/model"
@@ -149,7 +163,7 @@ class TestProviderHandler:
     def test_count_active_providers(self, provider_handler, sample_provider_details):
         """Test counting active providers."""
         result = provider_handler._count_active_providers(sample_provider_details)
-        
+
         assert result == 1
 
     def test_count_active_providers_offline(self, provider_handler):
@@ -176,7 +190,7 @@ class TestProviderHandler:
         )
 
         result = provider_handler._count_active_providers([offline_provider])
-        
+
         assert result == 0
 
 
@@ -232,7 +246,9 @@ class TestEndpointHandler:
         mock_model_service.get_model_providers.return_value = sample_provider_details
         model_id = "test/model"
 
-        resolved_id, offers = await endpoint_handler.resolve_and_fetch_endpoints(model_id)
+        resolved_id, offers = await endpoint_handler.resolve_and_fetch_endpoints(
+            model_id
+        )
 
         assert resolved_id == model_id
         assert offers == sample_provider_details
@@ -240,35 +256,41 @@ class TestEndpointHandler:
     def test_filter_endpoints_basic(self, endpoint_handler, sample_provider_details):
         """Test basic endpoint filtering."""
         result = endpoint_handler.filter_endpoints(sample_provider_details)
-        
+
         assert result == sample_provider_details
 
-    def test_filter_endpoints_with_reasoning_required(self, endpoint_handler, sample_provider_details):
+    def test_filter_endpoints_with_reasoning_required(
+        self, endpoint_handler, sample_provider_details
+    ):
         """Test filtering endpoints with reasoning requirement."""
         result = endpoint_handler.filter_endpoints(
             sample_provider_details, reasoning_required=True
         )
-        
+
         # Should pass since sample provider supports reasoning
         assert result == sample_provider_details
 
-    def test_filter_endpoints_with_reasoning_excluded(self, endpoint_handler, sample_provider_details):
+    def test_filter_endpoints_with_reasoning_excluded(
+        self, endpoint_handler, sample_provider_details
+    ):
         """Test filtering endpoints excluding reasoning."""
         result = endpoint_handler.filter_endpoints(
             sample_provider_details, no_reasoning_required=True
         )
-        
+
         # Should be empty since sample provider supports reasoning
         assert result == []
 
-    def test_sort_endpoints_by_provider(self, endpoint_handler, sample_provider_details):
+    def test_sort_endpoints_by_provider(
+        self, endpoint_handler, sample_provider_details
+    ):
         """Test sorting endpoints by provider name."""
         result = endpoint_handler.sort_endpoints(sample_provider_details, "provider")
-        
+
         assert result == sample_provider_details  # Single item, no change
 
     def test_sort_endpoints_api_order(self, endpoint_handler, sample_provider_details):
         """Test keeping API order (default)."""
         result = endpoint_handler.sort_endpoints(sample_provider_details, "api")
-        
+
         assert result == sample_provider_details

@@ -2,38 +2,95 @@
 
 from __future__ import annotations
 
+import asyncio
+import json
+import statistics
 import time
-from typing import Any
+from dataclasses import dataclass
+from typing import Any, Callable
 
 from .base_command import BaseCommand
+
+
+@dataclass
+class PingResult:
+    """Dataclass to store the result of a single ping."""
+
+    success: bool
+    elapsed_ms: float
+    cost: float | None
+    output_str: str
 
 
 class PingCommand(BaseCommand):
     """Command to ping a model or a specific provider endpoint via chat completion."""
 
-    async def execute(
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._last_all_success: bool | None = None
+
+    @property
+    def last_all_success(self) -> bool | None:
+        return self._last_all_success
+
+    def _extract_message_text(self, response_json: dict[str, Any]) -> str:
+        """Extract plain text from a chat completion response in a robust way."""
+        try:
+            choices = response_json.get("choices") or []
+            if not choices:
+                return ""
+            choice = choices[0] or {}
+            # Standard OpenAI format
+            message = choice.get("message") or {}
+            content = message.get("content")
+
+            if isinstance(content, str):
+                return content
+
+            # Handle dictionary content, e.g., {"text": "..."}
+            if isinstance(content, dict):
+                text_from_dict = content.get("text")
+                if isinstance(text_from_dict, str):
+                    return text_from_dict
+
+            # Handle segmented list content
+            if isinstance(content, list):
+                segments: list[str] = []
+                for part in content:
+                    if isinstance(part, str):
+                        segments.append(part)
+                    elif isinstance(part, dict):
+                        text_val = part.get("text") or part.get("content")
+                        if isinstance(text_val, str):
+                            segments.append(text_val)
+                return "".join(segments)
+
+            # Fallback for non-standard choice-level text
+            text_fallback = choice.get("text")
+            if isinstance(text_fallback, str):
+                return text_fallback
+        except Exception:
+            return ""
+        return ""
+
+    async def _ping_once(
         self,
         *,
         model_id: str,
         provider_name: str | None = None,
         timeout_seconds: int = 60,
-        **_: Any,
-    ) -> str:
-        """Execute the ping command.
-
-        Args:
-            model_id: Model ID to test.
-            provider_name: Optional specific provider to target.
-            timeout_seconds: Timeout for the HTTP request in seconds.
+        debug_response: bool = False,
+    ) -> PingResult:
+        """Execute a single ping.
 
         Returns:
-            A single-line ping-like result string.
+            A PingResult object with the outcome.
         """
         # Prepare request body
         messages = [
             {
                 "role": "user",
-                "content": "Hi! Let's play a game: when I say Ping, you reply with Pong. I say: Ping",
+                "content": "Respond exactly with Pong. No punctuation, no additional text, no explanations. Output only: Pong",
             }
         ]
 
@@ -48,147 +105,152 @@ class PingCommand(BaseCommand):
                 provider_order=provider_order,
                 allow_fallbacks=False if provider_name else None,
                 timeout_seconds=timeout_seconds,
-                extra_headers={
-                    # Optional attribution headers per OpenRouter docs
-                    # Users may set environment-specific values at runtime
-                },
+                extra_headers={},
                 extra_body={
-                    # Minimize/disable reasoning per OpenRouter unified interface
-                    # https://openrouter.ai/docs/use-cases/reasoning-tokens
-                    "reasoning": {"effort": "low", "exclude": True},
-                    # Legacy compatibility flag
+                    "temperature": 0,
+                    "top_p": 0,
+                    "response_format": {"type": "text"},
+                    # Keep reasoning to minimal and exclude it from the visible output
+                    "reasoning": {"effort": "minimal", "exclude": True},
                     "include_reasoning": False,
-                    # Cap completion to minimal expected size for Pong
-                    "max_tokens": 4,
+                    "max_tokens": 64,
                 },
+                retries_enabled=False,
             )
             elapsed_ms = (time.perf_counter_ns() - start_ns) / 1_000_000.0
+            if debug_response:
+                print("\n--- DEBUG RESPONSE ---")
+                print(json.dumps(response_json, indent=2))
+                print("--- END DEBUG ---\n")
         except Exception as e:
             elapsed_ms = (time.perf_counter_ns() - start_ns) / 1_000_000.0
-            # Emit ping-like failure message
             base_url = "https://openrouter.ai/api/v1/chat/completions/"
             target = f"{base_url}{model_id}"
             if provider_name:
                 target += f"@{provider_name}"
-            # Dynamic time formatting (ms under 1s, else seconds with 2 decimals)
             time_str = (
                 f"{elapsed_ms/1000:.2f}s"
                 if elapsed_ms >= 1000.0
                 else f"{int(elapsed_ms)}ms"
             )
-            return (
+            output_str = (
                 f"Pinging {target} with 0 input tokens:\n"
                 f"Reply from: {target} tokens: 0 time={time_str} TTL={timeout_seconds}s (error: {e})"
             )
+            return PingResult(
+                success=False, elapsed_ms=elapsed_ms, cost=0.0, output_str=output_str
+            )
 
         # Extract provider and token usage
-        # Provider might be present in headers or response meta; best-effort extraction
-        served_provider = None
-        try:
-            # Some OpenRouter deployments include provider in headers
-            served_provider = (
-                response_headers.get("x-openrouter-provider")
-                or response_headers.get("X-OpenRouter-Provider")
-                or response_headers.get("x-provider")
-                or response_headers.get("X-Provider")
-                or response_headers.get("openrouter-provider")
-                or response_headers.get("OpenRouter-Provider")
-            )
-        except Exception:
-            served_provider = None
-
-        if not served_provider:
-            try:
-                served_provider = response_json.get("provider") or response_json.get(
-                    "meta", {}
-                ).get("provider")
-            except Exception:
-                served_provider = None
+        served_provider = (
+            response_headers.get("x-openrouter-provider")
+            or response_headers.get("x-provider")
+            or response_json.get("provider")
+            or response_json.get("meta", {}).get("provider")
+        )
 
         # Usage tokens and cost
-        input_tokens = 0
-        completion_tokens = 0
-        cost_str: str | None = None
-        try:
-            usage = response_json.get("usage") or {}
-            input_tokens = int(
-                usage.get("prompt_tokens") or usage.get("input_tokens") or 0
-            )
-            completion_tokens = int(
-                usage.get("completion_tokens") or usage.get("output_tokens") or 0
-            )
-            # Try total cost from JSON if available
-            total_cost_val = usage.get("total_cost") or usage.get("cost")
-            if total_cost_val is not None:
-                cost_str = str(total_cost_val)
-        except Exception:
-            pass
-
-        # Try provider cost from meta fields
-        if cost_str is None:
-            try:
-                meta = response_json.get("meta") or {}
-                cost_obj = meta.get("cost") or {}
-                total_meta_cost = cost_obj.get("total") or cost_obj.get("usd")
-                if total_meta_cost is not None:
-                    cost_str = str(total_meta_cost)
-            except Exception:
-                pass
-
-        # Try headers for cost
-        if cost_str is None:
-            try:
-                cost_str = (
-                    response_headers.get("x-openrouter-cost")
-                    or response_headers.get("X-OpenRouter-Cost")
-                    or response_headers.get("x-total-cost")
-                    or response_headers.get("X-Total-Cost")
-                )
-            except Exception:
-                cost_str = None
+        usage = response_json.get("usage", {})
+        input_tokens = int(usage.get("prompt_tokens", 0))
+        completion_tokens = int(usage.get("completion_tokens", 0))
+        cost = usage.get("total_cost") or usage.get("cost")
 
         # Extract text and validate Pong
-        text_content = ""
-        try:
-            choices = response_json.get("choices") or []
-            if choices:
-                msg = choices[0].get("message") or {}
-                text_content = str(msg.get("content") or "")
-        except Exception:
-            text_content = ""
-
-        ok = "pong" in text_content.lower()
+        text_content = self._extract_message_text(response_json)
+        ok = "pong" in (text_content or "").lower()
+        if not ok:
+            # Fallback: consider success if the model produced any completion tokens
+            # (some reasoning providers may hide content while still responding)
+            ok = completion_tokens > 0
 
         base_url = "https://openrouter.ai/api/v1/chat/completions/"
         target = f"{base_url}{model_id}"
         provider_for_print = (provider_name or served_provider or "auto").strip()
         target_with_provider = f"{target}@{provider_for_print}"
 
-        # Dynamic time formatting (ms under 1s, else seconds with 2 decimals)
         time_str = (
             f"{elapsed_ms/1000:.2f}s"
             if elapsed_ms >= 1000.0
             else f"{int(elapsed_ms)}ms"
         )
-
-        # Build cost display: always include, even when free (show $0.00)
-        cost_display = "0.00"
-        if cost_str not in (None, ""):
-            try:
-                from decimal import Decimal
-
-                dec = Decimal(str(cost_str))
-                if dec == 0:
-                    cost_display = "0.00"
-                else:
-                    # Preserve as-provided without rounding; use original string
-                    cost_display = str(cost_str)
-            except Exception:
-                # If parsing fails but we have a string, use it as-is
-                cost_display = str(cost_str)
+        cost_display = f"{cost:.6f}" if cost is not None else "0.00"
         cost_part = f" cost: ${cost_display}"
-        return (
+
+        output_str = (
             f"Pinging {target_with_provider} with {input_tokens} input tokens:\n"
             f"Reply from: {target_with_provider} tokens: {completion_tokens}{cost_part} time={time_str} TTL={timeout_seconds}s"
-            + ("" if ok else "")
         )
+
+        return PingResult(
+            success=ok,
+            elapsed_ms=elapsed_ms,
+            cost=float(cost or 0.0),
+            output_str=output_str,
+        )
+
+    async def execute(
+        self,
+        *,
+        model_id: str,
+        provider_name: str | None = None,
+        timeout_seconds: int = 60,
+        count: int = 3,
+        debug_response: bool = False,
+        on_progress: Callable[[str], Any] | None = None,
+        **_: Any,
+    ) -> str:
+        """Execute the ping command multiple times and gather statistics."""
+        results: list[PingResult] = []
+        all_output_parts: list[str] = [""]  # Start with a newline
+
+        for i in range(count):
+            result = await self._ping_once(
+                model_id=model_id,
+                provider_name=provider_name,
+                timeout_seconds=timeout_seconds,
+                debug_response=debug_response,
+            )
+            results.append(result)
+            all_output_parts.append(result.output_str)
+            if on_progress is not None:
+                await self._maybe_await(on_progress(result.output_str))
+            if i < count - 1:
+                await asyncio.sleep(1)  # Pause between pings
+
+        # --- Statistics ---
+        sent = len(results)
+        received = sum(1 for r in results if r.success)
+        lost = sent - received
+        loss_percent = (lost / sent) * 100 if sent > 0 else 0
+
+        successful_times_ms = [r.elapsed_ms for r in results if r.success]
+        total_cost = sum(r.cost for r in results if r.cost is not None)
+
+        stats_parts = [
+            f"\nPing statistics for {model_id}@{provider_name or 'auto'}:",
+            f"    Packets: Sent = {sent}, Received = {received}, Lost = {lost} ({loss_percent:.0f}% loss),",
+        ]
+
+        if successful_times_ms:
+            successful_times_s = [t / 1000.0 for t in successful_times_ms]
+            stats_parts.extend(
+                [
+                    "Approximate round trip times in seconds:",
+                    f"    Minimum = {min(successful_times_s):.2f}s, Maximum = {max(successful_times_s):.2f}s, Average = {statistics.mean(successful_times_s):.2f}s",
+                ]
+            )
+
+        stats_parts.append(f"Total API cost for this run: ${total_cost:.6f}")
+
+        all_output_parts.extend(stats_parts)
+        all_output_parts.append("")  # End with a newline
+
+        # Stream final stats if requested
+        if on_progress is not None:
+            await self._maybe_await(on_progress("\n".join(stats_parts)))
+            await self._maybe_await(on_progress(""))
+
+        # Store success flag for CLI to read
+        self._last_all_success = lost == 0
+
+        return "\n".join(all_output_parts)

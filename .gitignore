@@ -180,4 +180,5 @@ config.json
 .ruff_cache/
 .dev
 .kiro
-
+.crush
+data/*

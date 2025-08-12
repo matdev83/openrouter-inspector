@@ -30,12 +30,23 @@ class TableFormatter(BaseFormatter):
             **kwargs: Additional options:
                 - with_providers: bool - Include provider count column
                 - provider_counts: List[int] - Provider counts per model (if with_providers=True)
+                - pricing_changes: List[tuple] - List of pricing changes for highlighting
+                - new_models: List[ModelInfo] - List of new models to show separately
 
         Returns:
             Formatted table string
         """
         with_providers = kwargs.get("with_providers", False)
         provider_counts = kwargs.get("provider_counts", [])
+        pricing_changes = kwargs.get("pricing_changes", [])
+        new_models = kwargs.get("new_models", [])
+
+        # Create a set of model IDs with pricing changes for quick lookup
+        pricing_change_models: dict[str, dict[str, tuple[Any, Any]]] = {}
+        for model_id, field, old_val, new_val in pricing_changes:
+            if model_id not in pricing_change_models:
+                pricing_change_models[model_id] = {}
+            pricing_change_models[model_id][field] = (old_val, new_val)
 
         table = Table(title="OpenRouter Models", box=box.SIMPLE_HEAVY)
         table.add_column(
@@ -52,6 +63,17 @@ class TableFormatter(BaseFormatter):
         for i, model in enumerate(models):
             input_price = model.pricing.get("prompt")
             output_price = model.pricing.get("completion")
+
+            # Check for pricing changes and apply highlighting
+            input_style = None
+            output_style = None
+            if model.id in pricing_change_models:
+                changes = pricing_change_models[model.id]
+                if "prompt" in changes:
+                    input_style = "bold yellow"
+                if "completion" in changes:
+                    output_style = "bold yellow"
+
             input_price_str = (
                 self._fmt_price(input_price) if input_price is not None else "—"
             )
@@ -63,8 +85,16 @@ class TableFormatter(BaseFormatter):
                 model.name,
                 model.id,
                 self._fmt_k(model.context_length),
-                input_price_str,
-                output_price_str,
+                (
+                    f"[{input_style}]{input_price_str}[/{input_style}]"
+                    if input_style
+                    else input_price_str
+                ),
+                (
+                    f"[{output_style}]{output_price_str}[/{output_style}]"
+                    if output_style
+                    else output_price_str
+                ),
             ]
 
             if with_providers and i < len(provider_counts):
@@ -72,10 +102,58 @@ class TableFormatter(BaseFormatter):
 
             table.add_row(*row_data)
 
-        # Capture table output as string
+        # Capture main table output as string
+        output = ""
         with self.console.capture() as capture:
             self.console.print(table)
-        return capture.get()
+        output += capture.get()
+
+        # Add new models table if there are any
+        if new_models:
+            output += "\n"
+            new_table = Table(
+                title="🆕 New Models Since Last Run", box=box.SIMPLE_HEAVY
+            )
+            new_table.add_column(
+                "Name", style="white", no_wrap=False, overflow="ellipsis", max_width=25
+            )
+            new_table.add_column("ID", style="cyan", no_wrap=True)
+            new_table.add_column("Context", justify="right", max_width=8)
+            new_table.add_column("Input", justify="right", max_width=9)
+            new_table.add_column("Output", justify="right", max_width=9)
+
+            if with_providers:
+                new_table.add_column("Providers", justify="right", max_width=10)
+
+            for i, model in enumerate(new_models):
+                input_price = model.pricing.get("prompt")
+                output_price = model.pricing.get("completion")
+                input_price_str = (
+                    self._fmt_price(input_price) if input_price is not None else "—"
+                )
+                output_price_str = (
+                    self._fmt_price(output_price) if output_price is not None else "—"
+                )
+
+                row_data = [
+                    model.name,
+                    model.id,
+                    self._fmt_k(model.context_length),
+                    input_price_str,
+                    output_price_str,
+                ]
+
+                if with_providers and i < len(provider_counts):
+                    # For new models, provider counts might not be available
+                    row_data.append("—")
+
+                new_table.add_row(*row_data)
+
+            with self.console.capture() as capture:
+                self.console.print(new_table)
+            output += capture.get()
+
+        return output
 
     def format_providers(self, providers: List[ProviderDetails], **kwargs: Any) -> str:
         """Format provider details as a Rich table.
@@ -90,7 +168,7 @@ class TableFormatter(BaseFormatter):
         """
         model_id = kwargs.get("model_id", "Unknown Model")
 
-        table = Table(title=f"Offers for {model_id}", box=box.SIMPLE_HEAVY)
+        table = Table(title=f"Endpoints for {model_id}", box=box.SIMPLE_HEAVY)
         table.add_column("Provider", style="cyan")
         table.add_column(
             "Model", style="white", no_wrap=False, overflow="ellipsis", max_width=30
@@ -104,6 +182,7 @@ class TableFormatter(BaseFormatter):
         table.add_column("Input", justify="right", no_wrap=True)
         table.add_column("Output", justify="right", no_wrap=True)
         table.add_column("Uptime", justify="right")
+        table.add_column("Status", justify="center")
 
         for provider_detail in providers:
             p = provider_detail.provider
@@ -140,6 +219,9 @@ class TableFormatter(BaseFormatter):
             # Uptime
             uptime_str = f"{p.uptime_30min:.1f}%"
 
+            # Status formatting
+            status_str, status_style = self._format_status(p.status, p.uptime_30min)
+
             # Prepare row
             table.add_row(
                 p.provider_name,
@@ -157,11 +239,15 @@ class TableFormatter(BaseFormatter):
                 price_in_str,
                 price_out_str,
                 uptime_str,
+                f"[{status_style}]{status_str}[/{status_style}]" if status_style else status_str,
             )
 
         # Capture table output as string
         with self.console.capture() as capture:
             self.console.print(table)
+            # Add status legend
+            self.console.print()
+            self.console.print("[dim]Status: [green]●[/green] Excellent (99%+), [yellow]●[/yellow] Good (95-99%), [red]●[/red] Poor (<95%), [red]✗[/red] Error[/dim]")
         return capture.get()
 
     def _fmt_money(self, value: Union[Decimal, float]) -> str:
@@ -201,3 +287,43 @@ class TableFormatter(BaseFormatter):
         elif isinstance(supported_parameters, dict):
             return bool(supported_parameters.get("image", False))
         return False
+
+    def _format_status(self, status: Optional[str], uptime: float) -> tuple[str, Optional[str]]:
+        """Format endpoint status with appropriate styling.
+
+        Args:
+            status: The status string from the API (e.g., "offline", "-5", etc.)
+            uptime: The uptime percentage for additional context
+
+        Returns:
+            Tuple of (status_text, style_name) where style_name can be None
+        """
+        if not status:
+            return "—", None
+
+        # Normalize status for comparison
+        status_lower = status.lower().strip()
+
+        # Handle different status values
+        if status_lower == "offline":
+            # For "offline" status, use uptime as the primary indicator
+            if uptime >= 99.0:
+                return "●", "green"       # Excellent uptime despite "offline" status
+            elif uptime >= 95.0:
+                return "●", "yellow"      # Good uptime, minor issues
+            elif uptime >= 80.0:
+                return "●", "red"         # Moderate uptime, concerning
+            else:
+                return "●", "bright_red"  # Poor uptime, major issues
+        elif status_lower == "online":
+            return "●", "bright_green"    # Explicitly online - excellent
+        elif status_lower.startswith("-") or (status_lower.isdigit() and status_lower != "0"):
+            # Error codes (like "-5")
+            return "✗", "red"             # Error status
+        elif status_lower in ["available", "active", "ready", "up"]:
+            return "●", "green"           # Available variants
+        elif status_lower in ["unavailable", "inactive", "down", "error"]:
+            return "●", "red"             # Unavailable variants
+        else:
+            # Unknown status - show as-is with neutral styling
+            return status[:3], "dim"      # Truncate to 3 chars max

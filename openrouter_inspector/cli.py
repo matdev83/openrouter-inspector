@@ -96,7 +96,8 @@ def cli(
     Subcommands:
       - list: list models
       - endpoints: detailed endpoints for a model
-      - check: health check a provider endpoint (Functional/Degraded/Disabled)
+      - check: check provider endpoint status (Functional/Degraded/Disabled)
+      - ping: test model connectivity via chat completion
 
     Or use lightweight flags:
       - --list to list models
@@ -172,6 +173,12 @@ def cli(
             asyncio.run(_run_lightweight())
         except (AuthenticationError, RateLimitError, APIError) as e:
             raise click.ClickException(str(e)) from e
+        except click.exceptions.Exit as e:
+            # Propagate click's exit exception without wrapping it
+            raise e
+        except SystemExit as e:
+            # Preserve SystemExit to avoid wrapping in ClickException
+            raise e
         except Exception as e:
             raise click.ClickException(f"Unexpected error: {e}") from e
         # Exit after running lightweight mode
@@ -571,6 +578,26 @@ def search_command(
     help="Timeout in seconds for the ping request",
 )
 @click.option(
+    "-n",
+    "-c",
+    "--count",
+    "count",
+    type=int,
+    default=3,
+    show_default=True,
+    help="Number of ping requests to send.",
+)
+@click.option(
+    "--filthy-rich",
+    is_flag=True,
+    help="Allow sending more than 10 pings, confirming you are aware of potential costs.",
+)
+@click.option(
+    "--debug-response",
+    is_flag=True,
+    help="Print the full JSON response from the API for debugging.",
+)
+@click.option(
     "--log-level",
     "log_level",
     type=click.Choice(
@@ -586,6 +613,9 @@ def ping_command(
     model_id: str,
     provider_name: str | None,
     timeout_seconds: int,
+    count: int,
+    filthy_rich: bool,
+    debug_response: bool,
     log_level: str | None,
 ) -> None:
     """Ping a model or a specific provider endpoint via chat completion.
@@ -603,9 +633,17 @@ def ping_command(
         model_id = parts[0].strip()
         provider_name = parts[1].strip() or None
 
-    # Validate timeout; default to 60 when invalid
-    if not isinstance(timeout_seconds, int) or timeout_seconds <= 0:
+    if timeout_seconds <= 0:
         timeout_seconds = 60
+
+    if count <= 0:
+        raise click.ClickException("Number of tries (-n) must be a positive integer.")
+
+    if count > 10 and not filthy_rich:
+        raise click.ClickException(
+            "To send more than 10 pings, you must use the --filthy-rich flag "
+            "to acknowledge potential API costs."
+        )
 
     async def _run() -> None:
         client, model_service, table_formatter, json_formatter = (
@@ -618,15 +656,26 @@ def ping_command(
             except Exception:
                 pass
             cmd = PingCommand(c, model_service, table_formatter, json_formatter)
-            output = await cmd.execute(
+
+            # Emit each line as it becomes available
+            def _emit(line: str) -> None:
+                if line is None:
+                    return
+                # Ensure a blank line separation is preserved by the command
+                click.echo(line)
+
+            await cmd.execute(
                 model_id=model_id,
                 provider_name=provider_name,
                 timeout_seconds=timeout_seconds,
+                count=count,
+                debug_response=debug_response,
+                on_progress=_emit,
             )
-            # Print with a blank line before and after, ensuring proper line endings
-            click.echo("")
-            click.echo(output)
-            click.echo("")
+            # When streaming, output already printed. Ensure blank lines only if missing
+            # The returned value remains available (useful for tests), but we don't re-print it here
+            if cmd.last_all_success is False:
+                ctx.exit(1)
 
     try:
         asyncio.run(_run())

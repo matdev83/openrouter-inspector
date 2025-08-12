@@ -1,0 +1,19 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 60%
+        threshold: 5%
+    patch:
+      default:
+        target: 70%
+
+comment:
+  layout: "reach,diff,flags,tree"
+  behavior: default
+  require_changes: false
+
+ignore:
+  - "tests/"
+  - "**/__main__.py"
+  - "**/conftest.py"

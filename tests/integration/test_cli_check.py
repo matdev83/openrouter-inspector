@@ -17,16 +17,23 @@ def test_check_help():
 def test_check_disabled_when_offline():
     runner = CliRunner()
     with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
-        with patch("openrouter_inspector.utils.create_command_dependencies") as mock_deps:
+        with patch(
+            "openrouter_inspector.utils.create_command_dependencies"
+        ) as mock_deps:
             mock_client = AsyncMock()
             mock_model_service = AsyncMock()
             mock_table_formatter = AsyncMock()
             mock_json_formatter = AsyncMock()
-            
-            mock_deps.return_value = (mock_client, mock_model_service, mock_table_formatter, mock_json_formatter)
+
+            mock_deps.return_value = (
+                mock_client,
+                mock_model_service,
+                mock_table_formatter,
+                mock_json_formatter,
+            )
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=None)
-            
+
             from openrouter_inspector.models import ProviderDetails, ProviderInfo
 
             provider = ProviderInfo(
@@ -42,11 +49,15 @@ def test_check_disabled_when_offline():
                 pricing={},
             )
             # The ProviderHandler calls client.get_model_providers, so mock that
-            mock_client.get_model_providers = AsyncMock(return_value=[
-                ProviderDetails(
-                    provider=provider, availability=False, last_updated=datetime.now()
-                )
-            ])
+            mock_client.get_model_providers = AsyncMock(
+                return_value=[
+                    ProviderDetails(
+                        provider=provider,
+                        availability=False,
+                        last_updated=datetime.now(),
+                    )
+                ]
+            )
             result = runner.invoke(
                 root_cli, ["check", "author/model", "DeepInfra", "Default"]
             )
@@ -55,7 +66,10 @@ def test_check_disabled_when_offline():
     if result.exception:
         print(f"Exception: {result.exception}")
         import traceback
-        traceback.print_exception(type(result.exception), result.exception, result.exception.__traceback__)
+
+        traceback.print_exception(
+            type(result.exception), result.exception, result.exception.__traceback__
+        )
     assert result.exit_code == 0
     assert result.output.strip() == "Disabled"
 
@@ -63,16 +77,23 @@ def test_check_disabled_when_offline():
 def test_check_functional_when_online():
     runner = CliRunner()
     with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
-        with patch("openrouter_inspector.utils.create_command_dependencies") as mock_deps:
+        with patch(
+            "openrouter_inspector.utils.create_command_dependencies"
+        ) as mock_deps:
             mock_client = AsyncMock()
             mock_model_service = AsyncMock()
             mock_table_formatter = AsyncMock()
             mock_json_formatter = AsyncMock()
-            
-            mock_deps.return_value = (mock_client, mock_model_service, mock_table_formatter, mock_json_formatter)
+
+            mock_deps.return_value = (
+                mock_client,
+                mock_model_service,
+                mock_table_formatter,
+                mock_json_formatter,
+            )
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=None)
-            
+
             from openrouter_inspector.models import ProviderDetails, ProviderInfo
 
             provider = ProviderInfo(

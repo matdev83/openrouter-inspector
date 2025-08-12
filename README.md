@@ -1,5 +1,15 @@
 # OpenRouter Inspector
 
+[![CI](https://github.com/YOUR_USERNAME/openrouter-inspector/workflows/CI/badge.svg)](https://github.com/YOUR_USERNAME/openrouter-inspector/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/YOUR_USERNAME/openrouter-inspector/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/openrouter-inspector)
+[![PyPI version](https://badge.fury.io/py/openrouter-inspector.svg)](https://badge.fury.io/py/openrouter-inspector)
+[![Python versions](https://img.shields.io/pypi/pyversions/openrouter-inspector.svg)](https://pypi.org/project/openrouter-inspector/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
+[![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+
 A lightweight CLI for exploring OpenRouter AI models and provider-specific offers.
 
 ## Installation
@@ -45,7 +55,9 @@ openrouter-inspector/
 │   ├── client.py           # API client
 │   ├── services.py         # Business logic
 │   ├── models.py           # Data models
+│   ├── cache.py            # Response caching for change detection
 │   └── utils.py            # Utilities
+├── data/                   # Cache files for change detection
 ├── tests/                  # Test suite
 │   ├── unit/              # Unit tests
 │   ├── integration/       # Integration tests
@@ -53,6 +65,15 @@ openrouter-inspector/
 ├── pyproject.toml         # Project configuration
 └── README.md              # This file
 ```
+
+### Change Detection
+
+The `list` command automatically tracks changes between runs:
+
+- **New Models**: When new models become available, they're displayed in a separate "🆕 New Models Since Last Run" table
+- **Pricing Changes**: Modified input/output token prices are highlighted in yellow in the main table
+- **Separate Tracking**: Each unique combination of command parameters maintains its own change history
+- **No Caching**: API calls are always made; cached data is used only for comparison
 
 ### Quality Assurance
 
@@ -139,6 +160,7 @@ openrouter-inspector list [filters...] [--with-providers] [--sort-by id|name|con
 - Optional positional `filters` performs case-insensitive substring matches against model id and name using AND logic.
 - Context values are displayed with K suffix (e.g., 128K).
 - Input/Output prices are shown per million tokens in USD.
+- **Change Detection**: Automatically detects new models and pricing changes compared to previous runs with the same parameters. New models are shown in a separate table, and pricing changes are highlighted in yellow.
 
 Options:
 - `--format [table|json|yaml]` (default: table)
@@ -210,38 +232,36 @@ openrouter-inspector ping deepseek/deepseek-chat-v3-0324:free@Chutes
 - Uses a tiny “Ping/Pong” prompt and minimizes completion size for a fast and inexpensive check.
 - When a provider is specified (positional or `@` shorthand), the request pins routing order to that provider and disables fallbacks.
 - Prints the provider that served the request, token usage, USD cost (unrounded when provided by the API), measured latency, and effective TTL.
+- Returns OS exit code `0` on 100% success (zero packet loss) and `1` otherwise, making it suitable for scripting.
 
 Behavior:
 - Default timeout: 60s. Change via `--timeout <seconds>`.
+- Default ping count: 3. Change via `-n <count>` or `-c <count>`.
 - Reasoning minimized by default for low-cost pings (reasoning.effort=low, exclude=true; legacy include_reasoning=false).
 - Caps `max_tokens` to 4 for expected “Pong” reply.
 - Dynamically formats latency: `<1000ms` prints in `ms`; `>=1s` prints in seconds with two decimals (e.g., `1.63s`).
 
 Options:
 - `--timeout <seconds>`: Per-request timeout override (defaults to 60 if missing or invalid).
+- `-n <count>`, `-c <count>`: Number of pings to send (defaults to 3).
+- `--filthy-rich`: Required if sending more than 10 pings to acknowledge potential API costs.
 - `--log-level [CRITICAL|ERROR|WARNING|INFO|DEBUG|NOTSET]`: Set logging level.
 
 Example output:
 
 ```
 
-Pinging https://openrouter.ai/api/v1/chat/completions/deepseek/deepseek-chat-v3-0324:free@Chutes with 28 input tokens:
-Reply from: https://openrouter.ai/api/v1/chat/completions/deepseek/deepseek-chat-v3-0324:free@Chutes tokens: 4 cost: $0.0000021 time=1.59s TTL=60s
-
-```
-
-Concrete example (from a real run)
-
-```bash
-openrouter-inspector ping tngtech/deepseek-r1t2-chimera:free@Chutes --timeout 60
-```
-
-Output
-
-```
-
 Pinging https://openrouter.ai/api/v1/chat/completions/tngtech/deepseek-r1t2-chimera:free@Chutes with 26 input tokens:
 Reply from: https://openrouter.ai/api/v1/chat/completions/tngtech/deepseek-r1t2-chimera:free@Chutes tokens: 4 cost: $0.00 time=2.50s TTL=60s
+
+Pinging https://openrouter.ai/api/v1/chat/completions/tngtech/deepseek-r1t2-chimera:free@Chutes with 26 input tokens:
+Reply from: https://openrouter.ai/api/v1/chat/completions/tngtech/deepseek-r1t2-chimera:free@Chutes tokens: 4 cost: $0.00 time=2.30s TTL=60s
+
+Ping statistics for tngtech/deepseek-r1t2-chimera:free@Chutes:
+    Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
+Approximate round trip times in seconds:
+    Minimum = 2.30s, Maximum = 2.50s, Average = 2.40s
+Total API cost for this run: $0.000000
 
 ```
 
@@ -251,6 +271,8 @@ Notes:
 > ⚠️ **Warning**
 >
 > Running `ping` against paid endpoints will make a real completion call and can consume your API credits. It is not a simulated or “no-op” health check. Use with care on metered providers.
+>
+> Additionally, even when using "free" models, each ping counts against the daily request limit of OpenRouter's free tier. Use with caution, especially if incorporating the command into monitoring scripts or frequent, automated checks.
 
 ### Examples
 

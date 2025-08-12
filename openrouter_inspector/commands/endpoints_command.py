@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from .base_command import BaseCommand
 
@@ -78,9 +78,9 @@ class EndpointsCommand(BaseCommand):
         # Format output
         if output_format.lower() == "json":
             formatted = self.json_formatter.format_providers(sorted_offers)
-            return await self._maybe_await(formatted)
+            return cast(str, await self._maybe_await(formatted))
         else:
             formatted = self.table_formatter.format_providers(
                 sorted_offers, model_id=resolved_id
             )
-            return await self._maybe_await(formatted)
+            return cast(str, await self._maybe_await(formatted))

@@ -53,9 +53,7 @@ class BaseCommand(ABC):
         """
         pass
 
-    def _format_output(
-        self, data: Any, output_format: str, **format_kwargs: Any
-    ) -> str:
+    def _format_output(self, data: Any, output_format: str, **format_kwargs: Any) -> str:
         """Format output using the appropriate formatter.
 
         Args:
@@ -70,17 +68,17 @@ class BaseCommand(ABC):
             if hasattr(data, "__iter__") and not isinstance(data, str):
                 # Handle list of models or providers
                 if data and hasattr(data[0], "id"):  # ModelInfo objects
-                    return self.json_formatter.format_models(data)  # type: ignore[return-value]
+                    return self.json_formatter.format_models(data)
                 elif data and hasattr(data[0], "provider"):  # ProviderDetails objects
-                    return self.json_formatter.format_providers(data)  # type: ignore[return-value]
-            return self.json_formatter.format_models(data)  # type: ignore[return-value]
+                    return self.json_formatter.format_providers(data)
+            return self.json_formatter.format_models(data)
         else:
             if hasattr(data, "__iter__") and not isinstance(data, str):
                 if data and hasattr(data[0], "id"):  # ModelInfo objects
-                    return self.table_formatter.format_models(data, **format_kwargs)  # type: ignore[return-value]
+                    return self.table_formatter.format_models(data, **format_kwargs)
                 elif data and hasattr(data[0], "provider"):  # ProviderDetails objects
-                    return self.table_formatter.format_providers(data, **format_kwargs)  # type: ignore[return-value]
-            return self.table_formatter.format_models(data, **format_kwargs)  # type: ignore[return-value]
+                    return self.table_formatter.format_providers(data, **format_kwargs)
+            return self.table_formatter.format_models(data, **format_kwargs)
 
     async def _maybe_await(self, value: Any) -> Any:
         """Return awaited value when a coroutine is provided; otherwise value unchanged."""

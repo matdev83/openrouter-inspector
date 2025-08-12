@@ -61,19 +61,28 @@ class TestListCommandMultipleFilters:
         """Test list command with single filter."""
         monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
 
-        with patch("openrouter_inspector.utils.create_command_dependencies") as mock_deps:
+        with patch(
+            "openrouter_inspector.utils.create_command_dependencies"
+        ) as mock_deps:
             mock_client = AsyncMock()
             mock_model_service = AsyncMock()
             mock_table_formatter = AsyncMock()
             mock_json_formatter = AsyncMock()
-            
-            mock_deps.return_value = (mock_client, mock_model_service, mock_table_formatter, mock_json_formatter)
+
+            mock_deps.return_value = (
+                mock_client,
+                mock_model_service,
+                mock_table_formatter,
+                mock_json_formatter,
+            )
             mock_client.__aenter__.return_value = mock_client
             mock_client.__aexit__.return_value = None
-            
+
             # Mock the model service search_models method
             mock_model_service.search_models.return_value = mock_models
-            mock_table_formatter.format_models.return_value = "Meta Llama 3\nMeta Llama 3 Free"
+            mock_table_formatter.format_models.return_value = (
+                "Meta Llama 3\nMeta Llama 3 Free"
+            )
 
             result = runner.invoke(root_cli, ["list", "meta"])
 
@@ -85,16 +94,23 @@ class TestListCommandMultipleFilters:
         """Test list command with multiple filters using AND logic."""
         monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
 
-        with patch("openrouter_inspector.utils.create_command_dependencies") as mock_deps:
+        with patch(
+            "openrouter_inspector.utils.create_command_dependencies"
+        ) as mock_deps:
             mock_client = AsyncMock()
             mock_model_service = AsyncMock()
             mock_table_formatter = AsyncMock()
             mock_json_formatter = AsyncMock()
-            
-            mock_deps.return_value = (mock_client, mock_model_service, mock_table_formatter, mock_json_formatter)
+
+            mock_deps.return_value = (
+                mock_client,
+                mock_model_service,
+                mock_table_formatter,
+                mock_json_formatter,
+            )
             mock_client.__aenter__.return_value = mock_client
             mock_client.__aexit__.return_value = None
-            
+
             mock_model_service.search_models.return_value = mock_models
             mock_table_formatter.format_models.return_value = "Meta Llama 3 Free"
 
@@ -163,18 +179,27 @@ class TestListCommandMultipleFilters:
         """Test list command with no filters shows all models."""
         monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
 
-        with patch("openrouter_inspector.utils.create_command_dependencies") as mock_deps:
+        with patch(
+            "openrouter_inspector.utils.create_command_dependencies"
+        ) as mock_deps:
             mock_client = AsyncMock()
             mock_model_service = AsyncMock()
             mock_table_formatter = AsyncMock()
             mock_json_formatter = AsyncMock()
-            
-            mock_deps.return_value = (mock_client, mock_model_service, mock_table_formatter, mock_json_formatter)
+
+            mock_deps.return_value = (
+                mock_client,
+                mock_model_service,
+                mock_table_formatter,
+                mock_json_formatter,
+            )
             mock_client.__aenter__.return_value = mock_client
             mock_client.__aexit__.return_value = None
-            
+
             mock_model_service.search_models.return_value = mock_models
-            mock_table_formatter.format_models.return_value = "Meta Llama 3\nMeta Llama 3 Free\nGPT-4\nClaude 3"
+            mock_table_formatter.format_models.return_value = (
+                "Meta Llama 3\nMeta Llama 3 Free\nGPT-4\nClaude 3"
+            )
 
             result = runner.invoke(root_cli, ["list"])
 

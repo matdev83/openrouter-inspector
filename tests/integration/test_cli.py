@@ -67,7 +67,9 @@ def test_direct_search_without_command(httpx_mock, monkeypatch):
     # We'll use a direct command name that's not a standard subcommand
     runner = CliRunner()
     result = runner.invoke(
-        root_cli, ["search", "nonstandard-command"], env={"OPENROUTER_API_KEY": "test-key"}
+        root_cli,
+        ["search", "nonstandard-command"],
+        env={"OPENROUTER_API_KEY": "test-key"},
     )
 
     # This should be treated as a search term via our empty-named command
@@ -137,7 +139,7 @@ def test_offers_partial_match_resolves(httpx_mock, monkeypatch):
         root_cli, ["endpoints", "deepseek-r1"], catch_exceptions=False
     )
     assert result.exit_code == 0
-    assert "Offers for deepseek/deepseek-r1" in result.output
+    assert "Endpoints for deepseek/deepseek-r1" in result.output
     # Provider name may be trimmed from endpoint name; just assert core fields exist
     assert "Reason" in result.output
     assert "$" in result.output

@@ -1,11 +1,16 @@
 """Unit tests for command classes."""
 
-import pytest
+from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
-from openrouter_inspector.commands import ListCommand, EndpointsCommand, CheckCommand
-from openrouter_inspector.models import ModelInfo, SearchFilters, ProviderDetails, ProviderInfo
-from datetime import datetime
+import pytest
+
+from openrouter_inspector.commands import CheckCommand, EndpointsCommand, ListCommand
+from openrouter_inspector.models import (
+    ModelInfo,
+    ProviderDetails,
+    ProviderInfo,
+)
 
 
 class TestListCommand:
@@ -15,20 +20,20 @@ class TestListCommand:
     def mock_dependencies(self):
         """Create mock dependencies for ListCommand."""
         return {
-            'client': AsyncMock(),
-            'model_service': AsyncMock(),
-            'table_formatter': MagicMock(),
-            'json_formatter': MagicMock(),
+            "client": AsyncMock(),
+            "model_service": AsyncMock(),
+            "table_formatter": MagicMock(),
+            "json_formatter": MagicMock(),
         }
 
     @pytest.fixture
     def list_command(self, mock_dependencies):
         """Create a ListCommand with mocked dependencies."""
         return ListCommand(
-            mock_dependencies['client'],
-            mock_dependencies['model_service'],
-            mock_dependencies['table_formatter'],
-            mock_dependencies['json_formatter'],
+            mock_dependencies["client"],
+            mock_dependencies["model_service"],
+            mock_dependencies["table_formatter"],
+            mock_dependencies["json_formatter"],
         )
 
     @pytest.fixture
@@ -49,7 +54,9 @@ class TestListCommand:
     async def test_execute_basic(self, list_command, sample_models):
         """Test basic list command execution."""
         list_command.model_handler.list_models = AsyncMock(return_value=sample_models)
-        list_command.table_formatter.format_models = MagicMock(return_value="formatted output")
+        list_command.table_formatter.format_models = MagicMock(
+            return_value="formatted output"
+        )
 
         result = await list_command.execute()
 
@@ -60,13 +67,14 @@ class TestListCommand:
     async def test_execute_with_json_format(self, list_command, sample_models):
         """Test list command with JSON output format."""
         list_command.model_handler.list_models = AsyncMock(return_value=sample_models)
-        list_command.json_formatter.format_models = MagicMock(return_value='{"models": []}')
+        list_command.json_formatter.format_models = MagicMock(
+            return_value='{"models": []}'
+        )
 
         result = await list_command.execute(output_format="json")
 
         assert result == '{"models": []}'
         list_command.json_formatter.format_models.assert_called_once_with(sample_models)
-
 
 
 class TestEndpointsCommand:
@@ -76,20 +84,20 @@ class TestEndpointsCommand:
     def mock_dependencies(self):
         """Create mock dependencies for EndpointsCommand."""
         return {
-            'client': AsyncMock(),
-            'model_service': AsyncMock(),
-            'table_formatter': MagicMock(),
-            'json_formatter': MagicMock(),
+            "client": AsyncMock(),
+            "model_service": AsyncMock(),
+            "table_formatter": MagicMock(),
+            "json_formatter": MagicMock(),
         }
 
     @pytest.fixture
     def endpoints_command(self, mock_dependencies):
         """Create an EndpointsCommand with mocked dependencies."""
         return EndpointsCommand(
-            mock_dependencies['client'],
-            mock_dependencies['model_service'],
-            mock_dependencies['table_formatter'],
-            mock_dependencies['json_formatter'],
+            mock_dependencies["client"],
+            mock_dependencies["model_service"],
+            mock_dependencies["table_formatter"],
+            mock_dependencies["json_formatter"],
         )
 
     @pytest.fixture
@@ -137,7 +145,9 @@ class TestEndpointsCommand:
         result = await endpoints_command.execute(model_id="test/model")
 
         assert result == "endpoints output"
-        endpoints_command.endpoint_handler.resolve_and_fetch_endpoints.assert_called_once_with("test/model")
+        endpoints_command.endpoint_handler.resolve_and_fetch_endpoints.assert_called_once_with(
+            "test/model"
+        )
 
 
 class TestCheckCommand:
@@ -147,20 +157,20 @@ class TestCheckCommand:
     def mock_dependencies(self):
         """Create mock dependencies for CheckCommand."""
         return {
-            'client': AsyncMock(),
-            'model_service': AsyncMock(),
-            'table_formatter': MagicMock(),
-            'json_formatter': MagicMock(),
+            "client": AsyncMock(),
+            "model_service": AsyncMock(),
+            "table_formatter": MagicMock(),
+            "json_formatter": MagicMock(),
         }
 
     @pytest.fixture
     def check_command(self, mock_dependencies):
         """Create a CheckCommand with mocked dependencies."""
         return CheckCommand(
-            mock_dependencies['client'],
-            mock_dependencies['model_service'],
-            mock_dependencies['table_formatter'],
-            mock_dependencies['json_formatter'],
+            mock_dependencies["client"],
+            mock_dependencies["model_service"],
+            mock_dependencies["table_formatter"],
+            mock_dependencies["json_formatter"],
         )
 
     @pytest.fixture
@@ -197,9 +207,7 @@ class TestCheckCommand:
         )
 
         result = await check_command.execute(
-            model_id="test/model",
-            provider_name="TestProvider",
-            endpoint_name="Default"
+            model_id="test/model", provider_name="TestProvider", endpoint_name="Default"
         )
 
         assert result == "Functional"
@@ -233,9 +241,7 @@ class TestCheckCommand:
         )
 
         result = await check_command.execute(
-            model_id="test/model",
-            provider_name="TestProvider",
-            endpoint_name="Default"
+            model_id="test/model", provider_name="TestProvider", endpoint_name="Default"
         )
 
         assert result == "Disabled"
@@ -249,5 +255,5 @@ class TestCheckCommand:
             await check_command.execute(
                 model_id="test/model",
                 provider_name="NonExistentProvider",
-                endpoint_name="Default"
+                endpoint_name="Default",
             )

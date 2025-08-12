@@ -1,15 +1,14 @@
 """Unit tests for utility functions."""
 
-import pytest
 from unittest.mock import MagicMock, patch
 
 from openrouter_inspector.utils import (
+    check_parameter_support,
     configure_logging,
     create_command_dependencies,
     normalize_string,
-    parse_quantization_bits,
     parse_context_threshold,
-    check_parameter_support,
+    parse_quantization_bits,
 )
 
 
@@ -23,13 +22,13 @@ class TestConfigureLogging:
 
     def test_configure_logging_none_with_default(self):
         """Test configure_logging with None level and default_to_warning=True."""
-        with patch('logging.getLogger') as mock_get_logger:
+        with patch("logging.getLogger") as mock_get_logger:
             mock_logger = MagicMock()
             mock_get_logger.return_value = mock_logger
             mock_logger.handlers = [MagicMock()]
-            
+
             configure_logging(None, default_to_warning=True)
-            
+
             mock_logger.setLevel.assert_called_once()
 
     def test_configure_logging_valid_levels(self):
@@ -44,13 +43,13 @@ class TestConfigureLogging:
     def test_configure_logging_invalid_level(self):
         """Test configure_logging with invalid level."""
         # Should default to WARNING
-        with patch('logging.getLogger') as mock_get_logger:
+        with patch("logging.getLogger") as mock_get_logger:
             mock_logger = MagicMock()
             mock_get_logger.return_value = mock_logger
             mock_logger.handlers = [MagicMock()]
-            
+
             configure_logging("INVALID")
-            
+
             mock_logger.setLevel.assert_called_once()
 
     def test_configure_logging_case_insensitive(self):
@@ -64,18 +63,20 @@ class TestConfigureLogging:
 class TestCreateCommandDependencies:
     """Test cases for create_command_dependencies function."""
 
-    @patch('openrouter_inspector.utils.client_mod.OpenRouterClient')
-    @patch('openrouter_inspector.utils.services_mod.ModelService')
-    @patch('openrouter_inspector.utils.TableFormatter')
-    @patch('openrouter_inspector.utils.JsonFormatter')
+    @patch("openrouter_inspector.utils.client_mod.OpenRouterClient")
+    @patch("openrouter_inspector.utils.services_mod.ModelService")
+    @patch("openrouter_inspector.utils.TableFormatter")
+    @patch("openrouter_inspector.utils.JsonFormatter")
     def test_create_command_dependencies(
         self, mock_json_formatter, mock_table_formatter, mock_model_service, mock_client
     ):
         """Test create_command_dependencies function."""
         api_key = "test-api-key"
-        
-        client, model_service, table_formatter, json_formatter = create_command_dependencies(api_key)
-        
+
+        client, model_service, table_formatter, json_formatter = (
+            create_command_dependencies(api_key)
+        )
+
         mock_client.assert_called_once_with(api_key)
         mock_model_service.assert_called_once_with(mock_client.return_value)
         mock_table_formatter.assert_called_once()

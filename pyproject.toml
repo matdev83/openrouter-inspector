@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.18.0"]
 build-backend = "hatchling.build"
 
 [project]
 name = "openrouter-inspector"
-version = "0.1.0"
+dynamic = ["version"]
 description = "A command-line tool for querying OpenRouter AI models and providers"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -19,6 +19,7 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
@@ -27,8 +28,12 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Monitoring",
     "Topic :: Utilities",
+    "Typing :: Typed",
 ]
 requires-python = ">=3.8"
 dependencies = [
@@ -39,17 +44,85 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Development dependencies
 dev = [
-    "pytest>=7.0.0",
-    "pytest-asyncio>=0.21.0",
-    "pytest-cov>=4.0.0",
-    "pytest-httpx>=0.21.0",
-    "hypothesis>=6.0.0",
     "black>=23.0.0",
     "ruff>=0.1.0",
     "mypy>=1.0.0",
     "pre-commit>=3.0.0",
     "vulture>=2.0",
+]
+
+# Testing dependencies
+test = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "pytest-httpx>=0.21.0",
+    "hypothesis>=6.0.0",
+]
+
+# Documentation dependencies
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.0.0",
+    "mkdocstrings[python]>=0.20.0",
+]
+
+# Build and release dependencies
+build = [
+    "build>=0.10.0",
+    "twine>=4.0.0",
+    "wheel>=0.40.0",
+    "hatch>=1.9.0",
+    "hatchling>=1.18.0",
+    "hatch-vcs>=0.3.0",
+]
+
+# Complete development environment
+complete = [
+    "black>=23.0.0",
+    "ruff>=0.1.0", 
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+    "vulture>=2.0",
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "pytest-httpx>=0.21.0",
+    "hypothesis>=6.0.0",
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.0.0",
+    "mkdocstrings[python]>=0.20.0",
+    "build>=0.10.0",
+    "twine>=4.0.0",
+    "wheel>=0.40.0",
+    "hatch>=1.9.0",
+    "hatchling>=1.18.0",
+    "hatch-vcs>=0.3.0",
+]
+
+# Legacy alias for backwards compatibility
+all = [
+    "black>=23.0.0",
+    "ruff>=0.1.0", 
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+    "vulture>=2.0",
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "pytest-httpx>=0.21.0",
+    "hypothesis>=6.0.0",
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.0.0",
+    "mkdocstrings[python]>=0.20.0",
+    "build>=0.10.0",
+    "twine>=4.0.0",
+    "wheel>=0.40.0",
+    "hatch>=1.9.0",
+    "hatchling>=1.18.0",
+    "hatch-vcs>=0.3.0",
 ]
 
 [project.urls]
@@ -60,6 +133,101 @@ Documentation = "https://github.com/example/openrouter-cli#readme"
 
 [project.scripts]
 openrouter-inspector = "openrouter_inspector.__main__:main"
+
+# Hatchling build configuration
+[tool.hatch.build.targets.wheel]
+packages = ["openrouter_inspector"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/openrouter_inspector",
+    "/tests",
+    "/README.md",
+    "/LICENSE",
+    "/pyproject.toml",
+]
+exclude = [
+    "/.github",
+    "/.venv",
+    "/dist",
+    "/build",
+    "**/__pycache__",
+    "**/*.pyc",
+    "**/*.pyo",
+    "**/.pytest_cache",
+    "**/.mypy_cache",
+    "**/.coverage",
+    "**/htmlcov",
+]
+
+[tool.hatch.version]
+path = "openrouter_inspector/__init__.py"
+
+# Hatch environments for development tasks
+[tool.hatch.envs.default]
+dependencies = [
+    "black>=23.0.0",
+    "ruff>=0.1.0", 
+    "mypy>=1.0.0",
+    "vulture>=2.0",
+    "pre-commit>=3.0.0",
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "pytest-httpx>=0.21.0",
+    "hypothesis>=6.0.0",
+]
+
+[tool.hatch.envs.default.scripts]
+# Testing
+test = "pytest {args:tests}"
+test-cov = "pytest --cov=openrouter_inspector --cov-report=html --cov-report=term {args:tests}"
+test-fast = "pytest -x {args:tests}"
+
+# Code quality
+lint = "ruff check {args:.}"
+lint-fix = "ruff check --fix {args:.}"
+format = "black {args:.}"
+format-check = "black --check --diff {args:.}"
+type-check = "mypy {args:openrouter_inspector}"
+vulture-check = "vulture --min-confidence 80 {args:openrouter_inspector}"
+
+# Combined QA
+qa = ["format-check", "lint", "type-check", "vulture-check", "test"]
+qa-fix = ["format", "lint-fix", "type-check", "vulture-check", "test"]
+
+# Pre-commit
+pre-commit-install = "pre-commit install"
+pre-commit-run = "pre-commit run --all-files"
+
+[tool.hatch.envs.build]
+dependencies = [
+    "build>=0.10.0",
+    "twine>=4.0.0",
+    "wheel>=0.40.0",
+]
+
+[tool.hatch.envs.build.scripts]
+# Clean build artifacts
+clean = [
+    "python -c \"import shutil; import os; [shutil.rmtree(p, ignore_errors=True) for p in ['dist', 'build'] + [d for d in os.listdir('.') if d.endswith('.egg-info')]]\"",
+]
+
+# Build packages
+build-wheel = "python -m build --wheel"
+build-sdist = "python -m build --sdist" 
+build-all = "python -m build"
+
+# Validate packages
+check = "twine check dist/*"
+check-wheel = "python -m pip install --force-reinstall --no-deps dist/*.whl && python -c 'import openrouter_inspector; print(f\"Version: {openrouter_inspector.__version__}\")'"
+
+# Upload packages
+upload-test = "twine upload --repository testpypi dist/*"
+upload = "twine upload dist/*"
+
+# Complete build and check workflow
+release-check = ["clean", "build-all", "check", "check-wheel"]
 
 # Black configuration
 [tool.black]
@@ -105,6 +273,7 @@ ignore = [
 "__init__.py" = ["F401"]
 "tests/integration/test_error_handling.py" = ["F821"]
 "tests/unit/test_enhanced_services.py" = ["F821"]
+".vulture_whitelist.py" = ["F821", "B018"]
 # MyPy configuration
 [tool.mypy]
 python_version = "3.9"
@@ -156,3 +325,21 @@ exclude_lines = [
 show_missing = true
 skip_covered = false
 fail_under = 60
+# Vulture configuration
+[tool.vulture]
+paths = ["openrouter_inspector"]
+exclude = ["tests/"]
+ignore_decorators = ["@click.command", "@click.group", "@click.option", "@click.argument"]
+ignore_names = ["_*", "test_*"]
+make_whitelist = true
+min_confidence = 80
+sort_by_size = true
+# Band
+it security configuration
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", "build", "dist"]
+skips = ["B101", "B601"]  # Skip assert_used and shell_injection_process_args
+
+# Safety configuration for dependency vulnerability scanning
+[tool.safety]
+ignore = []

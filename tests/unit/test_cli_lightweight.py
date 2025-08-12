@@ -2,17 +2,6 @@
 
 from __future__ import annotations
 
-from click.testing import CliRunner
-
-from openrouter_inspector.__main__ import main
-from openrouter_inspector.cli import cli
-
-
-def test_cli_has_ping_command_registered():
-    assert "ping" in cli.commands
-
-"""Unit tests for CLI lightweight mode functionality."""
-
 from datetime import datetime
 from unittest.mock import AsyncMock, patch
 
@@ -21,6 +10,13 @@ from click.testing import CliRunner
 
 from openrouter_inspector.cli import cli
 from openrouter_inspector.models import ModelInfo, ProviderDetails, ProviderInfo
+
+
+def test_cli_has_ping_command_registered():
+    assert "ping" in cli.commands
+
+
+"""Unit tests for CLI lightweight mode functionality."""
 
 
 class TestCliLightweightMode:
@@ -78,7 +74,6 @@ class TestCliLightweightMode:
                 assert "Model Two" in result.output
                 assert "Another Model" in result.output
                 mock_client.get_models.assert_called_once()
-
 
     def test_list_with_sorting(self, runner, sample_models):
         """Test --list with sorting options."""
@@ -269,5 +264,3 @@ class TestCliLightweightMode:
 
             assert result.exit_code != 0
             assert "--tools and --no-tools cannot be used together" in result.output
-
-

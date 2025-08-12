@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
+from ..cache import ListCommandCache
 from ..models import SearchFilters
 from .base_command import BaseCommand
 
 
 class ListCommand(BaseCommand):
     """Command for listing models with filtering and sorting."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize the list command with cache support."""
+        super().__init__(*args, **kwargs)
+        self.cache = ListCommandCache()
 
     async def execute(
         self,
@@ -54,11 +60,37 @@ class ListCommand(BaseCommand):
             max_price_per_token=None,
         )
 
+        # Create cache key from all parameters
+        cache_params = {
+            "filters": filters,
+            "min_context": min_context,
+            "tools": tools,
+            "no_tools": no_tools,
+            "output_format": output_format,
+            "with_providers": with_providers,
+            "sort_by": sort_by,
+            "desc": desc,
+        }
+
+        # Get previous response from cache for comparison
+        previous_data = self.cache.get_previous_response(**cache_params)
+
         # Get models using handler
         text_filters = list(filters) if filters else None
         models = await self.model_handler.list_models(
             search_filters, text_filters, sort_by, desc
         )
+
+        # Store current response in cache
+        self.cache.store_response(models, **cache_params)
+
+        # Compare with previous response if available
+        new_models: list[Any] = []
+        pricing_changes: list[tuple[str, str, Any, Any]] = []
+        if previous_data:
+            new_models, pricing_changes = self.cache.compare_responses(
+                models, previous_data
+            )
 
         # Handle provider counts if requested
         if output_format.lower() == "table" and with_providers:
@@ -80,9 +112,21 @@ class ListCommand(BaseCommand):
             )
 
             formatted = self.table_formatter.format_models(
-                models, with_providers=True, provider_counts=provider_counts
+                models,
+                with_providers=True,
+                provider_counts=provider_counts,
+                pricing_changes=pricing_changes,
+                new_models=new_models,
             )
-            return await self._maybe_await(formatted)
+            return cast(str, await self._maybe_await(formatted))
         else:
-            formatted = self._format_output(models, output_format)
-            return await self._maybe_await(formatted)
+            # For table format, pass comparison data
+            if output_format.lower() == "table":
+                formatted = self.table_formatter.format_models(
+                    models,
+                    pricing_changes=pricing_changes,
+                    new_models=new_models,
+                )
+            else:
+                formatted = self._format_output(models, output_format)
+            return cast(str, await self._maybe_await(formatted))
