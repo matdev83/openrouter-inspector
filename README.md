@@ -1,30 +1,41 @@
 # OpenRouter Inspector
 
-[![CI](https://github.com/matdev83/openrouter-inspector/workflows/CI/badge.svg)](https://github.com/matdev83/openrouter-inspector/actions/workflows/ci.yml)
+[![CI](https://github.com/matdev83/openrouter-inspector/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/matdev83/openrouter-inspector/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/matdev83/openrouter-inspector/branch/main/graph/badge.svg)](https://codecov.io/gh/matdev83/openrouter-inspector)
-[![PyPI version](https://badge.fury.io/py/openrouter-inspector.svg)](https://badge.fury.io/py/openrouter-inspector)
-[![Python versions](https://img.shields.io/pypi/pyversions/openrouter-inspector.svg)](https://pypi.org/project/openrouter-inspector/)  
-Requires Python 3.10+
+[![PyPI](https://img.shields.io/badge/PyPI-not%20published-lightgrey)](https://pypi.org/project/openrouter-inspector/)
+![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![Tests](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml)
 
-A lightweight CLI for exploring OpenRouter AI models and provider-specific offers.
+A lightweight CLI for exploring OpenRouter AI models, provider-specific endpoints and performing tests.
 
 ## Installation
+
+### Requirements
+
+- Python 3.10+
 
 ### Development Setup
 
 1. Clone the repository
-2. Run the development setup script:
+2. Create and activate a virtual environment:
+   - Windows (PowerShell):
+     ```powershell
+     python -m venv .venv
+     ./.venv/Scripts/Activate.ps1
+     ```
+   - Unix/macOS:
+     ```bash
+     python -m venv .venv
+     source .venv/bin/activate
+     ```
+3. Install in development mode with all dev tools:
    ```bash
-   python setup_dev.py
+   pip install -e ".[dev]"
    ```
-3. Activate the virtual environment:
-   - On Windows: `.venv\Scripts\activate.bat`
-   - On Unix/macOS: `source .venv/bin/activate`
 
 ### Using Make (optional)
 
