@@ -10,7 +10,13 @@ from contextlib import suppress
 import click
 
 from . import utils
-from .commands import CheckCommand, EndpointsCommand, ListCommand, PingCommand
+from .commands import (
+    BenchmarkCommand,
+    CheckCommand,
+    EndpointsCommand,
+    ListCommand,
+    PingCommand,
+)
 from .exceptions import APIError, AuthenticationError, RateLimitError
 
 logger = logging.getLogger(__name__)
@@ -99,6 +105,7 @@ def cli(
       - endpoints: detailed endpoints for a model
       - check: check provider endpoint status (Functional/Degraded/Disabled)
       - ping: test model connectivity via chat completion
+      - benchmark: measure throughput (TPS) of a model endpoint
 
     Or use lightweight flags:
       - --list to list models
@@ -276,6 +283,12 @@ def list_models(
 
     try:
         asyncio.run(_run())
+    except click.exceptions.Exit as e:
+        # Preserve intended exit code for scripting scenarios
+        raise e
+    except SystemExit as e:
+        # Allow SystemExit to propagate without wrapping
+        raise e
     except (AuthenticationError, RateLimitError, APIError) as e:
         raise click.ClickException(str(e)) from e
     except Exception as e:
@@ -437,6 +450,12 @@ def endpoints(
 
     try:
         asyncio.run(_run())
+    except click.exceptions.Exit as e:
+        # Preserve intended exit code for scripting scenarios
+        raise e
+    except SystemExit as e:
+        # Allow SystemExit to propagate without wrapping
+        raise e
     except (AuthenticationError, RateLimitError, APIError) as e:
         raise click.ClickException(str(e)) from e
     except Exception as e:
@@ -495,6 +514,12 @@ def check_command(
 
     try:
         asyncio.run(_run())
+    except click.exceptions.Exit as e:
+        # Preserve intended exit code for scripting scenarios
+        raise e
+    except SystemExit as e:
+        # Allow SystemExit to propagate without wrapping
+        raise e
     except (AuthenticationError, RateLimitError, APIError) as e:
         raise click.ClickException(str(e)) from e
     except Exception as e:
@@ -589,6 +614,12 @@ def search_command(
     help="Print the full JSON response from the API for debugging.",
 )
 @click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["table", "json", "text"], case_sensitive=False),
+    default="table",
+)
+@click.option(
     "--log-level",
     "log_level",
     type=click.Choice(
@@ -608,6 +639,7 @@ def ping_command(
     filthy_rich: bool,
     debug_response: bool,
     log_level: str | None,
+    output_format: str | None = None,
 ) -> None:
     """Ping a model or a specific provider endpoint via chat completion.
 
@@ -642,10 +674,10 @@ def ping_command(
         )
 
         async with client as c:
-            try:
+            from contextlib import suppress
+
+            with suppress(Exception):
                 model_service.client = c
-            except Exception:
-                pass
             cmd = PingCommand(c, model_service, table_formatter, json_formatter)
 
             # Emit each line as it becomes available
@@ -672,5 +704,148 @@ def ping_command(
         asyncio.run(_run())
     except (AuthenticationError, RateLimitError, APIError) as e:
         raise click.ClickException(str(e)) from e
+    except Exception as e:
+        raise click.ClickException(f"Unexpected error: {e}") from e
+
+
+@cli.command("benchmark")
+@click.argument("model_id", required=True)
+@click.argument("provider_name", required=False)
+@click.option(
+    "--timeout",
+    "timeout_seconds",
+    type=int,
+    default=120,
+    show_default=True,
+    help="Timeout in seconds for the benchmark request",
+)
+@click.option(
+    "--max-tokens",
+    "max_tokens",
+    type=int,
+    default=3000,
+    show_default=True,
+    help="Maximum output tokens allowed (safety limit)",
+)
+@click.option(
+    "--debug-response",
+    is_flag=True,
+    help="Print the full JSON response from the API for debugging.",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["table", "json", "text"], case_sensitive=False),
+    default="table",
+)
+@click.option(
+    "--min-tps",
+    "min_tps",
+    type=click.FloatRange(1, 10000),
+    help="Minimum TPS threshold (1-10000). Only enforced when --format text.",
+)
+@click.option(
+    "--log-level",
+    "log_level",
+    type=click.Choice(
+        ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"],
+        case_sensitive=False,
+    ),
+    help="Set logging level",
+    envvar="OPENROUTER_LOG_LEVEL",
+)
+@click.pass_context
+def benchmark_command(
+    ctx: click.Context,
+    model_id: str,
+    provider_name: str | None,
+    timeout_seconds: int,
+    max_tokens: int,
+    debug_response: bool,
+    output_format: str,
+    min_tps: float | None,
+    log_level: str | None,
+) -> None:
+    """Benchmark throughput (TPS) of a model or specific provider endpoint.
+
+    Measures tokens per second by sending a prompt designed to generate a long response.
+
+    Examples:
+      openrouter-inspector benchmark openai/gpt-4o-mini
+      openrouter-inspector benchmark deepseek/deepseek-chat-v3-0324:free Chutes
+      openrouter-inspector benchmark anthropic/claude-3.5-sonnet@anthropic
+    """
+    utils.configure_logging(log_level)
+    api_key: str = ctx.obj["api_key"]
+
+    # Support model@provider shorthand when provider_name not given
+    if provider_name is None and "@" in model_id:
+        parts = model_id.split("@", 1)
+        model_id = parts[0].strip()
+        provider_name = parts[1].strip() or None
+
+    if timeout_seconds <= 0:
+        timeout_seconds = 120
+
+    async def _run() -> int | None:
+        client, model_service, table_formatter, json_formatter = (
+            utils.create_command_dependencies(api_key)
+        )
+
+        async with client as c:
+            from contextlib import suppress
+
+            with suppress(AttributeError):
+                model_service.client = c
+            cmd = BenchmarkCommand(c, model_service, table_formatter, json_formatter)
+
+            # Run once to produce metrics for formatting and threshold check
+            result = await cmd._benchmark_once(
+                model_id=model_id,
+                provider_name=provider_name,
+                timeout_seconds=timeout_seconds,
+                max_tokens=max_tokens,
+                debug_response=debug_response,
+            )
+
+            fmt = (output_format or "table").lower()
+            if fmt == "json":
+                import json as _json
+
+                payload = {
+                    "model_id": model_id,
+                    "provider": provider_name or "Auto-selected",
+                    "status": "SUCCESS" if result.success else "FAILED",
+                    "duration_ms": result.elapsed_ms,
+                    "input_tokens": result.input_tokens,
+                    "output_tokens": result.output_tokens,
+                    "total_tokens": result.total_tokens,
+                    "tps": result.tokens_per_second,
+                    "cost_usd": float(result.cost or 0.0),
+                    "tokens_exceeded": getattr(result, "tokens_exceeded", False),
+                    "actual_output_tokens": getattr(result, "actual_output_tokens", 0),
+                }
+                click.echo(_json.dumps(payload, indent=2, default=str))
+            elif fmt == "text":
+                click.echo(f"TPS: {result.tokens_per_second:.2f}")
+                if min_tps is not None:
+                    return 0 if result.tokens_per_second >= min_tps else 1
+            else:
+                output = table_formatter.format_benchmark_result(
+                    result=result, model_id=model_id, provider_name=provider_name
+                )
+                click.echo(output)
+        return None
+
+    try:
+        exit_code = asyncio.run(_run())
+        if exit_code is not None:
+            ctx.exit(exit_code)
+    except (AuthenticationError, RateLimitError, APIError) as e:
+        raise click.ClickException(str(e)) from e
+    except click.exceptions.Exit as e:
+        raise e
+    except SystemExit as e:
+        raise e
     except Exception as e:
         raise click.ClickException(f"Unexpected error: {e}") from e

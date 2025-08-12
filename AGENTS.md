@@ -94,3 +94,11 @@ Never summarize a task or claim a success or summarize task completion unless yo
 - created or checked related tests and ensured they all pass,
 - proved the test suite is 100% green,
 - proved the end-to-end functioning by running commands utilising related code
+
+---
+
+## No Manual Package Installations
+
+Agents are **NOT ALLOWED** to install packages directly using `pip`, `npm`, or any other package manager. All dependencies must be managed by editing the `pyproject.toml` file. After editing, the project must be re-installed in editable mode using `./.venv/Scripts/python.exe -m pip install -e .[dev]`. This is the only permitted use of `pip`.
+
+---

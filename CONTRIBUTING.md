@@ -18,13 +18,25 @@
   ```bash
   pip install -e ".[dev]"
   ```
-- Optional Make targets:
-  ```bash
-  make setup-dev
-  make install-dev
-  make test
-  make qa
-  ```
+- Makefile commands (automation shortcuts):
+
+  - `make help`: Show all available targets.
+  - `make setup-dev`: Run local dev setup script (creates config, etc.).
+  - `make install`: Install the package into the active environment.
+  - `make install-dev`: Editable install with dev dependencies (`.[dev]`).
+  - `make test`: Run the test suite (network tests are skipped by default).
+  - `make test-cov`: Run tests with coverage and generate HTML report in `htmlcov/`.
+  - `make lint`: Run Ruff linting (with `--fix`).
+  - `make format`: Run Black formatting over the repository.
+  - `make type-check`: Run MyPy type checking on `openrouter_inspector`.
+  - `make qa`: Convenience target that runs format, lint, type-check, and test-cov.
+  - `make clean`: Remove build artifacts, caches, and coverage output.
+  - `make build`: Clean and build sdist + wheel (uses `python -m build`).
+  - `make publish-test`: Upload `dist/*` to TestPyPI. Requires environment variables for Twine:
+    - `TWINE_USERNAME=token`
+    - `TWINE_PASSWORD=<your-pypi-token>`
+  - `make publish`: Upload `dist/*` to PyPI (same Twine env vars as above).
+  - `make release`: Clean, build, run Twine checks, and upload to PyPI.
 
 ## Quality Assurance
 

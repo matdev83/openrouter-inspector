@@ -1,0 +1,1 @@
+Respond exactly with Pong. No punctuation, no additional text, no explanations. Output only: Pong

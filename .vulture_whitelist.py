@@ -6,6 +6,7 @@ endpoints
 check_command
 search_command
 ping_command
+benchmark_command
 
 # Pydantic model fields and methods - used by the framework
 description

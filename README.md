@@ -12,7 +12,7 @@
 ![Last commit](https://img.shields.io/github/last-commit/matdev83/openrouter-inspector)
 [![Issues](https://img.shields.io/github/issues/matdev83/openrouter-inspector)](https://github.com/matdev83/openrouter-inspector/issues)
 
-A lightweight CLI for exploring OpenRouter AI models, provider-specific endpoints and performing tests.
+A lightweight CLI for exploring OpenRouter AI models, listing provider endpoints with supported model parameters, and benchmarking endpoint latency and throughput.
 
 ## Installation
 
@@ -203,6 +203,43 @@ Notes:
 > Running `ping` against paid endpoints will make a real completion call and can consume your API credits. It is not a simulated or “no-op” health check. Use with care on metered providers.
 >
 > Additionally, even when using "free" models, each ping counts against the daily request limit of OpenRouter's free tier. Use with caution, especially if incorporating the command into monitoring scripts or frequent, automated checks.
+
+#### benchmark
+
+```bash
+openrouter-inspector benchmark MODEL_ID [PROVIDER_NAME] \
+  [--timeout <seconds>] [--max-tokens <limit>] [--format table|json|text] [--min-tps <threshold>] [--debug-response]
+```
+
+- Measures model/provider throughput (tokens per second, TPS) by streaming a long response.
+- Supports multiple output modes so you can use it in scripts:
+  - `table` (default): Rich table with metrics (Status, Duration, Input/Output/Total tokens, Throughput, Cost). Includes a short “Benchmarking …” preface.
+  - `json`: Emits a JSON object with the same metrics as the table.
+  - `text`: Emits a single line: `TPS: <value>`.
+
+Options:
+- `--timeout <seconds>`: Request timeout (default: 120).
+- `--max-tokens <limit>`: Safety cap for generated tokens (default: 3000).
+- `--format [table|json|text]`: Output format (default: table).
+- `--min-tps <threshold>`: Enforce a minimum TPS threshold (range 1–10000) in `text` mode. Exit code is `1` when measured TPS is lower than threshold, otherwise `0`.
+- `--debug-response`: Print streaming chunk JSON for debugging (noisy).
+
+Examples:
+
+```bash
+# Human-friendly table
+openrouter-inspector benchmark google/gemini-2.0-flash-exp:free
+
+# JSON for automation
+openrouter-inspector benchmark google/gemini-2.0-flash-exp:free --format json
+
+# Text-only TPS with threshold suitable for CI/monitoring (non-zero exit code on breach)
+openrouter-inspector benchmark google/gemini-2.0-flash-exp:free --format text --min-tps 200
+```
+
+Scripting/monitoring notes:
+- In `text` format with `--min-tps`, the command exits with code `1` if TPS is below the threshold (else `0`). Use this in CI/CD, cron, or health checks.
+- In `table`/`json` formats, the exit code reflects execution success, not a threshold check.
 
 ### Examples
 

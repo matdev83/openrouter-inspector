@@ -303,6 +303,66 @@ class OpenRouterClient:
         except (ValueError, TypeError) as e:
             raise APIError(f"Invalid JSON response: {e}") from e
 
+    async def create_chat_completion_stream(
+        self,
+        *,
+        model: str,
+        messages: list[dict[str, Any]],
+        provider_order: list[str] | None = None,
+        allow_fallbacks: bool | None = None,
+        timeout_seconds: int | None = None,
+        extra_headers: dict[str, str] | None = None,
+        extra_body: dict[str, Any] | None = None,
+        retries_enabled: bool = True,
+    ) -> tuple[Any, dict[str, str]]:
+        """Call OpenRouter chat completions endpoint with streaming.
+
+        Args:
+            model: Model ID (author/slug).
+            messages: OpenAI-compatible messages list.
+            provider_order: Optional explicit provider order to try.
+            allow_fallbacks: When False, do not allow fallback providers.
+            timeout_seconds: Per-request timeout override.
+            extra_headers: Optional headers to include.
+            extra_body: Optional extra body fields to merge.
+
+        Returns:
+            Tuple of (async_generator, response_headers).
+        """
+        body: dict[str, Any] = {
+            "model": model,
+            "messages": messages,
+            "stream": True,
+        }
+        if provider_order is not None or allow_fallbacks is not None:
+            provider_pref: dict[str, Any] = {}
+            if provider_order is not None:
+                provider_pref["order"] = provider_order
+            if allow_fallbacks is not None:
+                provider_pref["allow_fallbacks"] = allow_fallbacks
+            body["provider"] = provider_pref
+        if extra_body:
+            body.update(extra_body)
+
+        headers: dict[str, str] = {}
+        if extra_headers:
+            headers.update(extra_headers)
+
+        request_kwargs: dict[str, Any] = {"json": body}
+        if headers:
+            request_kwargs["headers"] = headers
+        if timeout_seconds is not None:
+            request_kwargs["timeout"] = httpx.Timeout(timeout_seconds)
+
+        response = await self._make_request(
+            "POST",
+            "/chat/completions",
+            retries_enabled=retries_enabled,
+            **request_kwargs,
+        )
+
+        return response, dict(response.headers)
+
     async def get_models(self) -> list[ModelInfo]:
         """Retrieve all available models from OpenRouter API.
 

@@ -1,6 +1,6 @@
 # Makefile for OpenRouter CLI development
 
-.PHONY: help install install-dev test test-cov lint format type-check qa clean build
+.PHONY: help install install-dev test test-cov lint format type-check qa clean build publish publish-test release
 
 # Default target
 help:
@@ -14,7 +14,10 @@ help:
 	@echo "  type-check   - Run type checking with mypy"
 	@echo "  qa           - Run all quality assurance checks"
 	@echo "  clean        - Clean build artifacts"
-	@echo "  build        - Build the package"
+	@echo "  build        - Build the package (sdist + wheel)"
+	@echo "  publish      - Upload dist/* to PyPI (requires TWINE env vars)"
+	@echo "  publish-test - Upload dist/* to TestPyPI (requires TWINE env vars)"
+	@echo "  release      - Clean, build, check and publish to PyPI"
 
 # Installation targets
 install:
@@ -56,6 +59,22 @@ clean:
 
 build: clean
 	python -m build
+
+# Publish helpers (set TWINE_USERNAME=token and TWINE_PASSWORD=your-token before running)
+publish-test:
+	python -m pip install -U build twine
+	python -m twine check dist/*
+	python -m twine upload --repository testpypi dist/*
+
+publish:
+	python -m pip install -U build twine
+	python -m twine check dist/*
+	python -m twine upload dist/*
+
+release: clean build
+	python -m pip install -U twine
+	python -m twine check dist/*
+	python -m twine upload dist/*
 
 # Virtual environment setup
 setup-dev:

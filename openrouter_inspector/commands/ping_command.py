@@ -8,6 +8,7 @@ import statistics
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from .base_command import BaseCommand
@@ -29,6 +30,18 @@ class PingCommand(BaseCommand):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._last_all_success: bool | None = None
+
+    def _load_ping_prompt(self) -> str:
+        """Load the ping prompt from the config file."""
+        prompt_path = Path("config/prompts/ping.md")
+        try:
+            if prompt_path.exists():
+                return prompt_path.read_text(encoding="utf-8").strip()
+        except (OSError, UnicodeDecodeError):
+            # Ignore file I/O/encoding errors and fall back to default prompt
+            ...
+        # Fallback to default prompt if file doesn't exist or can't be read
+        return "Respond exactly with Pong. No punctuation, no additional text, no explanations. Output only: Pong"
 
     @property
     def last_all_success(self) -> bool | None:
@@ -88,10 +101,11 @@ class PingCommand(BaseCommand):
             A PingResult object with the outcome.
         """
         # Prepare request body
+        ping_prompt = self._load_ping_prompt()
         messages = [
             {
                 "role": "user",
-                "content": "Respond exactly with Pong. No punctuation, no additional text, no explanations. Output only: Pong",
+                "content": ping_prompt,
             }
         ]
 

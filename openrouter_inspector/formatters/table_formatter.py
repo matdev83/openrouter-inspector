@@ -256,6 +256,99 @@ class TableFormatter(BaseFormatter):
             )
         return capture.get()
 
+    def format_benchmark_result(
+        self, result: Any, model_id: str, provider_name: str | None = None
+    ) -> str:
+        """Format benchmark result as a Rich table.
+
+        Args:
+            result: BenchmarkResult object
+            model_id: Model ID that was benchmarked
+            provider_name: Provider name if specified
+
+        Returns:
+            Formatted table string
+        """
+        # Create main results table
+        table = Table(title=f"Benchmark Results: {model_id}", box=box.ROUNDED)
+        table.add_column("Metric", style="bold cyan", width=20)
+        table.add_column("Value", style="bold white", width=25)
+        table.add_column("Details", style="dim", width=40)
+
+        # Format time display
+        elapsed_seconds = result.elapsed_ms / 1000.0
+        time_str = (
+            f"{elapsed_seconds:.2f}s"
+            if elapsed_seconds >= 1.0
+            else f"{int(result.elapsed_ms)}ms"
+        )
+
+        # Format cost display in USD with two decimals (consistent app-wide)
+        cost_str = f"${self._fmt_money(result.cost)}"
+        cost_color = "green" if result.cost == 0 else "yellow"
+
+        # Format TPS with color coding
+        tps_color = (
+            "green"
+            if result.tokens_per_second > 50
+            else "yellow" if result.tokens_per_second > 20 else "red"
+        )
+
+        # Success indicator
+        status_text = "SUCCESS" if result.success else "FAILED"
+        status_color = "green" if result.success else "red"
+
+        # Provider info
+        provider_display = provider_name or "Auto-selected"
+
+        # Add rows to table
+        table.add_row(
+            "Status",
+            f"[{status_color}]{status_text}[/{status_color}]",
+            f"Provider: {provider_display}",
+        )
+        table.add_row("Duration", f"[bold]{time_str}[/bold]", "Total processing time")
+        table.add_row(
+            "Input Tokens",
+            f"[cyan]{result.input_tokens:,}[/cyan]",
+            "Prompt tokens consumed",
+        )
+        table.add_row(
+            "Output Tokens",
+            f"[cyan]{result.output_tokens:,}[/cyan]",
+            "Response tokens generated",
+        )
+        table.add_row(
+            "Total Tokens",
+            f"[bold cyan]{result.total_tokens:,}[/bold cyan]",
+            "Combined token usage",
+        )
+        table.add_row(
+            "Throughput",
+            f"[{tps_color}]{result.tokens_per_second:.2f} TPS[/{tps_color}]",
+            "tokens per second",
+        )
+        table.add_row(
+            "Cost", f"[{cost_color}]{cost_str}[/{cost_color}]", "API usage cost"
+        )
+
+        # Add safety information if applicable
+        if hasattr(result, "tokens_exceeded") and result.tokens_exceeded:
+            table.add_row(
+                "Safety Limit",
+                "[red]EXCEEDED[/red]",
+                f"Stopped at {result.actual_output_tokens} tokens",
+            )
+
+        # Capture table output
+        with self.console.capture() as capture:
+            # Add a simple preface line for compatibility with tests and CLI expectations
+            provider_display_for_prefix = provider_display or "Auto-selected"
+            self.console.print(f"Benchmarking {model_id}@{provider_display_for_prefix}")
+            self.console.print(table)
+
+        return capture.get()
+
     def _fmt_money(self, value: Decimal | float) -> str:
         """Format a monetary value to 2 decimal places."""
         return f"{Decimal(value).quantize(Decimal('0.01')):.2f}"
