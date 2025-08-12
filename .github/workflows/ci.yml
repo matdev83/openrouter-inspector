@@ -6,10 +6,17 @@ on:
   pull_request:
     branches: [ main ]
 
+# Required for actions that create annotations/checks (e.g., test-reporter)
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
@@ -50,7 +57,8 @@ jobs:
 
     - name: Upload test results
       uses: dorny/test-reporter@v1
-      if: success() || failure()
+      if: ${{ (success() || failure()) && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
+      continue-on-error: true
       with:
         name: Test Results (Python ${{ matrix.python-version }}, ${{ matrix.os }})
         path: pytest.xml
