@@ -10,7 +10,7 @@
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Tests](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml)
 ![Last commit](https://img.shields.io/github/last-commit/matdev83/openrouter-inspector)
-[![Issues](https://img.shields.io/github/issues/matdev83/openrouter-inspector)](https://github.com/matdev83/openrouter-inspector/issues)
+[![Issues](https://img.shields.io/github/issues/matdev83/openrouter-inspector)](https://github.com/matdev83/git openrouter-inspector/issues)
 
 A lightweight CLI for exploring OpenRouter AI models, listing provider endpoints with supported model parameters, and benchmarking endpoint latency and throughput.
 

@@ -39,7 +39,9 @@ class DefaultCommandGroup(click.Group):
     kept self-contained to avoid an extra dependency.
     """
 
-    def __init__(self, *args: Any, default_cmd_name: str | None = None, **kwargs: Any) -> None:
+    def __init__(
+        self, *args: Any, default_cmd_name: str | None = None, **kwargs: Any
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.default_cmd_name = default_cmd_name
 
