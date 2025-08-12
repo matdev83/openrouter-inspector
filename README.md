@@ -1,7 +1,7 @@
 # OpenRouter Inspector
 
-[![CI](https://github.com/YOUR_USERNAME/openrouter-inspector/workflows/CI/badge.svg)](https://github.com/YOUR_USERNAME/openrouter-inspector/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/YOUR_USERNAME/openrouter-inspector/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/openrouter-inspector)
+[![CI](https://github.com/matdev83/openrouter-inspector/workflows/CI/badge.svg)](https://github.com/matdev83/openrouter-inspector/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/matdev83/openrouter-inspector/branch/main/graph/badge.svg)](https://codecov.io/gh/matdev83/openrouter-inspector)
 [![PyPI version](https://badge.fury.io/py/openrouter-inspector.svg)](https://badge.fury.io/py/openrouter-inspector)
 [![Python versions](https://img.shields.io/pypi/pyversions/openrouter-inspector.svg)](https://pypi.org/project/openrouter-inspector/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
