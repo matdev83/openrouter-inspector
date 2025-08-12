@@ -6,6 +6,7 @@ import asyncio
 import logging
 import os
 from contextlib import suppress
+from typing import Any, Tuple, List
 
 import click
 
@@ -22,7 +23,58 @@ from .exceptions import APIError, AuthenticationError, RateLimitError
 logger = logging.getLogger(__name__)
 
 
+# ---------------------------------------------------------------------------
+# Click helpers
+# ---------------------------------------------------------------------------
+
+
+class DefaultCommandGroup(click.Group):
+    """A Click group that defaults to a configured command when the first token
+    is *not* a known sub-command.
+
+    This allows calls such as ``openrouter-inspector glm-4.5`` to be treated
+    as ``openrouter-inspector list glm-4.5``.
+
+    The implementation is adapted from the *click-default-group* recipe but
+    kept self-contained to avoid an extra dependency.
+    """
+
+    def __init__(self, *args: Any, default_cmd_name: str | None = None, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.default_cmd_name = default_cmd_name
+
+    def resolve_command(
+        self, ctx: click.Context, args: list[str]
+    ) -> Tuple[str | None, click.Command | None, List[str]]:
+        """Try to resolve *args* to a command.
+
+        If the first argument is *not* a registered command, rewrite the
+        argument list to insert the *default_cmd_name* at position 0 and let
+        the base implementation handle the rest.  This preserves Click's
+        standard parsing semantics for options and arguments while providing
+        the desired fallback behaviour.
+        """
+
+        # Try the normal resolution first.
+        try:
+            return super().resolve_command(ctx, args)
+        except click.exceptions.UsageError:
+            # Only attempt the fallback if we actually have a default command
+            # configured and there *is* at least one token (otherwise Click's
+            # original error is still appropriate).
+            if self.default_cmd_name and args:
+                # Prepend the default command name and try again.
+                new_args: list[str] = [self.default_cmd_name, *args]
+                return super().resolve_command(ctx, new_args)
+
+            # Re-raise the original error if we cannot handle the situation.
+            raise
+
+
+# Use the custom group class that falls back to the *list* command.
 @click.group(
+    cls=DefaultCommandGroup,
+    default_cmd_name="list",
     invoke_without_command=True,
     add_help_option=True,
     context_settings={

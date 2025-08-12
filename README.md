@@ -211,7 +211,8 @@ openrouter-inspector benchmark MODEL_ID [PROVIDER_NAME] \
   [--timeout <seconds>] [--max-tokens <limit>] [--format table|json|text] [--min-tps <threshold>] [--debug-response]
 ```
 
-- Measures model/provider throughput (tokens per second, TPS) by streaming a long response.
+- Measures model or provider-specific throughput (tokens per second, TPS) by streaming a long response.
+- When **`PROVIDER_NAME`** is specified (either as a second positional argument *or* using the shorthand `MODEL_ID@PROVIDER_NAME`), routing is *pinned* to that provider and fallbacks are disabled. If omitted, OpenRouter automatically selects the best provider.
 - Supports multiple output modes so you can use it in scripts:
   - `table` (default): Rich table with metrics (Status, Duration, Input/Output/Total tokens, Throughput, Cost). Includes a short “Benchmarking …” preface.
   - `json`: Emits a JSON object with the same metrics as the table.
@@ -227,8 +228,14 @@ Options:
 Examples:
 
 ```bash
-# Human-friendly table
+# Human-friendly table for auto-selected provider
 openrouter-inspector benchmark google/gemini-2.0-flash-exp:free
+
+# Pin benchmark to a specific provider (positional argument)
+openrouter-inspector benchmark google/gemini-2.0-flash-exp:free Chutes
+
+# Same, using @ shorthand
+openrouter-inspector benchmark google/gemini-2.0-flash-exp:free@Chutes
 
 # JSON for automation
 openrouter-inspector benchmark google/gemini-2.0-flash-exp:free --format json
