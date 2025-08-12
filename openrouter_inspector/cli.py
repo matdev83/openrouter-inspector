@@ -6,7 +6,7 @@ import asyncio
 import logging
 import os
 from contextlib import suppress
-from typing import Any, Tuple, List
+from typing import Any
 
 import click
 
@@ -45,7 +45,7 @@ class DefaultCommandGroup(click.Group):
 
     def resolve_command(
         self, ctx: click.Context, args: list[str]
-    ) -> Tuple[str | None, click.Command | None, List[str]]:
+    ) -> tuple[str | None, click.Command | None, list[str]]:
         """Try to resolve *args* to a command.
 
         If the first argument is *not* a registered command, rewrite the
