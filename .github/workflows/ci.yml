@@ -64,8 +64,9 @@ jobs:
         PY
 
     - name: Update tests badge (Gist)
-      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11' && env.BADGE_MESSAGE && secrets.TESTS_BADGE_GIST_ID && secrets.GIST_TOKEN
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11' && env.BADGE_MESSAGE
       uses: schneegans/dynamic-badges-action@v1.7.0
+      continue-on-error: true
       with:
         auth: ${{ secrets.GIST_TOKEN }}
         gistID: ${{ secrets.TESTS_BADGE_GIST_ID }}

@@ -75,14 +75,13 @@ Subcommands:
 openrouter-inspector list
 
 # List models filtered by substring (matches id or display name)
-openrouter-inspector list "openai"
+openrouter-inspector list openai
 
 # List models with multiple filters (AND logic)
-openrouter-inspector list "meta" "free"
+openrouter-inspector list meta free
 
-# Or just type your search terms, as default action is `list`
-# Also note you don't need to quote single-word search terms
-openrouter-inspector list gemini-2.0 free
+# Or just type your search terms; default action is `list`
+openrouter-inspector gemini-2.0 free
 
 # Detailed provider endpoints (exact model id)
 openrouter-inspector endpoints deepseek/deepseek-r1
@@ -91,25 +90,7 @@ openrouter-inspector endpoints deepseek/deepseek-r1
 openrouter-inspector ping google/gemini-2.0-flash-exp:free
 ```
 
-If you prefer, you can use flag-based syntax:
-
-```bash
-# List all models
-openrouter-inspector --list
-```
-
-Direct search (without explicit command):
-
-```bash
-# Search for models containing "openai"
-openrouter-inspector openai
-
-# Search for models containing "gpt-4"
-openrouter-inspector gpt-4
-
-# Search with multiple terms (AND logic)
-openrouter-inspector openai gpt
-```
+ 
 
 ### Commands
 
@@ -130,20 +111,6 @@ Options:
 - `--with-providers` add a Providers column (makes extra API calls per model)
 - `--sort-by [id|name|context|providers]` (default: id)
 - `--desc` sort descending
-
-Examples:
-```bash
-# List all models
-openrouter-inspector list
-
-# List models containing "openai" 
-openrouter-inspector list "openai"
-
-# List models containing BOTH "meta" AND "free"
-openrouter-inspector list "meta" "free"
-
-# List models with providers count
-openrouter-inspector list --with-providers
 
 #### endpoints
 
