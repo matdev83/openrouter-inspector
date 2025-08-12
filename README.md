@@ -8,7 +8,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
-[![Tests](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml/badge.svg&t=1)](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml)
+[![Tests](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml)
 ![Last commit](https://img.shields.io/github/last-commit/matdev83/openrouter-inspector)
 [![Issues](https://img.shields.io/github/issues/matdev83/openrouter-inspector)](https://github.com/matdev83/openrouter-inspector/issues)
 
