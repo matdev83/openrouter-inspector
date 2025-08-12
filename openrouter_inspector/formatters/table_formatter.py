@@ -239,7 +239,11 @@ class TableFormatter(BaseFormatter):
                 price_in_str,
                 price_out_str,
                 uptime_str,
-                f"[{status_style}]{status_str}[/{status_style}]" if status_style else status_str,
+                (
+                    f"[{status_style}]{status_str}[/{status_style}]"
+                    if status_style
+                    else status_str
+                ),
             )
 
         # Capture table output as string
@@ -247,7 +251,9 @@ class TableFormatter(BaseFormatter):
             self.console.print(table)
             # Add status legend
             self.console.print()
-            self.console.print("[dim]Status: [green]●[/green] Excellent (99%+), [yellow]●[/yellow] Good (95-99%), [red]●[/red] Poor (<95%), [red]✗[/red] Error[/dim]")
+            self.console.print(
+                "[dim]Status: [green]●[/green] Excellent (99%+), [yellow]●[/yellow] Good (95-99%), [red]●[/red] Poor (<95%), [red]✗[/red] Error[/dim]"
+            )
         return capture.get()
 
     def _fmt_money(self, value: Union[Decimal, float]) -> str:
@@ -288,7 +294,9 @@ class TableFormatter(BaseFormatter):
             return bool(supported_parameters.get("image", False))
         return False
 
-    def _format_status(self, status: Optional[str], uptime: float) -> tuple[str, Optional[str]]:
+    def _format_status(
+        self, status: Optional[str], uptime: float
+    ) -> tuple[str, Optional[str]]:
         """Format endpoint status with appropriate styling.
 
         Args:
@@ -308,22 +316,24 @@ class TableFormatter(BaseFormatter):
         if status_lower == "offline":
             # For "offline" status, use uptime as the primary indicator
             if uptime >= 99.0:
-                return "●", "green"       # Excellent uptime despite "offline" status
+                return "●", "green"  # Excellent uptime despite "offline" status
             elif uptime >= 95.0:
-                return "●", "yellow"      # Good uptime, minor issues
+                return "●", "yellow"  # Good uptime, minor issues
             elif uptime >= 80.0:
-                return "●", "red"         # Moderate uptime, concerning
+                return "●", "red"  # Moderate uptime, concerning
             else:
                 return "●", "bright_red"  # Poor uptime, major issues
         elif status_lower == "online":
-            return "●", "bright_green"    # Explicitly online - excellent
-        elif status_lower.startswith("-") or (status_lower.isdigit() and status_lower != "0"):
+            return "●", "bright_green"  # Explicitly online - excellent
+        elif status_lower.startswith("-") or (
+            status_lower.isdigit() and status_lower != "0"
+        ):
             # Error codes (like "-5")
-            return "✗", "red"             # Error status
+            return "✗", "red"  # Error status
         elif status_lower in ["available", "active", "ready", "up"]:
-            return "●", "green"           # Available variants
+            return "●", "green"  # Available variants
         elif status_lower in ["unavailable", "inactive", "down", "error"]:
-            return "●", "red"             # Unavailable variants
+            return "●", "red"  # Unavailable variants
         else:
             # Unknown status - show as-is with neutral styling
-            return status[:3], "dim"      # Truncate to 3 chars max
+            return status[:3], "dim"  # Truncate to 3 chars max

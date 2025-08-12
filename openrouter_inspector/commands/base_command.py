@@ -53,7 +53,9 @@ class BaseCommand(ABC):
         """
         pass
 
-    def _format_output(self, data: Any, output_format: str, **format_kwargs: Any) -> str:
+    def _format_output(
+        self, data: Any, output_format: str, **format_kwargs: Any
+    ) -> str:
         """Format output using the appropriate formatter.
 
         Args:
