@@ -9,6 +9,8 @@
 [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Tests](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml)
+![Last commit](https://img.shields.io/github/last-commit/matdev83/openrouter-inspector)
+[![Issues](https://img.shields.io/github/issues/matdev83/openrouter-inspector)](https://github.com/matdev83/openrouter-inspector/issues)
 
 A lightweight CLI for exploring OpenRouter AI models, provider-specific endpoints and performing tests.
 
@@ -18,95 +20,37 @@ A lightweight CLI for exploring OpenRouter AI models, provider-specific endpoint
 
 - Python 3.10+
 
-### Development Setup
+### From source (current)
 
-1. Clone the repository
-2. Create and activate a virtual environment:
-   - Windows (PowerShell):
-     ```powershell
-     python -m venv .venv
-     ./.venv/Scripts/Activate.ps1
-     ```
-   - Unix/macOS:
-     ```bash
-     python -m venv .venv
-     source .venv/bin/activate
-     ```
-3. Install in development mode with all dev tools:
-   ```bash
-   pip install -e ".[dev]"
-   ```
+The package is not on PyPI yet. Install from source:
 
-### Using Make (optional)
+- With pipx (recommended for CLIs):
+  ```bash
+  pipx install .
+  ```
+- Or with pip into your active environment:
+  ```bash
+  pip install .
+  ```
 
-If you have `make` installed, you can use the provided Makefile:
-
+To try the latest in editable mode (for experimentation), use:
 ```bash
-# Set up development environment
-make setup-dev
-
-# Install in development mode
-make install-dev
-
-# Run tests
-make test
-
-# Run quality assurance checks
-make qa
+pip install -e .
 ```
 
-## Development
+### Contributing / Development
 
-### Project Structure
+If you want to hack on the project (dev setup, tests, QA, pre-commit, etc.), see
+the dedicated contributor guide:
 
-```
-openrouter-inspector/
-├── openrouter_inspector/    # Main package
-│   ├── __init__.py
-│   ├── cli.py              # CLI interface
-│   ├── client.py           # API client
-│   ├── services.py         # Business logic
-│   ├── models.py           # Data models
-│   ├── cache.py            # Response caching for change detection
-│   └── utils.py            # Utilities
-├── data/                   # Cache files for change detection
-├── tests/                  # Test suite
-│   ├── unit/              # Unit tests
-│   ├── integration/       # Integration tests
-│   └── fixtures/          # Test fixtures
-├── pyproject.toml         # Project configuration
-└── README.md              # This file
-```
+[CONTRIBUTING.md](CONTRIBUTING.md)
 
-### Change Detection
+## Features
 
-The `list` command automatically tracks changes between runs:
-
-- **New Models**: When new models become available, they're displayed in a separate "🆕 New Models Since Last Run" table
-- **Pricing Changes**: Modified input/output token prices are highlighted in yellow in the main table
-- **Separate Tracking**: Each unique combination of command parameters maintains its own change history
-- **No Caching**: API calls are always made; cached data is used only for comparison
-
-### Quality Assurance
-
-The project uses several tools for code quality:
-
-- **Black**: Code formatting
-- **Ruff**: Linting and error detection
-- **MyPy**: Static type checking
-- **Pytest**: Testing framework
-
-Run all QA checks with:
-```bash
-make qa
-```
-
-### Testing
-
-Run tests with coverage:
-```bash
-pytest --cov=openrouter_inspector --cov-report=html
-```
+- Explore available models and provider-specific endpoints from OpenRouter.
+- Rich table output with pricing per 1M tokens and optional provider counts.
+- Change detection for new models and pricing changes between runs.
+- JSON output for easy scripting.
 
 ## Usage
 
@@ -136,11 +80,18 @@ openrouter-inspector list "openai"
 # List models with multiple filters (AND logic)
 openrouter-inspector list "meta" "free"
 
-# Detailed provider endpoints (exact model id), prices per 1M tokens
-openrouter-inspector endpoints deepseek/deepseek-r1 --per-1m
+# Or just type your search terms, as default action is `list`
+# Also note you don't need to quote single-word search terms
+openrouter-inspector list gemini-2.0 free
+
+# Detailed provider endpoints (exact model id)
+openrouter-inspector endpoints deepseek/deepseek-r1
+
+# To check the endpoint health and latency
+openrouter-inspector ping google/gemini-2.0-flash-exp:free
 ```
 
-Lightweight flags (no subcommand):
+If you prefer, you can use flag-based syntax:
 
 ```bash
 # List all models
