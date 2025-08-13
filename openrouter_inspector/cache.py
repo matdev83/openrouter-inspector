@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import platform
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -11,17 +13,44 @@ from typing import Any
 from .models import ModelInfo
 
 
+def _default_cache_root() -> Path:
+    """Return a per-user cache root directory for this application.
+
+    Windows: %LOCALAPPDATA%/openrouter-inspector
+    macOS:   ~/Library/Caches/openrouter-inspector
+    Linux:   ${XDG_CACHE_HOME:-~/.cache}/openrouter-inspector
+    """
+    system = platform.system()
+    if system == "Windows":
+        base = os.getenv("LOCALAPPDATA") or os.getenv("APPDATA")
+        if base:
+            return Path(base) / "openrouter-inspector"
+        # Fallback to typical home-based location
+        return Path.home() / "AppData" / "Local" / "openrouter-inspector"
+    if system == "Darwin":
+        return Path.home() / "Library" / "Caches" / "openrouter-inspector"
+    # Default: POSIX (Linux, etc.)
+    xdg = os.getenv("XDG_CACHE_HOME")
+    if xdg:
+        return Path(xdg) / "openrouter-inspector"
+    return Path.home() / ".cache" / "openrouter-inspector"
+
+
 class ListCommandCache:
     """Cache for list command API responses to enable comparison across runs."""
 
-    def __init__(self, cache_dir: str = "data") -> None:
+    def __init__(self, cache_dir: str | Path | None = None) -> None:
         """Initialize the cache with a specified directory.
 
         Args:
-            cache_dir: Directory to store cache files.
+            cache_dir: Directory to store cache files. If None, a per-user
+                cache directory appropriate for the current platform is used.
         """
-        self.cache_dir = Path(cache_dir)
-        self.cache_dir.mkdir(exist_ok=True)
+        self.cache_dir = (
+            Path(cache_dir) if cache_dir is not None else _default_cache_root()
+        )
+        # Ensure directory exists
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     def _generate_cache_key(self, **kwargs: Any) -> str:
         """Generate a cache key based on command parameters.
