@@ -42,16 +42,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[build]"
 
-      - name: Validate tag matches package version
-        shell: bash
-        run: |
-          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
-          FILE_VERSION=$(python -c "import re, pathlib; p=pathlib.Path('openrouter_inspector/__init__.py').read_text(); m=re.search(r\"__version__\\s*=\\s*['\\\"]([^'\\\"]+)['\\\"]\", p); print(m.group(1))")
-          echo "Tag: ${TAG_VERSION} | Package: ${FILE_VERSION}"
-          if [ "${TAG_VERSION}" != "${FILE_VERSION}" ]; then
-            echo "Tag version and package version do not match" >&2
-            exit 1
-          fi
+      - name: Ensure tag history available for versioning
+        run: git fetch --tags --force --prune --unshallow || git fetch --tags --force --prune
 
       - name: Build package
         run: python -m build

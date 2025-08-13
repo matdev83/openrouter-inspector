@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.18.0"]
+requires = ["hatchling>=1.18.0", "hatch-vcs>=0.3.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -173,7 +173,12 @@ exclude = [
 ]
 
 [tool.hatch.version]
-path = "openrouter_inspector/__init__.py"
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+# Extract version from tags like v1.2.3
+tag-pattern = "^v(?P<version>.*)$"
+version-file = "openrouter_inspector/_version.py"
 
 # Hatch environments for development tasks
 [tool.hatch.envs.default]
