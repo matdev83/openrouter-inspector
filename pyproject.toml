@@ -263,6 +263,7 @@ extend-exclude = '''
   | build
   | dist
 )/
+|openrouter_inspector/_version\.py
 '''
 
 # Ruff configuration
