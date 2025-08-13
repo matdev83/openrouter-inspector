@@ -2,11 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: ["**"]
     tags:
       - 'v*'
   pull_request:
-    branches: [ main ]
+    branches: ["**"]
 
 # Required for actions that create annotations/checks (e.g., test-reporter)
 permissions:
