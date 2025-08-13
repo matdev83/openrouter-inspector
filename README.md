@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/matdev83/openrouter-inspector/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/matdev83/openrouter-inspector/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/matdev83/openrouter-inspector/branch/main/graph/badge.svg)](https://codecov.io/gh/matdev83/openrouter-inspector)
-[![PyPI](https://img.shields.io/badge/PyPI-not%20published-lightgrey)](https://pypi.org/project/openrouter-inspector/)
+[![PyPI](https://img.shields.io/pypi/v/openrouter-inspector.svg)](https://pypi.org/project/openrouter-inspector/)
 ![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
@@ -20,23 +20,27 @@ A lightweight CLI for exploring OpenRouter AI models, listing provider endpoints
 
 - Python 3.10+
 
-### From source (current)
-
-The package is not on PyPI yet. Install from source:
+### From PyPI (recommended)
 
 - With pipx (recommended for CLIs):
   ```bash
-  pipx install .
+  pipx install openrouter-inspector
   ```
 - Or with pip into your active environment:
   ```bash
-  pip install .
+  pip install openrouter-inspector
   ```
 
-To try the latest in editable mode (for experimentation), use:
-```bash
-pip install -e .
-```
+### From source (development)
+
+- Install from a clone:
+  ```bash
+  pip install .
+  ```
+- Editable/development install:
+  ```bash
+  pip install -e .
+  ```
 
 ### Contributing / Development
 
@@ -217,6 +221,10 @@ openrouter-inspector benchmark MODEL_ID [PROVIDER_NAME] \
   - `table` (default): Rich table with metrics (Status, Duration, Input/Output/Total tokens, Throughput, Cost). Includes a short “Benchmarking …” preface.
   - `json`: Emits a JSON object with the same metrics as the table.
   - `text`: Emits a single line: `TPS: <value>`.
+
+> ⚠️ **Warning**
+>
+> `benchmark` sends real chat completion requests and streams long responses. On paid providers this can incur non-trivial costs, especially with larger `--max-tokens` or repeated runs. Even for "free" models, requests may count against rate or daily usage quotas. Use with care, prefer smaller `--max-tokens`, and consider testing on free tiers first.
 
 Options:
 - `--timeout <seconds>`: Request timeout (default: 120).
