@@ -110,7 +110,7 @@ class PingCommand(BaseCommand):
         ]
 
         provider_order = [provider_name] if provider_name else None
-        
+
         # Format the target URL for display
         base_url = "https://openrouter.ai/api/v1/chat/completions/"
         target = f"{base_url}{model_id}"
@@ -144,7 +144,7 @@ class PingCommand(BaseCommand):
                 print("\n--- DEBUG RESPONSE ---")
                 print(json.dumps(response_json, indent=2))
                 print("--- END DEBUG ---\n")
-                
+
             # Extract provider and token usage
             served_provider = (
                 response_headers.get("x-openrouter-provider")
@@ -155,7 +155,6 @@ class PingCommand(BaseCommand):
 
             # Usage tokens and cost
             usage = response_json.get("usage", {})
-            input_tokens = int(usage.get("prompt_tokens", 0))
             completion_tokens = int(usage.get("completion_tokens", 0))
             cost = usage.get("total_cost") or usage.get("cost")
 
@@ -177,7 +176,7 @@ class PingCommand(BaseCommand):
                 if elapsed_ms >= 1000.0
                 else f"{int(elapsed_ms)}ms"
             )
-            
+
             # Format the cost display
             cost_display = f"{cost:.6f}" if cost is not None else "0.00"
             cost_part = f" cost: ${cost_display}"
@@ -191,16 +190,16 @@ class PingCommand(BaseCommand):
                 cost=float(cost or 0.0),
                 output_str=output_str,
             )
-            
+
         except Exception as e:
             # Failed ping - don't show response time
             output_str = f"Request failed: {target} (error: {e})"
-            
+
             return PingResult(
-                success=False, 
-                elapsed_ms=(time.perf_counter_ns() - start_ns) / 1_000_000.0, 
-                cost=0.0, 
-                output_str=output_str
+                success=False,
+                elapsed_ms=(time.perf_counter_ns() - start_ns) / 1_000_000.0,
+                cost=0.0,
+                output_str=output_str,
             )
 
     async def execute(
@@ -217,13 +216,13 @@ class PingCommand(BaseCommand):
         """Execute the ping command multiple times and gather statistics."""
         results: list[PingResult] = []
         all_output_parts: list[str] = []
-        
+
         # Construct the target URL for display
         base_url = "https://openrouter.ai/api/v1/chat/completions/"
         target = f"{base_url}{model_id}"
         if provider_name:
             target += f"@{provider_name}"
-            
+
         # Show initial ping message
         ping_header = f"Pinging {target} with OpenRouter API:"
         all_output_parts.append(ping_header)
@@ -238,7 +237,7 @@ class PingCommand(BaseCommand):
                 debug_response=debug_response,
             )
             results.append(result)
-            
+
             # Display the result
             if result.success:
                 # For successful pings, show the full output with time
@@ -246,11 +245,11 @@ class PingCommand(BaseCommand):
             else:
                 # For failed pings, just show the error message without time
                 output_line = result.output_str
-                
+
             all_output_parts.append(output_line)
             if on_progress is not None:
                 await self._maybe_await(on_progress(output_line))
-                    
+
             if i < count - 1:
                 await asyncio.sleep(1)  # Pause between pings
 
