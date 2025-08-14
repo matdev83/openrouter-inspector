@@ -31,7 +31,10 @@ jobs:
             const {owner, repo} = context.repo;
             const sha = `${{ github.event.workflow_run.head_sha }}`;
             const tags = await github.paginate(github.rest.repos.listTags, { owner, repo, per_page: 100 });
-            const match = tags.find(t => t.commit && t.commit.sha === sha && /^v\d+\.\d+\.\d+(?:[\w.-]*)?$/.test(t.name));
+            // Only allow clean SemVer tags without local/pre-release suffixes for PyPI (e.g., v1.2.3)
+            const match = tags.find(
+              t => t.commit && t.commit.sha === sha && /^v\d+\.\d+\.\d+$/.test(t.name)
+            );
             core.setOutput('has_tag', match ? 'true' : 'false');
             core.setOutput('tag', match ? match.name : '');
 
