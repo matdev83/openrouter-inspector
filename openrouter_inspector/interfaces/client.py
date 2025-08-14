@@ -44,6 +44,7 @@ class APIClient(ABC):
         extra_headers: dict[str, str] | None = None,
         extra_body: dict[str, Any] | None = None,
         retries_enabled: bool = True,
+        silent_rate_limit: bool = False,
     ) -> tuple[dict[str, Any], dict[str, str]]:
         """Call API chat completions endpoint.
 
@@ -56,6 +57,7 @@ class APIClient(ABC):
             extra_headers: Optional headers to include
             extra_body: Optional extra body fields to merge
             retries_enabled: Whether to enable retry logic
+            silent_rate_limit: If True, don't log warnings for rate limits
 
         Returns:
             Tuple of (response_json, response_headers)
@@ -74,6 +76,7 @@ class APIClient(ABC):
         extra_headers: dict[str, str] | None = None,
         extra_body: dict[str, Any] | None = None,
         retries_enabled: bool = True,
+        silent_rate_limit: bool = False,
     ) -> tuple[Any, dict[str, str]]:
         """Call API chat completions endpoint with streaming.
 
@@ -86,6 +89,7 @@ class APIClient(ABC):
             extra_headers: Optional headers to include
             extra_body: Optional extra body fields to merge
             retries_enabled: Whether to enable retry logic
+            silent_rate_limit: If True, don't log warnings for rate limits
 
         Returns:
             Tuple of (async_generator, response_headers)

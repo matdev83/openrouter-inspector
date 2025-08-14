@@ -1,0 +1,2285 @@
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
+{
+    "report_meta": {
+        "scan_target": "environment",
+        "scanned": [
+            "C:\\Users\\Mateusz\\source\\repos\\openrouter-inspector",
+            "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages\\setuptools\\_vendor",
+            "C:\\Program Files\\Python310\\lib",
+            "C:\\Program Files\\Python310\\DLLs",
+            "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages",
+            "C:\\Users\\Mateusz\\source\\repos\\openrouter-inspector\\.venv",
+            "C:\\Program Files\\Python310",
+            "C:\\Users\\Mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages",
+            "C:\\Program Files\\Python310\\python310.zip",
+            "C:\\Users\\Mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+        ],
+        "scanned_full_path": [
+            "C:\\Users\\Mateusz\\source\\repos\\openrouter-inspector",
+            "C:\\Program Files\\Python310\\python310.zip",
+            "C:\\Program Files\\Python310\\DLLs",
+            "C:\\Program Files\\Python310\\lib",
+            "C:\\Program Files\\Python310",
+            "C:\\Users\\Mateusz\\source\\repos\\openrouter-inspector\\.venv",
+            "C:\\Users\\Mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages",
+            "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages",
+            "C:\\Users\\Mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages\\setuptools\\_vendor",
+            "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+        ],
+        "target_languages": [
+            "python"
+        ],
+        "policy_file": null,
+        "policy_file_source": "local",
+        "audit_and_monitor": false,
+        "api_key": false,
+        "account": "",
+        "local_database_path": null,
+        "safety_version": "3.6.0",
+        "timestamp": "2025-08-14 22:50:38",
+        "packages_found": 145,
+        "vulnerabilities_found": 0,
+        "vulnerabilities_ignored": 0,
+        "remediations_recommended": 0,
+        "telemetry": {
+            "safety_options": {
+                "output": {
+                    "--output": 1
+                }
+            },
+            "safety_version": "3.6.0",
+            "safety_source": "cli",
+            "os_type": "Windows",
+            "os_release": "10",
+            "os_description": "Windows-10-10.0.19045-SP0",
+            "python_version": "3.10.11",
+            "safety_command": "check"
+        },
+        "git": {
+            "branch": "main",
+            "tag": "v0.1.16",
+            "commit": "f453560551123ebc081d18334eada33cea06240a",
+            "dirty": "True",
+            "origin": "https://github.com/matdev83/openrouter-inspector.git"
+        },
+        "project": null,
+        "json_version": "1.1",
+        "remediations_attempted": 0,
+        "remediations_completed": 0,
+        "remediation_mode": "NON_INTERACTIVE"
+    },
+    "scanned_packages": {
+        "markupsafe": {
+            "name": "markupsafe",
+            "version": "3.0.2",
+            "requirements": [
+                {
+                    "raw": "markupsafe==3.0.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "markupsafe",
+                    "specifier": "==3.0.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pyyaml": {
+            "name": "pyyaml",
+            "version": "6.0.2",
+            "requirements": [
+                {
+                    "raw": "pyyaml==6.0.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyyaml",
+                    "specifier": "==6.0.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "annotated-types": {
+            "name": "annotated-types",
+            "version": "0.7.0",
+            "requirements": [
+                {
+                    "raw": "annotated-types==0.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "annotated-types",
+                    "specifier": "==0.7.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "anyio": {
+            "name": "anyio",
+            "version": "4.10.0",
+            "requirements": [
+                {
+                    "raw": "anyio==4.10.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "anyio",
+                    "specifier": "==4.10.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "astroid": {
+            "name": "astroid",
+            "version": "3.3.11",
+            "requirements": [
+                {
+                    "raw": "astroid==3.3.11",
+                    "extras": [],
+                    "marker": null,
+                    "name": "astroid",
+                    "specifier": "==3.3.11",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "attrs": {
+            "name": "attrs",
+            "version": "25.3.0",
+            "requirements": [
+                {
+                    "raw": "attrs==25.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "attrs",
+                    "specifier": "==25.3.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "authlib": {
+            "name": "authlib",
+            "version": "1.6.1",
+            "requirements": [
+                {
+                    "raw": "authlib==1.6.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "authlib",
+                    "specifier": "==1.6.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "babel": {
+            "name": "babel",
+            "version": "2.17.0",
+            "requirements": [
+                {
+                    "raw": "babel==2.17.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "babel",
+                    "specifier": "==2.17.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "backports.tarfile": {
+            "name": "backports.tarfile",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "backports.tarfile==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "backports.tarfile",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "backports-asyncio-runner": {
+            "name": "backports-asyncio-runner",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "backports-asyncio-runner==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "backports-asyncio-runner",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "backports-datetime-fromisoformat": {
+            "name": "backports-datetime-fromisoformat",
+            "version": "2.0.3",
+            "requirements": [
+                {
+                    "raw": "backports-datetime-fromisoformat==2.0.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "backports-datetime-fromisoformat",
+                    "specifier": "==2.0.3",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "backrefs": {
+            "name": "backrefs",
+            "version": "5.9",
+            "requirements": [
+                {
+                    "raw": "backrefs==5.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "backrefs",
+                    "specifier": "==5.9",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "bandit": {
+            "name": "bandit",
+            "version": "1.8.6",
+            "requirements": [
+                {
+                    "raw": "bandit==1.8.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "bandit",
+                    "specifier": "==1.8.6",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "beautifulsoup4": {
+            "name": "beautifulsoup4",
+            "version": "4.13.4",
+            "requirements": [
+                {
+                    "raw": "beautifulsoup4==4.13.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "beautifulsoup4",
+                    "specifier": "==4.13.4",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "black": {
+            "name": "black",
+            "version": "25.1.0",
+            "requirements": [
+                {
+                    "raw": "black==25.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "black",
+                    "specifier": "==25.1.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "build": {
+            "name": "build",
+            "version": "1.3.0",
+            "requirements": [
+                {
+                    "raw": "build==1.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "build",
+                    "specifier": "==1.3.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "certifi": {
+            "name": "certifi",
+            "version": "2025.8.3",
+            "requirements": [
+                {
+                    "raw": "certifi==2025.8.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "certifi",
+                    "specifier": "==2025.8.3",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "cffi": {
+            "name": "cffi",
+            "version": "1.17.1",
+            "requirements": [
+                {
+                    "raw": "cffi==1.17.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cffi",
+                    "specifier": "==1.17.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "cfgv": {
+            "name": "cfgv",
+            "version": "3.4.0",
+            "requirements": [
+                {
+                    "raw": "cfgv==3.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cfgv",
+                    "specifier": "==3.4.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "charset-normalizer": {
+            "name": "charset-normalizer",
+            "version": "3.4.3",
+            "requirements": [
+                {
+                    "raw": "charset-normalizer==3.4.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "charset-normalizer",
+                    "specifier": "==3.4.3",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "click": {
+            "name": "click",
+            "version": "8.2.1",
+            "requirements": [
+                {
+                    "raw": "click==8.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "click",
+                    "specifier": "==8.2.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "colorama": {
+            "name": "colorama",
+            "version": "0.4.6",
+            "requirements": [
+                {
+                    "raw": "colorama==0.4.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "colorama",
+                    "specifier": "==0.4.6",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "coverage": {
+            "name": "coverage",
+            "version": "7.10.2",
+            "requirements": [
+                {
+                    "raw": "coverage==7.10.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "coverage",
+                    "specifier": "==7.10.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "cryptography": {
+            "name": "cryptography",
+            "version": "45.0.6",
+            "requirements": [
+                {
+                    "raw": "cryptography==45.0.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cryptography",
+                    "specifier": "==45.0.6",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "dill": {
+            "name": "dill",
+            "version": "0.4.0",
+            "requirements": [
+                {
+                    "raw": "dill==0.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "dill",
+                    "specifier": "==0.4.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "distlib": {
+            "name": "distlib",
+            "version": "0.4.0",
+            "requirements": [
+                {
+                    "raw": "distlib==0.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "distlib",
+                    "specifier": "==0.4.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "docutils": {
+            "name": "docutils",
+            "version": "0.22",
+            "requirements": [
+                {
+                    "raw": "docutils==0.22",
+                    "extras": [],
+                    "marker": null,
+                    "name": "docutils",
+                    "specifier": "==0.22",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "dparse": {
+            "name": "dparse",
+            "version": "0.6.4",
+            "requirements": [
+                {
+                    "raw": "dparse==0.6.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "dparse",
+                    "specifier": "==0.6.4",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "exceptiongroup": {
+            "name": "exceptiongroup",
+            "version": "1.3.0",
+            "requirements": [
+                {
+                    "raw": "exceptiongroup==1.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "exceptiongroup",
+                    "specifier": "==1.3.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "filelock": {
+            "name": "filelock",
+            "version": "3.16.1",
+            "requirements": [
+                {
+                    "raw": "filelock==3.16.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "filelock",
+                    "specifier": "==3.16.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ghp-import": {
+            "name": "ghp-import",
+            "version": "2.1.0",
+            "requirements": [
+                {
+                    "raw": "ghp-import==2.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ghp-import",
+                    "specifier": "==2.1.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "griffe": {
+            "name": "griffe",
+            "version": "1.11.1",
+            "requirements": [
+                {
+                    "raw": "griffe==1.11.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "griffe",
+                    "specifier": "==1.11.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "h11": {
+            "name": "h11",
+            "version": "0.16.0",
+            "requirements": [
+                {
+                    "raw": "h11==0.16.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "h11",
+                    "specifier": "==0.16.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "hatch": {
+            "name": "hatch",
+            "version": "1.14.1",
+            "requirements": [
+                {
+                    "raw": "hatch==1.14.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "hatch",
+                    "specifier": "==1.14.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "hatch-vcs": {
+            "name": "hatch-vcs",
+            "version": "0.5.0",
+            "requirements": [
+                {
+                    "raw": "hatch-vcs==0.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "hatch-vcs",
+                    "specifier": "==0.5.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "hatchling": {
+            "name": "hatchling",
+            "version": "1.27.0",
+            "requirements": [
+                {
+                    "raw": "hatchling==1.27.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "hatchling",
+                    "specifier": "==1.27.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "httpcore": {
+            "name": "httpcore",
+            "version": "1.0.9",
+            "requirements": [
+                {
+                    "raw": "httpcore==1.0.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "httpcore",
+                    "specifier": "==1.0.9",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "httpx": {
+            "name": "httpx",
+            "version": "0.28.1",
+            "requirements": [
+                {
+                    "raw": "httpx==0.28.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "httpx",
+                    "specifier": "==0.28.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "hyperlink": {
+            "name": "hyperlink",
+            "version": "21.0.0",
+            "requirements": [
+                {
+                    "raw": "hyperlink==21.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "hyperlink",
+                    "specifier": "==21.0.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "hypothesis": {
+            "name": "hypothesis",
+            "version": "6.137.1",
+            "requirements": [
+                {
+                    "raw": "hypothesis==6.137.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "hypothesis",
+                    "specifier": "==6.137.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "id": {
+            "name": "id",
+            "version": "1.5.0",
+            "requirements": [
+                {
+                    "raw": "id==1.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "id",
+                    "specifier": "==1.5.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "identify": {
+            "name": "identify",
+            "version": "2.6.12",
+            "requirements": [
+                {
+                    "raw": "identify==2.6.12",
+                    "extras": [],
+                    "marker": null,
+                    "name": "identify",
+                    "specifier": "==2.6.12",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "idna": {
+            "name": "idna",
+            "version": "3.10",
+            "requirements": [
+                {
+                    "raw": "idna==3.10",
+                    "extras": [],
+                    "marker": null,
+                    "name": "idna",
+                    "specifier": "==3.10",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "importlib-metadata": {
+            "name": "importlib-metadata",
+            "version": "8.7.0",
+            "requirements": [
+                {
+                    "raw": "importlib-metadata==8.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "importlib-metadata",
+                    "specifier": "==8.7.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "iniconfig": {
+            "name": "iniconfig",
+            "version": "2.1.0",
+            "requirements": [
+                {
+                    "raw": "iniconfig==2.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "iniconfig",
+                    "specifier": "==2.1.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "isort": {
+            "name": "isort",
+            "version": "6.0.1",
+            "requirements": [
+                {
+                    "raw": "isort==6.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "isort",
+                    "specifier": "==6.0.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jaraco.classes": {
+            "name": "jaraco.classes",
+            "version": "3.4.0",
+            "requirements": [
+                {
+                    "raw": "jaraco.classes==3.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.classes",
+                    "specifier": "==3.4.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jaraco.context": {
+            "name": "jaraco.context",
+            "version": "6.0.1",
+            "requirements": [
+                {
+                    "raw": "jaraco.context==6.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.context",
+                    "specifier": "==6.0.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jaraco-functools": {
+            "name": "jaraco-functools",
+            "version": "4.2.1",
+            "requirements": [
+                {
+                    "raw": "jaraco-functools==4.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco-functools",
+                    "specifier": "==4.2.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jinja2": {
+            "name": "jinja2",
+            "version": "3.1.6",
+            "requirements": [
+                {
+                    "raw": "jinja2==3.1.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jinja2",
+                    "specifier": "==3.1.6",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "joblib": {
+            "name": "joblib",
+            "version": "1.5.1",
+            "requirements": [
+                {
+                    "raw": "joblib==1.5.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "joblib",
+                    "specifier": "==1.5.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "keyring": {
+            "name": "keyring",
+            "version": "25.6.0",
+            "requirements": [
+                {
+                    "raw": "keyring==25.6.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "keyring",
+                    "specifier": "==25.6.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "lxml": {
+            "name": "lxml",
+            "version": "6.0.0",
+            "requirements": [
+                {
+                    "raw": "lxml==6.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "lxml",
+                    "specifier": "==6.0.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "markdown": {
+            "name": "markdown",
+            "version": "3.8.2",
+            "requirements": [
+                {
+                    "raw": "markdown==3.8.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "markdown",
+                    "specifier": "==3.8.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "markdown-it-py": {
+            "name": "markdown-it-py",
+            "version": "3.0.0",
+            "requirements": [
+                {
+                    "raw": "markdown-it-py==3.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "markdown-it-py",
+                    "specifier": "==3.0.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "marshmallow": {
+            "name": "marshmallow",
+            "version": "4.0.0",
+            "requirements": [
+                {
+                    "raw": "marshmallow==4.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "marshmallow",
+                    "specifier": "==4.0.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mccabe": {
+            "name": "mccabe",
+            "version": "0.7.0",
+            "requirements": [
+                {
+                    "raw": "mccabe==0.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mccabe",
+                    "specifier": "==0.7.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mdurl": {
+            "name": "mdurl",
+            "version": "0.1.2",
+            "requirements": [
+                {
+                    "raw": "mdurl==0.1.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mdurl",
+                    "specifier": "==0.1.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mergedeep": {
+            "name": "mergedeep",
+            "version": "1.3.4",
+            "requirements": [
+                {
+                    "raw": "mergedeep==1.3.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mergedeep",
+                    "specifier": "==1.3.4",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mkdocs": {
+            "name": "mkdocs",
+            "version": "1.6.1",
+            "requirements": [
+                {
+                    "raw": "mkdocs==1.6.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mkdocs",
+                    "specifier": "==1.6.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mkdocs-autorefs": {
+            "name": "mkdocs-autorefs",
+            "version": "1.4.2",
+            "requirements": [
+                {
+                    "raw": "mkdocs-autorefs==1.4.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mkdocs-autorefs",
+                    "specifier": "==1.4.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mkdocs-get-deps": {
+            "name": "mkdocs-get-deps",
+            "version": "0.2.0",
+            "requirements": [
+                {
+                    "raw": "mkdocs-get-deps==0.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mkdocs-get-deps",
+                    "specifier": "==0.2.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mkdocs-material": {
+            "name": "mkdocs-material",
+            "version": "9.6.16",
+            "requirements": [
+                {
+                    "raw": "mkdocs-material==9.6.16",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mkdocs-material",
+                    "specifier": "==9.6.16",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mkdocs-material-extensions": {
+            "name": "mkdocs-material-extensions",
+            "version": "1.3.1",
+            "requirements": [
+                {
+                    "raw": "mkdocs-material-extensions==1.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mkdocs-material-extensions",
+                    "specifier": "==1.3.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mkdocstrings": {
+            "name": "mkdocstrings",
+            "version": "0.30.0",
+            "requirements": [
+                {
+                    "raw": "mkdocstrings==0.30.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mkdocstrings",
+                    "specifier": "==0.30.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mkdocstrings-python": {
+            "name": "mkdocstrings-python",
+            "version": "1.16.12",
+            "requirements": [
+                {
+                    "raw": "mkdocstrings-python==1.16.12",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mkdocstrings-python",
+                    "specifier": "==1.16.12",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "more-itertools": {
+            "name": "more-itertools",
+            "version": "10.7.0",
+            "requirements": [
+                {
+                    "raw": "more-itertools==10.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "more-itertools",
+                    "specifier": "==10.7.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mypy": {
+            "name": "mypy",
+            "version": "1.17.1",
+            "requirements": [
+                {
+                    "raw": "mypy==1.17.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mypy",
+                    "specifier": "==1.17.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mypy-extensions": {
+            "name": "mypy-extensions",
+            "version": "1.1.0",
+            "requirements": [
+                {
+                    "raw": "mypy-extensions==1.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mypy-extensions",
+                    "specifier": "==1.1.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "nh3": {
+            "name": "nh3",
+            "version": "0.3.0",
+            "requirements": [
+                {
+                    "raw": "nh3==0.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nh3",
+                    "specifier": "==0.3.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "nltk": {
+            "name": "nltk",
+            "version": "3.9.1",
+            "requirements": [
+                {
+                    "raw": "nltk==3.9.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nltk",
+                    "specifier": "==3.9.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "nodeenv": {
+            "name": "nodeenv",
+            "version": "1.9.1",
+            "requirements": [
+                {
+                    "raw": "nodeenv==1.9.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nodeenv",
+                    "specifier": "==1.9.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "openrouter-cli": {
+            "name": "openrouter-cli",
+            "version": "0.1.0",
+            "requirements": [
+                {
+                    "raw": "openrouter-cli==0.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "openrouter-cli",
+                    "specifier": "==0.1.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "openrouter-inspector": {
+            "name": "openrouter-inspector",
+            "version": "0.1.17.dev0+gf453560.d20250814",
+            "requirements": [
+                {
+                    "raw": "openrouter-inspector==0.1.17.dev0+gf453560.d20250814",
+                    "extras": [],
+                    "marker": null,
+                    "name": "openrouter-inspector",
+                    "specifier": "==0.1.17.dev0+gf453560.d20250814",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "packaging": {
+            "name": "packaging",
+            "version": "25.0",
+            "requirements": [
+                {
+                    "raw": "packaging==25.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "packaging",
+                    "specifier": "==25.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "paginate": {
+            "name": "paginate",
+            "version": "0.5.7",
+            "requirements": [
+                {
+                    "raw": "paginate==0.5.7",
+                    "extras": [],
+                    "marker": null,
+                    "name": "paginate",
+                    "specifier": "==0.5.7",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pathspec": {
+            "name": "pathspec",
+            "version": "0.12.1",
+            "requirements": [
+                {
+                    "raw": "pathspec==0.12.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pathspec",
+                    "specifier": "==0.12.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pbr": {
+            "name": "pbr",
+            "version": "6.1.1",
+            "requirements": [
+                {
+                    "raw": "pbr==6.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pbr",
+                    "specifier": "==6.1.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pexpect": {
+            "name": "pexpect",
+            "version": "4.9.0",
+            "requirements": [
+                {
+                    "raw": "pexpect==4.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pexpect",
+                    "specifier": "==4.9.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pip": {
+            "name": "pip",
+            "version": "25.2",
+            "requirements": [
+                {
+                    "raw": "pip==25.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pip",
+                    "specifier": "==25.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "platformdirs": {
+            "name": "platformdirs",
+            "version": "4.3.8",
+            "requirements": [
+                {
+                    "raw": "platformdirs==4.3.8",
+                    "extras": [],
+                    "marker": null,
+                    "name": "platformdirs",
+                    "specifier": "==4.3.8",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pluggy": {
+            "name": "pluggy",
+            "version": "1.6.0",
+            "requirements": [
+                {
+                    "raw": "pluggy==1.6.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pluggy",
+                    "specifier": "==1.6.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pre-commit": {
+            "name": "pre-commit",
+            "version": "4.3.0",
+            "requirements": [
+                {
+                    "raw": "pre-commit==4.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pre-commit",
+                    "specifier": "==4.3.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "psutil": {
+            "name": "psutil",
+            "version": "6.1.1",
+            "requirements": [
+                {
+                    "raw": "psutil==6.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "psutil",
+                    "specifier": "==6.1.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ptyprocess": {
+            "name": "ptyprocess",
+            "version": "0.7.0",
+            "requirements": [
+                {
+                    "raw": "ptyprocess==0.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ptyprocess",
+                    "specifier": "==0.7.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pycparser": {
+            "name": "pycparser",
+            "version": "2.22",
+            "requirements": [
+                {
+                    "raw": "pycparser==2.22",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pycparser",
+                    "specifier": "==2.22",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pydantic": {
+            "name": "pydantic",
+            "version": "2.9.2",
+            "requirements": [
+                {
+                    "raw": "pydantic==2.9.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydantic",
+                    "specifier": "==2.9.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pydantic-core": {
+            "name": "pydantic-core",
+            "version": "2.23.4",
+            "requirements": [
+                {
+                    "raw": "pydantic-core==2.23.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydantic-core",
+                    "specifier": "==2.23.4",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pygments": {
+            "name": "pygments",
+            "version": "2.19.2",
+            "requirements": [
+                {
+                    "raw": "pygments==2.19.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pygments",
+                    "specifier": "==2.19.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pylint": {
+            "name": "pylint",
+            "version": "3.3.8",
+            "requirements": [
+                {
+                    "raw": "pylint==3.3.8",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pylint",
+                    "specifier": "==3.3.8",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pymdown-extensions": {
+            "name": "pymdown-extensions",
+            "version": "10.16.1",
+            "requirements": [
+                {
+                    "raw": "pymdown-extensions==10.16.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pymdown-extensions",
+                    "specifier": "==10.16.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pyproject-hooks": {
+            "name": "pyproject-hooks",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "pyproject-hooks==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyproject-hooks",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pytest": {
+            "name": "pytest",
+            "version": "8.4.1",
+            "requirements": [
+                {
+                    "raw": "pytest==8.4.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest",
+                    "specifier": "==8.4.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pytest-asyncio": {
+            "name": "pytest-asyncio",
+            "version": "1.1.0",
+            "requirements": [
+                {
+                    "raw": "pytest-asyncio==1.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest-asyncio",
+                    "specifier": "==1.1.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pytest-cov": {
+            "name": "pytest-cov",
+            "version": "6.2.1",
+            "requirements": [
+                {
+                    "raw": "pytest-cov==6.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest-cov",
+                    "specifier": "==6.2.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pytest-httpx": {
+            "name": "pytest-httpx",
+            "version": "0.35.0",
+            "requirements": [
+                {
+                    "raw": "pytest-httpx==0.35.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest-httpx",
+                    "specifier": "==0.35.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "python-dateutil": {
+            "name": "python-dateutil",
+            "version": "2.9.0.post0",
+            "requirements": [
+                {
+                    "raw": "python-dateutil==2.9.0.post0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-dateutil",
+                    "specifier": "==2.9.0.post0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pywin32-ctypes": {
+            "name": "pywin32-ctypes",
+            "version": "0.2.3",
+            "requirements": [
+                {
+                    "raw": "pywin32-ctypes==0.2.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pywin32-ctypes",
+                    "specifier": "==0.2.3",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pyyaml-env-tag": {
+            "name": "pyyaml-env-tag",
+            "version": "1.1",
+            "requirements": [
+                {
+                    "raw": "pyyaml-env-tag==1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyyaml-env-tag",
+                    "specifier": "==1.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "readme-renderer": {
+            "name": "readme-renderer",
+            "version": "44.0",
+            "requirements": [
+                {
+                    "raw": "readme-renderer==44.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "readme-renderer",
+                    "specifier": "==44.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "regex": {
+            "name": "regex",
+            "version": "2025.7.34",
+            "requirements": [
+                {
+                    "raw": "regex==2025.7.34",
+                    "extras": [],
+                    "marker": null,
+                    "name": "regex",
+                    "specifier": "==2025.7.34",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "requests": {
+            "name": "requests",
+            "version": "2.32.4",
+            "requirements": [
+                {
+                    "raw": "requests==2.32.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "requests",
+                    "specifier": "==2.32.4",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "requests-toolbelt": {
+            "name": "requests-toolbelt",
+            "version": "1.0.0",
+            "requirements": [
+                {
+                    "raw": "requests-toolbelt==1.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "requests-toolbelt",
+                    "specifier": "==1.0.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "rfc3986": {
+            "name": "rfc3986",
+            "version": "2.0.0",
+            "requirements": [
+                {
+                    "raw": "rfc3986==2.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rfc3986",
+                    "specifier": "==2.0.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "rich": {
+            "name": "rich",
+            "version": "14.1.0",
+            "requirements": [
+                {
+                    "raw": "rich==14.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rich",
+                    "specifier": "==14.1.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ruamel.yaml": {
+            "name": "ruamel.yaml",
+            "version": "0.18.14",
+            "requirements": [
+                {
+                    "raw": "ruamel.yaml==0.18.14",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ruamel.yaml",
+                    "specifier": "==0.18.14",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ruamel.yaml.clib": {
+            "name": "ruamel.yaml.clib",
+            "version": "0.2.12",
+            "requirements": [
+                {
+                    "raw": "ruamel.yaml.clib==0.2.12",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ruamel.yaml.clib",
+                    "specifier": "==0.2.12",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ruff": {
+            "name": "ruff",
+            "version": "0.12.8",
+            "requirements": [
+                {
+                    "raw": "ruff==0.12.8",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ruff",
+                    "specifier": "==0.12.8",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "safety": {
+            "name": "safety",
+            "version": "3.6.0",
+            "requirements": [
+                {
+                    "raw": "safety==3.6.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "safety",
+                    "specifier": "==3.6.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "safety-schemas": {
+            "name": "safety-schemas",
+            "version": "0.0.14",
+            "requirements": [
+                {
+                    "raw": "safety-schemas==0.0.14",
+                    "extras": [],
+                    "marker": null,
+                    "name": "safety-schemas",
+                    "specifier": "==0.0.14",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "setuptools": {
+            "name": "setuptools",
+            "version": "80.9.0",
+            "requirements": [
+                {
+                    "raw": "setuptools==80.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "setuptools",
+                    "specifier": "==80.9.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "setuptools-scm": {
+            "name": "setuptools-scm",
+            "version": "9.1.1",
+            "requirements": [
+                {
+                    "raw": "setuptools-scm==9.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "setuptools-scm",
+                    "specifier": "==9.1.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "shellingham": {
+            "name": "shellingham",
+            "version": "1.5.4",
+            "requirements": [
+                {
+                    "raw": "shellingham==1.5.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "shellingham",
+                    "specifier": "==1.5.4",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "six": {
+            "name": "six",
+            "version": "1.17.0",
+            "requirements": [
+                {
+                    "raw": "six==1.17.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "six",
+                    "specifier": "==1.17.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sniffio": {
+            "name": "sniffio",
+            "version": "1.3.1",
+            "requirements": [
+                {
+                    "raw": "sniffio==1.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sniffio",
+                    "specifier": "==1.3.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sortedcontainers": {
+            "name": "sortedcontainers",
+            "version": "2.4.0",
+            "requirements": [
+                {
+                    "raw": "sortedcontainers==2.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sortedcontainers",
+                    "specifier": "==2.4.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "soupsieve": {
+            "name": "soupsieve",
+            "version": "2.7",
+            "requirements": [
+                {
+                    "raw": "soupsieve==2.7",
+                    "extras": [],
+                    "marker": null,
+                    "name": "soupsieve",
+                    "specifier": "==2.7",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "stevedore": {
+            "name": "stevedore",
+            "version": "5.4.1",
+            "requirements": [
+                {
+                    "raw": "stevedore==5.4.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "stevedore",
+                    "specifier": "==5.4.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tenacity": {
+            "name": "tenacity",
+            "version": "9.1.2",
+            "requirements": [
+                {
+                    "raw": "tenacity==9.1.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tenacity",
+                    "specifier": "==9.1.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tiktoken": {
+            "name": "tiktoken",
+            "version": "0.11.0",
+            "requirements": [
+                {
+                    "raw": "tiktoken==0.11.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tiktoken",
+                    "specifier": "==0.11.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tomli": {
+            "name": "tomli",
+            "version": "2.2.1",
+            "requirements": [
+                {
+                    "raw": "tomli==2.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tomli",
+                    "specifier": "==2.2.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tomli-w": {
+            "name": "tomli-w",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "tomli-w==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tomli-w",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tomlkit": {
+            "name": "tomlkit",
+            "version": "0.13.3",
+            "requirements": [
+                {
+                    "raw": "tomlkit==0.13.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tomlkit",
+                    "specifier": "==0.13.3",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tqdm": {
+            "name": "tqdm",
+            "version": "4.67.1",
+            "requirements": [
+                {
+                    "raw": "tqdm==4.67.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tqdm",
+                    "specifier": "==4.67.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "trove-classifiers": {
+            "name": "trove-classifiers",
+            "version": "2025.8.6.13",
+            "requirements": [
+                {
+                    "raw": "trove-classifiers==2025.8.6.13",
+                    "extras": [],
+                    "marker": null,
+                    "name": "trove-classifiers",
+                    "specifier": "==2025.8.6.13",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "twine": {
+            "name": "twine",
+            "version": "6.1.0",
+            "requirements": [
+                {
+                    "raw": "twine==6.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "twine",
+                    "specifier": "==6.1.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "typer": {
+            "name": "typer",
+            "version": "0.16.0",
+            "requirements": [
+                {
+                    "raw": "typer==0.16.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typer",
+                    "specifier": "==0.16.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "types-pyyaml": {
+            "name": "types-pyyaml",
+            "version": "6.0.12.20250809",
+            "requirements": [
+                {
+                    "raw": "types-pyyaml==6.0.12.20250809",
+                    "extras": [],
+                    "marker": null,
+                    "name": "types-pyyaml",
+                    "specifier": "==6.0.12.20250809",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "typing-extensions": {
+            "name": "typing-extensions",
+            "version": "4.14.1",
+            "requirements": [
+                {
+                    "raw": "typing-extensions==4.14.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typing-extensions",
+                    "specifier": "==4.14.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "typing-inspection": {
+            "name": "typing-inspection",
+            "version": "0.4.1",
+            "requirements": [
+                {
+                    "raw": "typing-inspection==0.4.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typing-inspection",
+                    "specifier": "==0.4.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "urllib3": {
+            "name": "urllib3",
+            "version": "2.5.0",
+            "requirements": [
+                {
+                    "raw": "urllib3==2.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "urllib3",
+                    "specifier": "==2.5.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "userpath": {
+            "name": "userpath",
+            "version": "1.9.2",
+            "requirements": [
+                {
+                    "raw": "userpath==1.9.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "userpath",
+                    "specifier": "==1.9.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "uv": {
+            "name": "uv",
+            "version": "0.8.9",
+            "requirements": [
+                {
+                    "raw": "uv==0.8.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "uv",
+                    "specifier": "==0.8.9",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "virtualenv": {
+            "name": "virtualenv",
+            "version": "20.33.1",
+            "requirements": [
+                {
+                    "raw": "virtualenv==20.33.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "virtualenv",
+                    "specifier": "==20.33.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "vulture": {
+            "name": "vulture",
+            "version": "2.14",
+            "requirements": [
+                {
+                    "raw": "vulture==2.14",
+                    "extras": [],
+                    "marker": null,
+                    "name": "vulture",
+                    "specifier": "==2.14",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "watchdog": {
+            "name": "watchdog",
+            "version": "6.0.0",
+            "requirements": [
+                {
+                    "raw": "watchdog==6.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "watchdog",
+                    "specifier": "==6.0.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "wheel": {
+            "name": "wheel",
+            "version": "0.45.1",
+            "requirements": [
+                {
+                    "raw": "wheel==0.45.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "wheel",
+                    "specifier": "==0.45.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "zipp": {
+            "name": "zipp",
+            "version": "3.23.0",
+            "requirements": [
+                {
+                    "raw": "zipp==3.23.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "zipp",
+                    "specifier": "==3.23.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "zstandard": {
+            "name": "zstandard",
+            "version": "0.23.0",
+            "requirements": [
+                {
+                    "raw": "zstandard==0.23.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "zstandard",
+                    "specifier": "==0.23.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "autocommand": {
+            "name": "autocommand",
+            "version": "2.2.2",
+            "requirements": [
+                {
+                    "raw": "autocommand==2.2.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "autocommand",
+                    "specifier": "==2.2.2",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "inflect": {
+            "name": "inflect",
+            "version": "7.3.1",
+            "requirements": [
+                {
+                    "raw": "inflect==7.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "inflect",
+                    "specifier": "==7.3.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "jaraco.collections": {
+            "name": "jaraco.collections",
+            "version": "5.1.0",
+            "requirements": [
+                {
+                    "raw": "jaraco.collections==5.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.collections",
+                    "specifier": "==5.1.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "jaraco.functools": {
+            "name": "jaraco.functools",
+            "version": "4.0.1",
+            "requirements": [
+                {
+                    "raw": "jaraco.functools==4.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.functools",
+                    "specifier": "==4.0.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "jaraco.text": {
+            "name": "jaraco.text",
+            "version": "3.12.1",
+            "requirements": [
+                {
+                    "raw": "jaraco.text==3.12.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.text",
+                    "specifier": "==3.12.1",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "typeguard": {
+            "name": "typeguard",
+            "version": "4.3.0",
+            "requirements": [
+                {
+                    "raw": "typeguard==4.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typeguard",
+                    "specifier": "==4.3.0",
+                    "url": null,
+                    "found": "c:\\users\\mateusz\\source\\repos\\openrouter-inspector\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        }
+    },
+    "affected_packages": {},
+    "announcements": [],
+    "vulnerabilities": [],
+    "ignored_vulnerabilities": [],
+    "remediations": {},
+    "remediations_results": {
+        "vulnerabilities_fixed": [],
+        "remediations_applied": {},
+        "remediations_skipped": {}
+    }
+}
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
