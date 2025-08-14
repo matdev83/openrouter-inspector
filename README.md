@@ -1,6 +1,6 @@
 # OpenRouter Inspector
 
-[![CI](https://github.com/matdev83/openrouter-inspector/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/matdev83/openrouter-inspector/actions/workflows/ci.yml)
+[![CI](https://github.com/matdev83/openrouter-inspector/actions/workflows/ci.yml/badge.svg)](https://github.com/matdev83/openrouter-inspector/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/matdev83/openrouter-inspector/branch/main/graph/badge.svg)](https://codecov.io/gh/matdev83/openrouter-inspector)
 [![PyPI](https://img.shields.io/pypi/v/openrouter-inspector.svg)](https://pypi.org/project/openrouter-inspector/)
 ![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue)
@@ -8,7 +8,6 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
-[![Tests](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/matdev83/openrouter-inspector/actions/workflows/tests.yml)
 ![Last commit](https://img.shields.io/github/last-commit/matdev83/openrouter-inspector)
 [![Issues](https://img.shields.io/github/issues/matdev83/openrouter-inspector)](https://github.com/matdev83/openrouter-inspector/issues)
 
@@ -18,7 +17,7 @@ A lightweight CLI for exploring OpenRouter AI models, listing provider endpoints
 
 ### Requirements
 
-- Python 3.10+
+- Python >=3.10
 
 ### From PyPI (recommended)
 
@@ -30,24 +29,6 @@ A lightweight CLI for exploring OpenRouter AI models, listing provider endpoints
   ```bash
   pip install openrouter-inspector
   ```
-
-### From source (development)
-
-- Install from a clone:
-  ```bash
-  pip install .
-  ```
-- Editable/development install:
-  ```bash
-  pip install -e .
-  ```
-
-### Contributing / Development
-
-If you want to hack on the project (dev setup, tests, QA, pre-commit, etc.), see
-the dedicated contributor guide:
-
-[CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Features
 
@@ -72,9 +53,10 @@ For security, the CLI does not accept API keys via command-line flags. It reads 
 
 ### Quick starts
 
-Subcommands:
-
 ```bash
+# Show the version of the CLI
+openrouter-inspector --version
+
 # List all models
 openrouter-inspector list
 
@@ -89,6 +71,9 @@ openrouter-inspector gemini-2.0 free
 
 # Detailed provider endpoints (exact model id)
 openrouter-inspector endpoints deepseek/deepseek-r1
+
+# Show detailed model parameters and features for a specific provider
+openrouter-inspector details tngtech/deepseek-r1t2-chimera:free Chutes
 
 # To check the endpoint health and latency
 openrouter-inspector ping google/gemini-2.0-flash-exp:free
@@ -133,6 +118,43 @@ Filters and sorting:
 - `--min-context VALUE` minimum context window (e.g., `128K` or `131072`).
 - `--sort-by [provider|model|quant|context|maxout|price_in|price_out]` (default: provider)
 - `--desc` sort descending
+
+#### details
+
+```bash
+openrouter-inspector details MODEL_ID PROVIDER_NAME
+openrouter-inspector details MODEL_ID@PROVIDER_NAME
+```
+
+Displays comprehensive model parameters and supported features for a specific provider endpoint, including:
+- Model identification and provider information
+- Context window and token limits
+- Pricing per million tokens (input/output)
+- Feature support (reasoning, tool calling, image input)
+- Technical details (quantization method)
+- Performance metrics and uptime statistics
+- Current endpoint status
+
+The command also provides helpful hints showing the exact commands needed to:
+- Check latency: `openrouter-inspector ping MODEL_ID@PROVIDER_NAME`
+- Benchmark throughput: `openrouter-inspector benchmark MODEL_ID@PROVIDER_NAME`
+
+Examples:
+```bash
+# Show details for a specific model and provider combination
+openrouter-inspector details tngtech/deepseek-r1t2-chimera:free Chutes
+
+# Using @ shorthand syntax
+openrouter-inspector details tngtech/deepseek-r1t2-chimera:free@Chutes
+
+# On Windows PowerShell, quote the @ syntax to avoid parsing issues:
+openrouter-inspector details "tngtech/deepseek-r1t2-chimera:free@Chutes"
+```
+
+Behavior:
+- Requires both model ID and provider name to be specified
+- Fails if the model ID doesn't exist or the provider doesn't offer that model
+- Shows available providers in error message if provider not found
 
 #### check
 
@@ -212,7 +234,7 @@ Notes:
 
 ```bash
 openrouter-inspector benchmark MODEL_ID [PROVIDER_NAME] \
-  [--timeout <seconds>] [--max-tokens <limit>] [--format table|json|text] [--min-tps <threshold>] [--debug-response]
+  [--timeout <seconds>] [--max-tokens <limit>] [--format table|json|text] [--min-tps <threshold>] [--debug-response] [--prompt-file <file>]
 ```
 
 - Measures model or provider-specific throughput (tokens per second, TPS) by streaming a long response.
@@ -232,6 +254,7 @@ Options:
 - `--format [table|json|text]`: Output format (default: table).
 - `--min-tps <threshold>`: Enforce a minimum TPS threshold (range 1–10000) in `text` mode. Exit code is `1` when measured TPS is lower than threshold, otherwise `0`.
 - `--debug-response`: Print streaming chunk JSON for debugging (noisy).
+- `--prompt-file <file>`: Override the default throughput prompt with the contents of a custom file. The file must exist and be readable. If invalid, the command fails with exit code `2`.
 
 Examples:
 
@@ -250,6 +273,9 @@ openrouter-inspector benchmark google/gemini-2.0-flash-exp:free --format json
 
 # Text-only TPS with threshold suitable for CI/monitoring (non-zero exit code on breach)
 openrouter-inspector benchmark google/gemini-2.0-flash-exp:free --format text --min-tps 200
+
+# Use a custom benchmark prompt
+openrouter-inspector benchmark google/gemini-2.0-flash-exp:free --prompt-file ./config/prompts/my-throughput.md
 ```
 
 Scripting/monitoring notes:
@@ -277,6 +303,15 @@ openrouter-inspector --list --sort-by name
 - Models are retrieved from `/api/v1/models`. Provider offers per model are retrieved from `/api/v1/models/:author/:slug/endpoints`.
 - Supported parameters listed on `/models` are a union across providers. Use `/endpoints` for per-provider truth.
 - Some fields may vary by provider (context, pricing, features); the CLI reflects these differences.
+
+### Contributing
+
+Contributors are welcome! Feel free to fork this project, add any new features or fix bugs. Submit PRs to the `dev` branch once completed.
+
+For development setup, installation from source, QA/testing, and pre-release checks, see the contributor guide.
+
+[CONTRIBUTING.md](CONTRIBUTING.md)
+
 
 ## License
 

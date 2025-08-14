@@ -6,19 +6,34 @@ import asyncio
 import logging
 import os
 from contextlib import suppress
+from pathlib import Path
 from typing import Any
 
 import click
 
 from . import utils
+from ._version import __version__
+from .cli_decorators import (
+    async_command_with_error_handling,
+    common_filter_options,
+    common_format_options,
+    common_sort_options,
+    extended_format_options,
+    model_provider_argument_parser,
+)
 from .commands import (
     BenchmarkCommand,
     CheckCommand,
+    DetailsCommand,
     EndpointsCommand,
     ListCommand,
     PingCommand,
 )
-from .exceptions import APIError, AuthenticationError, RateLimitError
+from .exceptions import (
+    APIError,
+    AuthenticationError,
+    RateLimitError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +99,7 @@ class DefaultCommandGroup(click.Group):
         "ignore_unknown_options": True,
     },
 )
+@click.version_option(version=__version__)
 # Global lightweight mode: support --list as alternative to subcommands
 @click.option(
     "--list",
@@ -117,6 +133,11 @@ class DefaultCommandGroup(click.Group):
     help="Show count of active providers per model (extra API calls)",
 )
 @click.option(
+    "--no-hints",
+    is_flag=True,
+    help="Do not display helpful command hints below the table output",
+)
+@click.option(
     "--sort-by",
     type=click.Choice(["id", "name", "context", "providers"], case_sensitive=False),
     default="id",
@@ -148,6 +169,7 @@ def cli(
     no_tools_flag: bool | None,
     output_format: str,
     with_providers: bool,
+    no_hints: bool,
     sort_by: str,
     desc: bool,
     log_level: str | None,
@@ -157,9 +179,10 @@ def cli(
     Subcommands:
       - list: list models
       - endpoints: detailed endpoints for a model
+      - details: show detailed model parameters and features for a specific provider
       - check: check provider endpoint status (Functional/Degraded/Disabled)
       - ping: test model connectivity via chat completion
-      - benchmark: measure throughput (TPS) of a model endpoint
+      - benchmark: measure throughput (TPS) of a model endpoint (supports --prompt-file to override default prompt)
 
     Or use lightweight flags:
       - --list to list models
@@ -224,6 +247,7 @@ def cli(
                     no_tools=no_tools_flag,
                     output_format=output_format,
                     with_providers=with_providers,
+                    no_hints=no_hints,
                     sort_by=sort_by,
                     desc=desc,
                 )
@@ -252,46 +276,14 @@ def cli(
 @cli.command("list")
 @click.argument("filters", nargs=-1, required=False)
 @click.option("--min-context", type=int, help="Minimum context window size")
-@click.option(
-    "--tools",
-    is_flag=True,
-    default=None,
-    help="Filter to models supporting tool calling",
-)
-@click.option(
-    "--no-tools",
-    is_flag=True,
-    default=None,
-    help="Filter to models NOT supporting tool calling",
-)
-@click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["table", "json"], case_sensitive=False),
-    default="table",
-)
+@common_filter_options
+@common_format_options
 @click.option(
     "--with-providers",
     is_flag=True,
     help="Show count of active providers per model (extra API calls)",
 )
-@click.option(
-    "--sort-by",
-    type=click.Choice(["id", "name", "context", "providers"], case_sensitive=False),
-    default="id",
-    help="Sort column for list output (default: id). 'providers' requires --with-providers",
-)
-@click.option("--desc", is_flag=True, help="Sort in descending order")
-@click.option(
-    "--log-level",
-    "log_level",
-    type=click.Choice(
-        ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"],
-        case_sensitive=False,
-    ),
-    help="Set logging level",
-    envvar="OPENROUTER_LOG_LEVEL",
-)
+@common_sort_options
 @click.pass_context
 def list_models(
     ctx: click.Context,
@@ -301,6 +293,7 @@ def list_models(
     no_tools: bool | None,
     output_format: str,
     with_providers: bool,
+    no_hints: bool,
     sort_by: str,
     desc: bool,
     log_level: str | None,
@@ -313,6 +306,7 @@ def list_models(
     if tools is True and no_tools is True:
         raise click.UsageError("--tools and --no-tools cannot be used together")
 
+    @async_command_with_error_handling
     async def _run() -> None:
         client, model_service, table_formatter, json_formatter = (
             utils.create_command_dependencies(api_key)
@@ -330,33 +324,18 @@ def list_models(
                 no_tools=no_tools,
                 output_format=output_format,
                 with_providers=with_providers,
+                no_hints=no_hints,
                 sort_by=sort_by,
                 desc=desc,
             )
             click.echo("\n" + output + "\n\n", nl=False)
 
-    try:
-        asyncio.run(_run())
-    except click.exceptions.Exit as e:
-        # Preserve intended exit code for scripting scenarios
-        raise e
-    except SystemExit as e:
-        # Allow SystemExit to propagate without wrapping
-        raise e
-    except (AuthenticationError, RateLimitError, APIError) as e:
-        raise click.ClickException(str(e)) from e
-    except Exception as e:
-        raise click.ClickException(f"Unexpected error: {e}") from e
+    _run()
 
 
 @cli.command("endpoints")
 @click.argument("model_id", required=True)
-@click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["table", "json"], case_sensitive=False),
-    default="table",
-)
+@common_format_options
 @click.option(
     "--min-quant",
     type=str,
@@ -418,6 +397,11 @@ def list_models(
     help="Maximum output token price (per million, USD).",
 )
 @click.option(
+    "--no-hints",
+    is_flag=True,
+    help="Do not display helpful command hints below the table output",
+)
+@click.option(
     "--sort-by",
     type=click.Choice(
         [
@@ -436,16 +420,6 @@ def list_models(
     help="Sort column for offers output (default: api = keep OpenRouter order)",
 )
 @click.option("--desc", is_flag=True, help="Sort in descending order")
-@click.option(
-    "--log-level",
-    "log_level",
-    type=click.Choice(
-        ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"],
-        case_sensitive=False,
-    ),
-    help="Set logging level",
-    envvar="OPENROUTER_LOG_LEVEL",
-)
 @click.pass_context
 def endpoints(
     ctx: click.Context,
@@ -463,6 +437,7 @@ def endpoints(
     no_img_required: bool | None,
     max_input_price: float | None,
     max_output_price: float | None,
+    no_hints: bool,
     log_level: str | None,
 ) -> None:
     """Show detailed provider endpoints for an exact model id (author/slug).
@@ -472,6 +447,7 @@ def endpoints(
     utils.configure_logging(log_level)
     api_key: str = ctx.obj["api_key"]
 
+    @async_command_with_error_handling
     async def _run() -> None:
         client, model_service, table_formatter, json_formatter = (
             utils.create_command_dependencies(api_key)
@@ -499,21 +475,80 @@ def endpoints(
                 no_img_required=no_img_required,
                 max_input_price=max_input_price,
                 max_output_price=max_output_price,
+                no_hints=no_hints,
             )
             click.echo(output, nl=False)
 
-    try:
-        asyncio.run(_run())
-    except click.exceptions.Exit as e:
-        # Preserve intended exit code for scripting scenarios
-        raise e
-    except SystemExit as e:
-        # Allow SystemExit to propagate without wrapping
-        raise e
-    except (AuthenticationError, RateLimitError, APIError) as e:
-        raise click.ClickException(str(e)) from e
-    except Exception as e:
-        raise click.ClickException(f"Unexpected error: {e}") from e
+    _run()
+
+
+@cli.command("details")
+@click.argument("model_id", required=True)
+@click.argument("provider_name", required=False)
+@click.option(
+    "--no-hints",
+    is_flag=True,
+    help="Do not display helpful command hints below the table output",
+)
+@click.option(
+    "--log-level",
+    "log_level",
+    type=click.Choice(
+        ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"],
+        case_sensitive=False,
+    ),
+    help="Set logging level",
+    envvar="OPENROUTER_LOG_LEVEL",
+)
+@model_provider_argument_parser
+@click.pass_context
+def details_command(
+    ctx: click.Context,
+    model_id: str,
+    provider_name: str | None,
+    no_hints: bool,
+    log_level: str | None,
+) -> None:
+    """Display detailed model parameters and features for a specific provider endpoint.
+
+    Examples:
+      openrouter-inspector details tngtech/deepseek-r1t2-chimera:free Chutes
+      openrouter-inspector details tngtech/deepseek-r1t2-chimera:free@Chutes
+
+    Note: On Windows PowerShell, quote the @ syntax:
+      openrouter-inspector details "tngtech/deepseek-r1t2-chimera:free@Chutes"
+    """
+    utils.configure_logging(log_level)
+    api_key: str = ctx.obj["api_key"]
+
+    if not provider_name:
+        raise click.ClickException(
+            "Provider name is required. Use either:\n"
+            "  openrouter-inspector details MODEL_ID PROVIDER_NAME\n"
+            "  openrouter-inspector details MODEL_ID@PROVIDER_NAME"
+        )
+
+    @async_command_with_error_handling
+    async def _run() -> None:
+        client, model_service, table_formatter, json_formatter = (
+            utils.create_command_dependencies(api_key)
+        )
+
+        async with client as c:
+            with suppress(AttributeError):
+                model_service.client = c
+            details_cmd = DetailsCommand(
+                c, model_service, table_formatter, json_formatter
+            )
+
+            output = await details_cmd.execute(
+                model_id=model_id,
+                provider_name=provider_name,
+                no_hints=no_hints,
+            )
+            click.echo(output, nl=False)
+
+    _run()
 
 
 @cli.command("check")
@@ -546,6 +581,7 @@ def check_command(
     utils.configure_logging(log_level)
     api_key: str = ctx.obj["api_key"]
 
+    @async_command_with_error_handling
     async def _run() -> None:
         client, model_service, table_formatter, json_formatter = (
             utils.create_command_dependencies(api_key)
@@ -566,51 +602,39 @@ def check_command(
             except Exception as e:
                 raise click.ClickException(str(e)) from e
 
-    try:
-        asyncio.run(_run())
-    except click.exceptions.Exit as e:
-        # Preserve intended exit code for scripting scenarios
-        raise e
-    except SystemExit as e:
-        # Allow SystemExit to propagate without wrapping
-        raise e
-    except (AuthenticationError, RateLimitError, APIError) as e:
-        raise click.ClickException(str(e)) from e
-    except Exception as e:
-        raise click.ClickException(f"Unexpected error: {e}") from e
+    _run()
 
 
 @cli.command("search")
 @click.argument("filters", nargs=-1, required=False)
-@click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["table", "json"], case_sensitive=False),
-    default="table",
-)
+@common_format_options
 @click.option(
     "--with-providers",
     is_flag=True,
     help="Show count of active providers per model (extra API calls)",
 )
 @click.option(
-    "--sort-by",
-    type=click.Choice(["id", "name", "context", "providers"], case_sensitive=False),
-    default="id",
+    "--no-hints",
+    is_flag=True,
+    help="Do not display helpful command hints below the table output",
 )
-@click.option("--desc", is_flag=True, help="Sort in descending order")
+@common_sort_options
 @click.pass_context
 def search_command(
     ctx: click.Context,
     filters: tuple[str, ...],
     output_format: str,
     with_providers: bool,
+    no_hints: bool,
     sort_by: str,
     desc: bool,
+    log_level: str | None,
 ) -> None:
     """Alias that forwards to list with the given filters."""
+    utils.configure_logging(log_level)
     api_key: str = ctx.obj["api_key"]
 
+    @async_command_with_error_handling
     async def _run() -> None:
         client, model_service, table_formatter, json_formatter = (
             utils.create_command_dependencies(api_key)
@@ -623,17 +647,13 @@ def search_command(
                 filters=filters,
                 output_format=output_format,
                 with_providers=with_providers,
+                no_hints=no_hints,
                 sort_by=sort_by,
                 desc=desc,
             )
             click.echo(output, nl=False)
 
-    try:
-        asyncio.run(_run())
-    except (AuthenticationError, RateLimitError, APIError) as e:
-        raise click.ClickException(str(e)) from e
-    except Exception as e:
-        raise click.ClickException(f"Unexpected error: {e}") from e
+    _run()
 
 
 @cli.command("ping")
@@ -667,22 +687,8 @@ def search_command(
     is_flag=True,
     help="Print the full JSON response from the API for debugging.",
 )
-@click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["table", "json", "text"], case_sensitive=False),
-    default="table",
-)
-@click.option(
-    "--log-level",
-    "log_level",
-    type=click.Choice(
-        ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"],
-        case_sensitive=False,
-    ),
-    help="Set logging level",
-    envvar="OPENROUTER_LOG_LEVEL",
-)
+@extended_format_options
+@model_provider_argument_parser
 @click.pass_context
 def ping_command(
     ctx: click.Context,
@@ -704,12 +710,6 @@ def ping_command(
     utils.configure_logging(log_level)
     api_key: str = ctx.obj["api_key"]
 
-    # Support model@provider shorthand when provider_name not given
-    if provider_name is None and "@" in model_id:
-        parts = model_id.split("@", 1)
-        model_id = parts[0].strip()
-        provider_name = parts[1].strip() or None
-
     if timeout_seconds <= 0:
         timeout_seconds = 60
 
@@ -722,6 +722,7 @@ def ping_command(
             "to acknowledge potential API costs."
         )
 
+    @async_command_with_error_handling
     async def _run() -> None:
         client, model_service, table_formatter, json_formatter = (
             utils.create_command_dependencies(api_key)
@@ -754,12 +755,7 @@ def ping_command(
             if cmd.last_all_success is False:
                 ctx.exit(1)
 
-    try:
-        asyncio.run(_run())
-    except (AuthenticationError, RateLimitError, APIError) as e:
-        raise click.ClickException(str(e)) from e
-    except Exception as e:
-        raise click.ClickException(f"Unexpected error: {e}") from e
+    _run()
 
 
 @cli.command("benchmark")
@@ -787,10 +783,14 @@ def ping_command(
     help="Print the full JSON response from the API for debugging.",
 )
 @click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["table", "json", "text"], case_sensitive=False),
-    default="table",
+    "--prompt-file",
+    "prompt_file",
+    type=click.Path(
+        exists=True, file_okay=True, dir_okay=False, readable=True, path_type=str
+    ),
+    help=(
+        "Path to a custom benchmark prompt file. If provided, overrides the default throughput prompt."
+    ),
 )
 @click.option(
     "--min-tps",
@@ -798,16 +798,8 @@ def ping_command(
     type=click.FloatRange(1, 10000),
     help="Minimum TPS threshold (1-10000). Only enforced when --format text.",
 )
-@click.option(
-    "--log-level",
-    "log_level",
-    type=click.Choice(
-        ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"],
-        case_sensitive=False,
-    ),
-    help="Set logging level",
-    envvar="OPENROUTER_LOG_LEVEL",
-)
+@extended_format_options
+@model_provider_argument_parser
 @click.pass_context
 def benchmark_command(
     ctx: click.Context,
@@ -816,6 +808,7 @@ def benchmark_command(
     timeout_seconds: int,
     max_tokens: int,
     debug_response: bool,
+    prompt_file: str | None,
     output_format: str,
     min_tps: float | None,
     log_level: str | None,
@@ -832,15 +825,10 @@ def benchmark_command(
     utils.configure_logging(log_level)
     api_key: str = ctx.obj["api_key"]
 
-    # Support model@provider shorthand when provider_name not given
-    if provider_name is None and "@" in model_id:
-        parts = model_id.split("@", 1)
-        model_id = parts[0].strip()
-        provider_name = parts[1].strip() or None
-
     if timeout_seconds <= 0:
         timeout_seconds = 120
 
+    @async_command_with_error_handling
     async def _run() -> int | None:
         client, model_service, table_formatter, json_formatter = (
             utils.create_command_dependencies(api_key)
@@ -853,6 +841,21 @@ def benchmark_command(
                 model_service.client = c
             cmd = BenchmarkCommand(c, model_service, table_formatter, json_formatter)
 
+            throughput_prompt_override: str | None = None
+            if prompt_file:
+                # Read custom prompt file (validated by Click for existence/readability)
+                try:
+                    content = Path(prompt_file).read_text(encoding="utf-8").strip()
+                    lines = content.split("\n")
+                    if lines and lines[0].startswith("# "):
+                        lines = lines[1:]
+                    throughput_prompt_override = "\n".join(lines).strip()
+                except (OSError, UnicodeDecodeError) as e:
+                    # Treat as invalid parameter for proper exit code 2
+                    raise click.BadParameter(
+                        f"Cannot read prompt file: {e}", param_hint="--prompt-file"
+                    ) from e
+
             # Run once to produce metrics for formatting and threshold check
             result = await cmd._benchmark_once(
                 model_id=model_id,
@@ -860,6 +863,7 @@ def benchmark_command(
                 timeout_seconds=timeout_seconds,
                 max_tokens=max_tokens,
                 debug_response=debug_response,
+                throughput_prompt_override=throughput_prompt_override,
             )
 
             fmt = (output_format or "table").lower()
@@ -891,15 +895,6 @@ def benchmark_command(
                 click.echo(output)
         return None
 
-    try:
-        exit_code = asyncio.run(_run())
-        if exit_code is not None:
-            ctx.exit(exit_code)
-    except (AuthenticationError, RateLimitError, APIError) as e:
-        raise click.ClickException(str(e)) from e
-    except click.exceptions.Exit as e:
-        raise e
-    except SystemExit as e:
-        raise e
-    except Exception as e:
-        raise click.ClickException(f"Unexpected error: {e}") from e
+    exit_code = _run()
+    if exit_code is not None:
+        ctx.exit(exit_code)

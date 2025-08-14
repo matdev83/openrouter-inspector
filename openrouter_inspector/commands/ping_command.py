@@ -110,6 +110,12 @@ class PingCommand(BaseCommand):
         ]
 
         provider_order = [provider_name] if provider_name else None
+        
+        # Format the target URL for display
+        base_url = "https://openrouter.ai/api/v1/chat/completions/"
+        target = f"{base_url}{model_id}"
+        if provider_name:
+            target += f"@{provider_name}"
 
         # Measure latency
         start_ns = time.perf_counter_ns()
@@ -131,77 +137,71 @@ class PingCommand(BaseCommand):
                     "max_tokens": 64,
                 },
                 retries_enabled=False,
+                silent_rate_limit=True,
             )
             elapsed_ms = (time.perf_counter_ns() - start_ns) / 1_000_000.0
             if debug_response:
                 print("\n--- DEBUG RESPONSE ---")
                 print(json.dumps(response_json, indent=2))
                 print("--- END DEBUG ---\n")
-        except Exception as e:
-            elapsed_ms = (time.perf_counter_ns() - start_ns) / 1_000_000.0
-            base_url = "https://openrouter.ai/api/v1/chat/completions/"
-            target = f"{base_url}{model_id}"
-            if provider_name:
-                target += f"@{provider_name}"
+                
+            # Extract provider and token usage
+            served_provider = (
+                response_headers.get("x-openrouter-provider")
+                or response_headers.get("x-provider")
+                or response_json.get("provider")
+                or response_json.get("meta", {}).get("provider")
+            )
+
+            # Usage tokens and cost
+            usage = response_json.get("usage", {})
+            input_tokens = int(usage.get("prompt_tokens", 0))
+            completion_tokens = int(usage.get("completion_tokens", 0))
+            cost = usage.get("total_cost") or usage.get("cost")
+
+            # Extract text and validate Pong
+            text_content = self._extract_message_text(response_json)
+            ok = "pong" in (text_content or "").lower()
+            if not ok:
+                # Fallback: consider success if the model produced any completion tokens
+                # (some reasoning providers may hide content while still responding)
+                ok = completion_tokens > 0
+
+            # Format the display provider
+            provider_for_print = (provider_name or served_provider or "auto").strip()
+            target_with_provider = f"{target.replace('@'+provider_name if provider_name else '', '')}@{provider_for_print}"
+
+            # Format the time string
             time_str = (
                 f"{elapsed_ms/1000:.2f}s"
                 if elapsed_ms >= 1000.0
                 else f"{int(elapsed_ms)}ms"
             )
-            output_str = (
-                f"Pinging {target} with 0 input tokens:\n"
-                f"Reply from: {target} tokens: 0 time={time_str} TTL={timeout_seconds}s (error: {e})"
-            )
+            
+            # Format the cost display
+            cost_display = f"{cost:.6f}" if cost is not None else "0.00"
+            cost_part = f" cost: ${cost_display}"
+
+            # Successful ping output
+            output_str = f"Reply from: {target_with_provider} tokens: {completion_tokens}{cost_part} time={time_str} TTL={timeout_seconds}s"
+
             return PingResult(
-                success=False, elapsed_ms=elapsed_ms, cost=0.0, output_str=output_str
+                success=ok,
+                elapsed_ms=elapsed_ms,
+                cost=float(cost or 0.0),
+                output_str=output_str,
             )
-
-        # Extract provider and token usage
-        served_provider = (
-            response_headers.get("x-openrouter-provider")
-            or response_headers.get("x-provider")
-            or response_json.get("provider")
-            or response_json.get("meta", {}).get("provider")
-        )
-
-        # Usage tokens and cost
-        usage = response_json.get("usage", {})
-        input_tokens = int(usage.get("prompt_tokens", 0))
-        completion_tokens = int(usage.get("completion_tokens", 0))
-        cost = usage.get("total_cost") or usage.get("cost")
-
-        # Extract text and validate Pong
-        text_content = self._extract_message_text(response_json)
-        ok = "pong" in (text_content or "").lower()
-        if not ok:
-            # Fallback: consider success if the model produced any completion tokens
-            # (some reasoning providers may hide content while still responding)
-            ok = completion_tokens > 0
-
-        base_url = "https://openrouter.ai/api/v1/chat/completions/"
-        target = f"{base_url}{model_id}"
-        provider_for_print = (provider_name or served_provider or "auto").strip()
-        target_with_provider = f"{target}@{provider_for_print}"
-
-        time_str = (
-            f"{elapsed_ms/1000:.2f}s"
-            if elapsed_ms >= 1000.0
-            else f"{int(elapsed_ms)}ms"
-        )
-        cost_display = f"{cost:.6f}" if cost is not None else "0.00"
-        cost_part = f" cost: ${cost_display}"
-
-        output_str = (
-            f"Pinging {target_with_provider} with {input_tokens} input tokens:\n"
-            f"Reply from: {target_with_provider} tokens: {completion_tokens}{cost_part} time={time_str} TTL={timeout_seconds}s"
-        )
-
-        return PingResult(
-            success=ok,
-            elapsed_ms=elapsed_ms,
-            cost=float(cost or 0.0),
-            output_str=output_str,
-        )
+            
+        except Exception as e:
+            # Failed ping - don't show response time
+            output_str = f"Request failed: {target} (error: {e})"
+            
+            return PingResult(
+                success=False, 
+                elapsed_ms=(time.perf_counter_ns() - start_ns) / 1_000_000.0, 
+                cost=0.0, 
+                output_str=output_str
+            )
 
     async def execute(
         self,
@@ -216,7 +216,19 @@ class PingCommand(BaseCommand):
     ) -> str:
         """Execute the ping command multiple times and gather statistics."""
         results: list[PingResult] = []
-        all_output_parts: list[str] = [""]  # Start with a newline
+        all_output_parts: list[str] = []
+        
+        # Construct the target URL for display
+        base_url = "https://openrouter.ai/api/v1/chat/completions/"
+        target = f"{base_url}{model_id}"
+        if provider_name:
+            target += f"@{provider_name}"
+            
+        # Show initial ping message
+        ping_header = f"Pinging {target} with OpenRouter API:"
+        all_output_parts.append(ping_header)
+        if on_progress is not None:
+            await self._maybe_await(on_progress(ping_header))
 
         for i in range(count):
             result = await self._ping_once(
@@ -226,9 +238,19 @@ class PingCommand(BaseCommand):
                 debug_response=debug_response,
             )
             results.append(result)
-            all_output_parts.append(result.output_str)
+            
+            # Display the result
+            if result.success:
+                # For successful pings, show the full output with time
+                output_line = result.output_str
+            else:
+                # For failed pings, just show the error message without time
+                output_line = result.output_str
+                
+            all_output_parts.append(output_line)
             if on_progress is not None:
-                await self._maybe_await(on_progress(result.output_str))
+                await self._maybe_await(on_progress(output_line))
+                    
             if i < count - 1:
                 await asyncio.sleep(1)  # Pause between pings
 

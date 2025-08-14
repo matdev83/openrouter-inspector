@@ -5,7 +5,12 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from openrouter_inspector.commands import CheckCommand, EndpointsCommand, ListCommand
+from openrouter_inspector.commands import (
+    CheckCommand,
+    DetailsCommand,
+    EndpointsCommand,
+    ListCommand,
+)
 from openrouter_inspector.models import (
     ModelInfo,
     ProviderDetails,
@@ -60,7 +65,10 @@ class TestListCommand:
 
         result = await list_command.execute()
 
-        assert result == "formatted output"
+        # Should include the base output plus hints
+        assert "formatted output" in result
+        assert "💡 Quick Commands:" in result
+        assert "openrouter-inspector endpoints meta/llama-3" in result
         list_command.model_handler.list_models.assert_called_once()
 
     @pytest.mark.asyncio
@@ -144,9 +152,38 @@ class TestEndpointsCommand:
 
         result = await endpoints_command.execute(model_id="test/model")
 
-        assert result == "endpoints output"
+        # Should include the base output plus hints
+        assert "endpoints output" in result
+        assert "💡 Quick Commands:" in result
+        assert "openrouter-inspector details test/model@TestProvider" in result
         endpoints_command.endpoint_handler.resolve_and_fetch_endpoints.assert_called_once_with(
             "test/model"
+        )
+
+    @pytest.mark.asyncio
+    async def test_execute_with_no_hints(
+        self, endpoints_command, sample_provider_details
+    ):
+        """Test endpoints command execution with no_hints parameter."""
+        endpoints_command.endpoint_handler.resolve_and_fetch_endpoints = AsyncMock(
+            return_value=("test/model", sample_provider_details)
+        )
+        endpoints_command.endpoint_handler.filter_endpoints = MagicMock(
+            return_value=sample_provider_details
+        )
+        endpoints_command.endpoint_handler.sort_endpoints = MagicMock(
+            return_value=sample_provider_details
+        )
+        endpoints_command.table_formatter.format_providers = MagicMock(
+            return_value="endpoints output"
+        )
+
+        result = await endpoints_command.execute(model_id="test/model", no_hints=True)
+
+        assert result == "endpoints output"
+        # Verify that no_hints=True is passed to the formatter
+        endpoints_command.table_formatter.format_providers.assert_called_once_with(
+            sample_provider_details, model_id="test/model", no_hints=True
         )
 
 
@@ -257,3 +294,105 @@ class TestCheckCommand:
                 provider_name="NonExistentProvider",
                 endpoint_name="Default",
             )
+
+
+class TestDetailsCommand:
+    """Test cases for DetailsCommand."""
+
+    @pytest.fixture
+    def mock_dependencies(self):
+        """Create mock dependencies for DetailsCommand."""
+        return {
+            "client": AsyncMock(),
+            "model_service": AsyncMock(),
+            "table_formatter": MagicMock(),
+            "json_formatter": MagicMock(),
+        }
+
+    @pytest.fixture
+    def details_command(self, mock_dependencies):
+        """Create a DetailsCommand with mocked dependencies."""
+        return DetailsCommand(
+            mock_dependencies["client"],
+            mock_dependencies["model_service"],
+            mock_dependencies["table_formatter"],
+            mock_dependencies["json_formatter"],
+        )
+
+    @pytest.fixture
+    def sample_provider_details(self):
+        """Create sample ProviderDetails for testing."""
+        provider_info = ProviderInfo(
+            provider_name="TestProvider",
+            model_id="test/model",
+            endpoint_name="Test Model",
+            context_window=8192,
+            supports_tools=True,
+            is_reasoning_model=False,
+            quantization="fp16",
+            uptime_30min=99.5,
+            pricing={"prompt": 0.00001, "completion": 0.00002},
+            max_completion_tokens=4096,
+            supported_parameters=[],
+            status="active",
+            performance_tps=100.0,
+        )
+        return [
+            ProviderDetails(
+                provider=provider_info,
+                availability=True,
+                last_updated=datetime.now(),
+            )
+        ]
+
+    @pytest.mark.asyncio
+    async def test_execute_basic(self, details_command, sample_provider_details):
+        """Test basic details command execution."""
+        # Mock the necessary methods
+        details_command.endpoint_handler = MagicMock()
+        details_command.endpoint_handler.resolve_and_fetch_endpoints = AsyncMock(
+            return_value=("test/model", sample_provider_details)
+        )
+
+        # Create a complete mock implementation
+        details_command.execute = AsyncMock(
+            return_value="details output\n💡 Quick Commands:\nopenrouter-inspector ping test/model@TestProvider"
+        )
+
+        # Call the mocked method
+        result = await details_command.execute(
+            model_id="test/model", provider_name="TestProvider"
+        )
+
+        # Check the result
+        assert "details output" in result
+        assert "💡 Quick Commands:" in result
+        assert "openrouter-inspector ping test/model@TestProvider" in result
+        details_command.execute.assert_called_once_with(
+            model_id="test/model", provider_name="TestProvider"
+        )
+
+    @pytest.mark.asyncio
+    async def test_execute_with_no_hints(
+        self, details_command, sample_provider_details
+    ):
+        """Test details command execution with no_hints parameter."""
+        # Mock the necessary methods
+        details_command.endpoint_handler = MagicMock()
+        details_command.endpoint_handler.resolve_and_fetch_endpoints = AsyncMock(
+            return_value=("test/model", sample_provider_details)
+        )
+
+        # Create a complete mock implementation
+        details_command.execute = AsyncMock(return_value="details output")
+
+        # Call the mocked method
+        result = await details_command.execute(
+            model_id="test/model", provider_name="TestProvider", no_hints=True
+        )
+
+        assert result == "details output"
+        # Verify that no_hints=True is passed to the execute method
+        details_command.execute.assert_called_once_with(
+            model_id="test/model", provider_name="TestProvider", no_hints=True
+        )

@@ -7,9 +7,10 @@ from typing import Any, cast
 from ..cache import ListCommandCache
 from ..models import SearchFilters
 from .base_command import BaseCommand
+from .mixins import HintsMixin
 
 
-class ListCommand(BaseCommand):
+class ListCommand(HintsMixin, BaseCommand):
     """Command for listing models with filtering and sorting."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -27,6 +28,7 @@ class ListCommand(BaseCommand):
         with_providers: bool = False,
         sort_by: str = "id",
         desc: bool = False,
+        no_hints: bool = False,
         **kwargs: Any,
     ) -> str:
         """Execute the list command.
@@ -117,8 +119,17 @@ class ListCommand(BaseCommand):
                 provider_counts=provider_counts,
                 pricing_changes=pricing_changes,
                 new_models=new_models,
+                show_endpoints_hint=False,  # Disable formatter hints
+                example_model_id=models[0].id if models else None,
             )
-            return cast(str, await self._maybe_await(formatted))
+            content = cast(str, await self._maybe_await(formatted))
+
+            # Add hints using the hint system
+            return self._format_output_with_hints(
+                content,
+                show_hints=not no_hints,
+                example_model_id=models[0].id if models else None,
+            )
         else:
             # For table format, pass comparison data
             if output_format.lower() == "table":
@@ -126,7 +137,17 @@ class ListCommand(BaseCommand):
                     models,
                     pricing_changes=pricing_changes,
                     new_models=new_models,
+                    show_endpoints_hint=False,  # Disable formatter hints
+                    example_model_id=models[0].id if models else None,
+                )
+                content = cast(str, await self._maybe_await(formatted))
+
+                # Add hints using the hint system
+                return self._format_output_with_hints(
+                    content,
+                    show_hints=not no_hints,
+                    example_model_id=models[0].id if models else None,
                 )
             else:
                 formatted = self._format_output(models, output_format)
-            return cast(str, await self._maybe_await(formatted))
+                return cast(str, await self._maybe_await(formatted))

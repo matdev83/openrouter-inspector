@@ -127,6 +127,7 @@ class BenchmarkCommand(BaseCommand):
         timeout_seconds: int = 120,
         max_tokens: int = 3000,
         debug_response: bool = False,
+        throughput_prompt_override: str | None = None,
     ) -> BenchmarkResult:
         """Execute a single benchmark test.
 
@@ -134,7 +135,11 @@ class BenchmarkCommand(BaseCommand):
             A BenchmarkResult object with the outcome.
         """
         # Prepare request body
-        throughput_prompt = self._load_throughput_prompt()
+        throughput_prompt = (
+            throughput_prompt_override
+            if throughput_prompt_override
+            else self._load_throughput_prompt()
+        )
         messages = [
             {
                 "role": "user",
@@ -330,6 +335,7 @@ class BenchmarkCommand(BaseCommand):
         max_tokens: int = 3000,
         debug_response: bool = False,
         output_format: str = "table",
+        throughput_prompt_override: str | None = None,
         **_: Any,
     ) -> str:
         """Execute the benchmark command once and return throughput metrics."""
@@ -339,6 +345,7 @@ class BenchmarkCommand(BaseCommand):
             timeout_seconds=timeout_seconds,
             max_tokens=max_tokens,
             debug_response=debug_response,
+            throughput_prompt_override=throughput_prompt_override,
         )
         fmt = (output_format or "table").lower()
         if fmt == "json":
@@ -363,6 +370,11 @@ class BenchmarkCommand(BaseCommand):
             return f"TPS: {result.tokens_per_second:.2f}"
 
         # Use rich table formatting for beautiful output
-        return self.table_formatter.format_benchmark_result(
-            result=result, model_id=model_id, provider_name=provider_name
-        )
+        from ..formatters.table_formatter import TableFormatter
+
+        if isinstance(self.table_formatter, TableFormatter):
+            return self.table_formatter.format_benchmark_result(
+                result=result, model_id=model_id, provider_name=provider_name
+            )
+        else:
+            return f"Benchmark completed: {result.tokens_per_second:.2f} TPS"

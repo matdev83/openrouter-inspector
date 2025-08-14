@@ -1,0 +1,6 @@
+# Keep AGENTS.md out of main during merges
+AGENTS.md merge=ours
+
+# Exclude AGENTS.md from source exports (e.g., git archive)
+AGENTS.md export-ignore
+

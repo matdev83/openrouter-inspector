@@ -59,6 +59,11 @@ def create_command_dependencies(
 
     Returns:
         Tuple of (client, model_service, table_formatter, json_formatter).
+
+    Note:
+        Returns concrete implementations that satisfy the abstract interfaces
+        used by BaseCommand. This maintains backward compatibility while
+        allowing dependency inversion in the command layer.
     """
     client = client_mod.OpenRouterClient(api_key)
     model_service = services_mod.ModelService(client)

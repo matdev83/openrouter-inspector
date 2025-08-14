@@ -5,9 +5,10 @@ from __future__ import annotations
 from typing import Any, cast
 
 from .base_command import BaseCommand
+from .mixins import HintsMixin
 
 
-class EndpointsCommand(BaseCommand):
+class EndpointsCommand(HintsMixin, BaseCommand):
     """Command for showing detailed provider endpoints for a model."""
 
     async def execute(
@@ -26,6 +27,7 @@ class EndpointsCommand(BaseCommand):
         no_img_required: bool | None = None,
         max_input_price: float | None = None,
         max_output_price: float | None = None,
+        no_hints: bool = False,
         **kwargs: Any,
     ) -> str:
         """Execute the endpoints command.
@@ -45,6 +47,7 @@ class EndpointsCommand(BaseCommand):
             no_img_required: Whether image support should be excluded.
             max_input_price: Maximum input token price (per million USD).
             max_output_price: Maximum output token price (per million USD).
+            no_hints: Do not display helpful command hints below the table output.
             **kwargs: Additional arguments.
 
         Returns:
@@ -80,7 +83,16 @@ class EndpointsCommand(BaseCommand):
             formatted = self.json_formatter.format_providers(sorted_offers)
             return cast(str, await self._maybe_await(formatted))
         else:
+            # Format table without hints in the formatter
             formatted = self.table_formatter.format_providers(
-                sorted_offers, model_id=resolved_id
+                sorted_offers, model_id=resolved_id, no_hints=True
             )
-            return cast(str, await self._maybe_await(formatted))
+            content = cast(str, await self._maybe_await(formatted))
+
+            # Add hints using the hint system
+            return self._format_output_with_hints(
+                content,
+                show_hints=not no_hints,
+                model_id=resolved_id,
+                data=sorted_offers,
+            )

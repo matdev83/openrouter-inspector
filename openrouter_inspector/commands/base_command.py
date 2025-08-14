@@ -6,10 +6,10 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Any
 
-from ..client import OpenRouterClient
-from ..formatters import JsonFormatter, TableFormatter
+from ..formatters.base import BaseFormatter
 from ..handlers import EndpointHandler, ModelHandler, ProviderHandler
-from ..services import ModelService
+from ..interfaces.client import APIClient
+from ..interfaces.services import ModelServiceInterface
 
 
 class BaseCommand(ABC):
@@ -17,18 +17,18 @@ class BaseCommand(ABC):
 
     def __init__(
         self,
-        client: OpenRouterClient,
-        model_service: ModelService,
-        table_formatter: TableFormatter,
-        json_formatter: JsonFormatter,
+        client: APIClient,
+        model_service: ModelServiceInterface,
+        table_formatter: BaseFormatter,
+        json_formatter: BaseFormatter,
     ) -> None:
         """Initialize the base command with required dependencies.
 
         Args:
-            client: The OpenRouterClient instance.
-            model_service: The ModelService instance.
-            table_formatter: The TableFormatter instance.
-            json_formatter: The JsonFormatter instance.
+            client: The API client instance.
+            model_service: The model service instance.
+            table_formatter: The table formatter instance.
+            json_formatter: The JSON formatter instance.
         """
         self.client = client
         self.model_service = model_service

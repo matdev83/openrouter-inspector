@@ -5,7 +5,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from .client import OpenRouterClient
+from .interfaces.client import APIClient
+from .interfaces.services import ModelServiceInterface
 from .models import (
     ModelInfo,
     ProviderDetails,
@@ -19,10 +20,10 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ModelService:
+class ModelService(ModelServiceInterface):
     """High-level operations for listing, searching, and inspecting models."""
 
-    def __init__(self, client: OpenRouterClient) -> None:
+    def __init__(self, client: APIClient) -> None:
         self.client = client
 
     async def list_models(self) -> list[str]:

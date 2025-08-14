@@ -6,9 +6,9 @@ import logging
 from collections.abc import Callable
 from typing import Any
 
-from ..client import OpenRouterClient
+from ..interfaces.client import APIClient
+from ..interfaces.services import ModelServiceInterface
 from ..models import ProviderDetails
-from ..services import ModelService
 from ..utils import (
     check_parameter_support,
     parse_context_threshold,
@@ -21,12 +21,12 @@ logger = logging.getLogger(__name__)
 class EndpointHandler:
     """Handles endpoint resolution, filtering, and sorting operations."""
 
-    def __init__(self, client: OpenRouterClient, model_service: ModelService) -> None:
+    def __init__(self, client: APIClient, model_service: ModelServiceInterface) -> None:
         """Initialize the EndpointHandler.
 
         Args:
-            client: The OpenRouterClient instance to use for API operations.
-            model_service: The ModelService instance to use for model operations.
+            client: The API client instance to use for API operations.
+            model_service: The model service instance to use for model operations.
         """
         self.client = client
         self.model_service = model_service

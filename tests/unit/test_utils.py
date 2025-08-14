@@ -63,10 +63,12 @@ class TestConfigureLogging:
 class TestCreateCommandDependencies:
     """Test cases for create_command_dependencies function."""
 
-    @patch("openrouter_inspector.utils.client_mod.OpenRouterClient")
-    @patch("openrouter_inspector.utils.services_mod.ModelService")
-    @patch("openrouter_inspector.utils.TableFormatter")
-    @patch("openrouter_inspector.utils.JsonFormatter")
+    @patch(
+        "openrouter_inspector.utils.dependency_injection.client_mod.OpenRouterClient"
+    )
+    @patch("openrouter_inspector.utils.dependency_injection.services_mod.ModelService")
+    @patch("openrouter_inspector.utils.dependency_injection.TableFormatter")
+    @patch("openrouter_inspector.utils.dependency_injection.JsonFormatter")
     def test_create_command_dependencies(
         self, mock_json_formatter, mock_table_formatter, mock_model_service, mock_client
     ):

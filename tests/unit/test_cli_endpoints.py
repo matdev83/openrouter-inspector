@@ -357,3 +357,34 @@ class TestCliEndpointsFiltering:
                     )
 
                     assert result.exit_code == 0
+
+    def test_endpoints_with_no_hints(self, runner, sample_providers):
+        """Test endpoints with --no-hints flag."""
+        with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
+            with patch(
+                "openrouter_inspector.client.OpenRouterClient"
+            ) as mock_client_class:
+                mock_client = AsyncMock()
+                mock_client_class.return_value.__aenter__.return_value = mock_client
+
+                with patch(
+                    "openrouter_inspector.services.ModelService"
+                ) as mock_service_class:
+                    mock_service = AsyncMock()
+                    mock_service_class.return_value = mock_service
+                    mock_service.get_model_providers.return_value = sample_providers
+
+                    with patch(
+                        "openrouter_inspector.formatters.table_formatter.TableFormatter.format_providers"
+                    ) as mock_format_providers:
+                        mock_format_providers.return_value = "mocked output"
+
+                        result = runner.invoke(
+                            cli, ["endpoints", "test-model", "--no-hints"]
+                        )
+
+                        assert result.exit_code == 0
+                        # Verify that no_hints=True is passed to the formatter
+                        mock_format_providers.assert_called_once()
+                        call_args = mock_format_providers.call_args
+                        assert call_args[1]["no_hints"] is True

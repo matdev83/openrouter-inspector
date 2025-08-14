@@ -1,6 +1,6 @@
 # Makefile for OpenRouter CLI development
 
-.PHONY: help install install-dev test test-cov lint format type-check qa clean build publish publish-test release
+.PHONY: help install install-dev test test-cov lint format type-check qa clean build publish publish-test release ci-qa ci-test ci-security pre-publish
 
 # Default target
 help:
@@ -18,6 +18,10 @@ help:
 	@echo "  publish      - Upload dist/* to PyPI (requires TWINE env vars)"
 	@echo "  publish-test - Upload dist/* to TestPyPI (requires TWINE env vars)"
 	@echo "  release      - Clean, build, check and publish to PyPI"
+	@echo "  ci-qa        - Run the same quality checks as CI (ruff, black --check, mypy, vulture)"
+	@echo "  ci-test      - Run tests like CI (with coverage xml and JUnit xml)"
+	@echo "  ci-security  - Run security checks like CI (bandit, safety)"
+	@echo "  pre-publish  - Run CI-like QA, tests, security, then build and check"
 
 # Installation targets
 install:
@@ -45,6 +49,22 @@ type-check:
 
 qa: format lint type-check test-cov
 	@echo "All quality assurance checks completed"
+
+# CI-equivalent quality checks
+ci-qa:
+	ruff check --output-format=github .
+	black --check --diff .
+	mypy openrouter_inspector
+	vulture --min-confidence 80 openrouter_inspector
+
+# CI-equivalent test run
+ci-test:
+	pytest --cov=openrouter_inspector --cov-report=xml --cov-report=term --junitxml=pytest.xml
+
+# CI-equivalent security checks
+ci-security:
+	bandit -r openrouter_inspector -f json -o bandit-report.json --severity-level medium --confidence-level high
+	safety check --output json > safety-report.json
 
 # Build and clean targets
 clean:
@@ -75,6 +95,10 @@ release: clean build
 	python -m pip install -U twine
 	python -m twine check dist/*
 	python -m twine upload dist/*
+
+# Run the same QA and testing steps as CI before building and validating the package
+pre-publish: ci-qa ci-test ci-security clean build
+	python -m twine check dist/*
 
 # Virtual environment setup
 setup-dev:

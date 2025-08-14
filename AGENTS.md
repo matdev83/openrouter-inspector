@@ -32,7 +32,7 @@ This approach works because WSL can execute Windows binaries directly. The virtu
 
 ## Coding Standards
 
-- **Language:** Python 3.10+
+- **Language:** Python >=3.10 (source of truth: `pyproject.toml` → `[project].requires-python`)
 - **Formatting:** Ruff with Google docstring convention
 - **Architecture**: Modular, layered, object-oriented design with a focus on SOLID, DRY, and high testability through separation of concerns.
 - **Naming:** snake_case for functions/variables, PascalCase for classes

@@ -83,3 +83,171 @@ def test_format_models_new_models_table():
 
     # The second table title should be present.
     assert "New Models Since Last Run" in out
+
+
+def test_format_providers_no_longer_includes_hints():
+    """Test that format_providers no longer includes hints (moved to command layer)."""
+    from datetime import datetime
+
+    from openrouter_inspector.models import ProviderDetails, ProviderInfo
+
+    tf = TableFormatter()
+
+    provider_info = ProviderInfo(
+        provider_name="TestProvider",
+        model_id="test/model",
+        endpoint_name="Test Model",
+        context_window=8192,
+        supports_tools=True,
+        is_reasoning_model=False,
+        quantization="fp16",
+        uptime_30min=99.5,
+        pricing={"prompt": 0.00001, "completion": 0.00002},
+        max_completion_tokens=4096,
+        supported_parameters=[],
+        status="active",
+        performance_tps=100.0,
+    )
+    provider_details = [
+        ProviderDetails(
+            provider=provider_info,
+            availability=True,
+            last_updated=datetime.now(),
+        )
+    ]
+
+    out = tf.format_providers(provider_details, model_id="test/model")
+
+    # Should not include hints (moved to command layer)
+    assert "💡 Quick Commands:" not in out
+    assert "openrouter-inspector details" not in out
+    assert "openrouter-inspector ping" not in out
+    assert "openrouter-inspector benchmark" not in out
+
+
+def test_format_providers_respects_no_hints_parameter():
+    """Test that format_providers still accepts no_hints parameter for backward compatibility."""
+    from datetime import datetime
+
+    from openrouter_inspector.models import ProviderDetails, ProviderInfo
+
+    tf = TableFormatter()
+
+    provider_info = ProviderInfo(
+        provider_name="TestProvider",
+        model_id="test/model",
+        endpoint_name="Test Model",
+        context_window=8192,
+        supports_tools=True,
+        is_reasoning_model=False,
+        quantization="fp16",
+        uptime_30min=99.5,
+        pricing={"prompt": 0.00001, "completion": 0.00002},
+        max_completion_tokens=4096,
+        supported_parameters=[],
+        status="active",
+        performance_tps=100.0,
+    )
+    provider_details = [
+        ProviderDetails(
+            provider=provider_info,
+            availability=True,
+            last_updated=datetime.now(),
+        )
+    ]
+
+    # Both should produce the same output since hints are handled at command layer
+    out_default = tf.format_providers(provider_details, model_id="test/model")
+    out_no_hints = tf.format_providers(
+        provider_details, model_id="test/model", no_hints=True
+    )
+
+    # Should be the same since formatter no longer handles hints
+    assert out_default == out_no_hints
+    assert "💡 Quick Commands:" not in out_default
+    assert "💡 Quick Commands:" not in out_no_hints
+
+
+def test_format_model_details_no_longer_includes_hints():
+    """Test that format_model_details no longer includes hints (moved to command layer)."""
+    from datetime import datetime
+
+    from openrouter_inspector.models import ProviderDetails, ProviderInfo
+
+    tf = TableFormatter()
+
+    provider_info = ProviderInfo(
+        provider_name="TestProvider",
+        model_id="test/model",
+        endpoint_name="Test Model",
+        context_window=8192,
+        supports_tools=True,
+        is_reasoning_model=False,
+        quantization="fp16",
+        uptime_30min=99.5,
+        pricing={"prompt": 0.00001, "completion": 0.00002},
+        max_completion_tokens=4096,
+        supported_parameters=[],
+        status="active",
+        performance_tps=100.0,
+    )
+    provider_detail = ProviderDetails(
+        provider=provider_info,
+        availability=True,
+        last_updated=datetime.now(),
+    )
+
+    out = tf.format_model_details(
+        provider_detail, model_id="test/model", provider_name="TestProvider"
+    )
+
+    # Should not include hints (moved to command layer)
+    assert "💡 Quick Commands:" not in out
+    assert "openrouter-inspector ping" not in out
+    assert "openrouter-inspector benchmark" not in out
+
+
+def test_format_model_details_respects_no_hints_parameter():
+    """Test that format_model_details still accepts no_hints parameter for backward compatibility."""
+    from datetime import datetime
+
+    from openrouter_inspector.models import ProviderDetails, ProviderInfo
+
+    tf = TableFormatter()
+
+    provider_info = ProviderInfo(
+        provider_name="TestProvider",
+        model_id="test/model",
+        endpoint_name="Test Model",
+        context_window=8192,
+        supports_tools=True,
+        is_reasoning_model=False,
+        quantization="fp16",
+        uptime_30min=99.5,
+        pricing={"prompt": 0.00001, "completion": 0.00002},
+        max_completion_tokens=4096,
+        supported_parameters=[],
+        status="active",
+        performance_tps=100.0,
+    )
+    provider_detail = ProviderDetails(
+        provider=provider_info,
+        availability=True,
+        last_updated=datetime.now(),
+    )
+
+    # Both should produce the same output since hints are handled at command layer
+    out_default = tf.format_model_details(
+        provider_detail, model_id="test/model", provider_name="TestProvider"
+    )
+    out_no_hints = tf.format_model_details(
+        provider_detail,
+        model_id="test/model",
+        provider_name="TestProvider",
+        no_hints=True,
+    )
+
+    # Should be the same since formatter no longer handles hints
+    assert out_default == out_no_hints
+    assert "💡 Quick Commands:" not in out_default
+    assert "💡 Quick Commands:" not in out_no_hints

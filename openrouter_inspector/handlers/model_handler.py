@@ -6,8 +6,8 @@ import logging
 from collections.abc import Callable
 from typing import Any
 
+from ..interfaces.services import ModelServiceInterface
 from ..models import ModelInfo, SearchFilters
-from ..services import ModelService
 
 logger = logging.getLogger(__name__)
 
@@ -15,11 +15,11 @@ logger = logging.getLogger(__name__)
 class ModelHandler:
     """Handles model listing, searching, filtering, and sorting operations."""
 
-    def __init__(self, model_service: ModelService) -> None:
-        """Initialize the ModelHandler with a ModelService instance.
+    def __init__(self, model_service: ModelServiceInterface) -> None:
+        """Initialize the ModelHandler with a model service instance.
 
         Args:
-            model_service: The ModelService instance to use for API operations.
+            model_service: The model service instance to use for API operations.
         """
         self.model_service = model_service
 

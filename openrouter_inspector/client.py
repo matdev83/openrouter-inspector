@@ -16,6 +16,7 @@ from .exceptions import (
     RateLimitError,
     ValidationError,
 )
+from .interfaces.client import APIClient
 from .models import (
     ModelInfo,
     ProviderDetails,
@@ -28,7 +29,7 @@ from .models import (
 logger = logging.getLogger(__name__)
 
 
-class OpenRouterClient:
+class OpenRouterClient(APIClient):
     """Async HTTP client for OpenRouter API with retry logic and error handling."""
 
     def __init__(
@@ -128,6 +129,7 @@ class OpenRouterClient:
         endpoint: str,
         *,
         retries_enabled: bool = True,
+        silent_rate_limit: bool = False,
         **kwargs: Any,
     ) -> httpx.Response:
         """Make HTTP request with retry logic and error handling.
@@ -135,6 +137,8 @@ class OpenRouterClient:
         Args:
             method: HTTP method (GET, POST, etc.)
             endpoint: API endpoint path
+            retries_enabled: Whether to retry failed requests
+            silent_rate_limit: If True, don't log warnings for rate limits
             **kwargs: Additional arguments for httpx request
 
         Returns:
@@ -170,7 +174,8 @@ class OpenRouterClient:
                 elif response.status_code == 429:
                     if attempt < self.max_retries:
                         delay = min(self.base_delay * (2**attempt), self.max_delay)
-                        logger.warning(f"Rate limited. Retrying in {delay:.1f}s...")
+                        if not silent_rate_limit:
+                            logger.warning(f"Rate limited. Retrying in {delay:.1f}s...")
                         await asyncio.sleep(delay)
                         continue
                     else:
@@ -181,9 +186,10 @@ class OpenRouterClient:
                 elif response.status_code >= 500:
                     if attempt < self.max_retries:
                         delay = min(self.base_delay * (2**attempt), self.max_delay)
-                        logger.warning(
-                            f"Server error {response.status_code}. Retrying in {delay:.1f}s..."
-                        )
+                        if not silent_rate_limit:
+                            logger.warning(
+                                f"Server error {response.status_code}. Retrying in {delay:.1f}s..."
+                            )
                         await asyncio.sleep(delay)
                         continue
                     else:
@@ -252,6 +258,7 @@ class OpenRouterClient:
         extra_headers: dict[str, str] | None = None,
         extra_body: dict[str, Any] | None = None,
         retries_enabled: bool = True,
+        silent_rate_limit: bool = False,
     ) -> tuple[dict[str, Any], dict[str, str]]:
         """Call OpenRouter chat completions endpoint.
 
@@ -263,6 +270,8 @@ class OpenRouterClient:
             timeout_seconds: Per-request timeout override.
             extra_headers: Optional headers to include.
             extra_body: Optional extra body fields to merge.
+            retries_enabled: Whether to retry failed requests.
+            silent_rate_limit: If True, don't log warnings for rate limits.
 
         Returns:
             Tuple of (response_json, response_headers).
@@ -296,6 +305,7 @@ class OpenRouterClient:
             "POST",
             "/chat/completions",
             retries_enabled=retries_enabled,
+            silent_rate_limit=silent_rate_limit,
             **request_kwargs,
         )
         try:
@@ -314,6 +324,7 @@ class OpenRouterClient:
         extra_headers: dict[str, str] | None = None,
         extra_body: dict[str, Any] | None = None,
         retries_enabled: bool = True,
+        silent_rate_limit: bool = False,
     ) -> tuple[Any, dict[str, str]]:
         """Call OpenRouter chat completions endpoint with streaming.
 
@@ -325,6 +336,8 @@ class OpenRouterClient:
             timeout_seconds: Per-request timeout override.
             extra_headers: Optional headers to include.
             extra_body: Optional extra body fields to merge.
+            retries_enabled: Whether to retry failed requests.
+            silent_rate_limit: If True, don't log warnings for rate limits.
 
         Returns:
             Tuple of (async_generator, response_headers).
@@ -358,6 +371,7 @@ class OpenRouterClient:
             "POST",
             "/chat/completions",
             retries_enabled=retries_enabled,
+            silent_rate_limit=silent_rate_limit,
             **request_kwargs,
         )
 

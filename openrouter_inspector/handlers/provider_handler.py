@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-from ..client import OpenRouterClient
+from ..interfaces.client import APIClient
 from ..models import ModelInfo, ProviderDetails
 
 logger = logging.getLogger(__name__)
@@ -13,11 +13,11 @@ logger = logging.getLogger(__name__)
 class ProviderHandler:
     """Handles provider counting, filtering, and data enrichment operations."""
 
-    def __init__(self, client: OpenRouterClient) -> None:
-        """Initialize the ProviderHandler with an OpenRouterClient instance.
+    def __init__(self, client: APIClient) -> None:
+        """Initialize the ProviderHandler with an API client instance.
 
         Args:
-            client: The OpenRouterClient instance to use for API operations.
+            client: The API client instance to use for API operations.
         """
         self.client = client
 

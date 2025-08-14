@@ -40,6 +40,8 @@ class TableFormatter(BaseFormatter):
         provider_counts = kwargs.get("provider_counts", [])
         pricing_changes = kwargs.get("pricing_changes", [])
         new_models = kwargs.get("new_models", [])
+        show_endpoints_hint: bool = kwargs.get("show_endpoints_hint", False)
+        example_model_id: str | None = kwargs.get("example_model_id")
 
         # Create a set of model IDs with pricing changes for quick lookup
         pricing_change_models: dict[str, dict[str, tuple[Any, Any]]] = {}
@@ -153,6 +155,20 @@ class TableFormatter(BaseFormatter):
                 self.console.print(new_table)
             output += capture.get()
 
+        # Optional hint section (after tables)
+        if show_endpoints_hint and models:
+            # Choose an example model id when not provided
+            model_example = example_model_id or models[0].id
+            with self.console.capture() as capture:
+                self.console.print()
+                self.console.print("[bold]💡 Quick Commands:[/bold]")
+                self.console.print()
+                self.console.print("[dim]Show provider endpoints for a model:[/dim]")
+                self.console.print(
+                    f"  [cyan]openrouter-inspector endpoints {model_example}[/cyan]"
+                )
+            output += capture.get()
+
         return output
 
     def format_providers(self, providers: list[ProviderDetails], **kwargs: Any) -> str:
@@ -162,11 +178,13 @@ class TableFormatter(BaseFormatter):
             providers: List of ProviderDetails objects to format
             **kwargs: Additional options:
                 - model_id: str - Model ID for table title
+                - no_hints: bool - Do not display helpful command hints below the table output
 
         Returns:
             Formatted table string
         """
         model_id = kwargs.get("model_id", "Unknown Model")
+        kwargs.get("no_hints", False)
 
         table = Table(title=f"Endpoints for {model_id}", box=box.SIMPLE_HEAVY)
         table.add_column("Provider", style="cyan")
@@ -254,6 +272,8 @@ class TableFormatter(BaseFormatter):
             self.console.print(
                 "[dim]Status: [green]●[/green] Excellent (99%+), [yellow]●[/yellow] Good (95-99%), [red]●[/red] Poor (<95%), [red]✗[/red] Error[/dim]"
             )
+
+            # Note: Hints are now handled by the command layer using the hint system
         return capture.get()
 
     def format_benchmark_result(
@@ -386,6 +406,151 @@ class TableFormatter(BaseFormatter):
         elif isinstance(supported_parameters, dict):
             return bool(supported_parameters.get("image", False))
         return False
+
+    def format_model_details(
+        self,
+        provider_detail: Any,
+        model_id: str,
+        provider_name: str,
+        no_hints: bool = False,
+    ) -> str:
+        """Format detailed model parameters and features as a Rich table.
+
+        Args:
+            provider_detail: ProviderDetails object containing the endpoint information
+            model_id: Model ID for display
+            provider_name: Provider name for display
+            no_hints: Do not display helpful command hints below the table output
+
+        Returns:
+            Formatted table string with details and command hints
+        """
+        p = provider_detail.provider
+
+        # Create main details table
+        table = Table(
+            title=f"Model Details: {model_id} @ {provider_name}",
+            box=box.ROUNDED,
+            show_header=True,
+        )
+        table.add_column("Parameter", style="bold cyan", width=25)
+        table.add_column("Value", style="bold white", width=30)
+        table.add_column("Description", style="dim", width=50)
+
+        # Basic model information
+        table.add_row("Model ID", f"[cyan]{model_id}[/cyan]", "Unique model identifier")
+        table.add_row(
+            "Provider", f"[cyan]{p.provider_name}[/cyan]", "Hosting provider name"
+        )
+
+        # Endpoint name if available
+        if p.endpoint_name and p.endpoint_name != "—":
+            table.add_row(
+                "Endpoint Name",
+                f"[white]{p.endpoint_name}[/white]",
+                "Provider's internal model name",
+            )
+
+        # Context and token limits
+        table.add_row(
+            "Context Window",
+            f"[bold green]{self._fmt_k(p.context_window)}[/bold green]",
+            "Maximum input context size",
+        )
+
+        if p.max_completion_tokens:
+            table.add_row(
+                "Max Output Tokens",
+                f"[bold green]{self._fmt_k(p.max_completion_tokens)}[/bold green]",
+                "Maximum output tokens per request",
+            )
+
+        # Pricing information
+        if p.pricing:
+            input_price = p.pricing.get("prompt")
+            output_price = p.pricing.get("completion")
+
+            if input_price is not None:
+                price_per_million = input_price * 1_000_000.0
+                table.add_row(
+                    "Input Price",
+                    f"[yellow]${self._fmt_money(price_per_million)}[/yellow]",
+                    "Cost per million input tokens (USD)",
+                )
+
+            if output_price is not None:
+                price_per_million = output_price * 1_000_000.0
+                table.add_row(
+                    "Output Price",
+                    f"[yellow]${self._fmt_money(price_per_million)}[/yellow]",
+                    "Cost per million output tokens (USD)",
+                )
+
+        # Model capabilities
+        reasoning_supported = self._check_reasoning_support(p.supported_parameters)
+        image_supported = self._check_image_support(p.supported_parameters)
+        tools_supported = p.supports_tools
+
+        table.add_row(
+            "Reasoning Support",
+            f"[{'green' if reasoning_supported else 'red'}]{'✓ Yes' if reasoning_supported else '✗ No'}[/{'green' if reasoning_supported else 'red'}]",
+            "Supports reasoning/chain-of-thought",
+        )
+
+        table.add_row(
+            "Tool Calling",
+            f"[{'green' if tools_supported else 'red'}]{'✓ Yes' if tools_supported else '✗ No'}[/{'green' if tools_supported else 'red'}]",
+            "Supports function/tool calling",
+        )
+
+        table.add_row(
+            "Image Input",
+            f"[{'green' if image_supported else 'red'}]{'✓ Yes' if image_supported else '✗ No'}[/{'green' if image_supported else 'red'}]",
+            "Supports multimodal image inputs",
+        )
+
+        # Technical details
+        if p.quantization and p.quantization.lower() not in ["unknown", "—"]:
+            table.add_row(
+                "Quantization",
+                f"[magenta]{p.quantization}[/magenta]",
+                "Model quantization method",
+            )
+
+        # Performance and reliability
+        table.add_row(
+            "Uptime (30min)",
+            f"[{'green' if p.uptime_30min >= 99 else 'yellow' if p.uptime_30min >= 95 else 'red'}]{p.uptime_30min:.1f}%[/{'green' if p.uptime_30min >= 99 else 'yellow' if p.uptime_30min >= 95 else 'red'}]",
+            "Recent availability percentage",
+        )
+
+        if p.performance_tps:
+            table.add_row(
+                "Performance",
+                f"[cyan]{p.performance_tps:.1f} TPS[/cyan]",
+                "Reported tokens per second",
+            )
+
+        # Status
+        status_str, status_style = self._format_status(p.status, p.uptime_30min)
+        table.add_row(
+            "Status",
+            (
+                f"[{status_style}]{status_str}[/{status_style}]"
+                if status_style
+                else status_str
+            ),
+            "Current endpoint status",
+        )
+
+        # Capture table output
+        with self.console.capture() as capture:
+            self.console.print(table)
+            self.console.print()
+
+            # Note: Hints are now handled by the command layer using the hint system
+
+        return capture.get()
 
     def _format_status(
         self, status: str | None, uptime: float

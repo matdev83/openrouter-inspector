@@ -79,7 +79,7 @@ class TestListCommandCache:
         list_command.model_handler.list_models = AsyncMock(return_value=sample_models)
         table_formatter.format_models.return_value = "formatted output"
 
-        result = await list_command.execute(filters=("test",))
+        result = await list_command.execute(filters=("test",), no_hints=True)
 
         # Should call format_models with empty new_models and pricing_changes
         table_formatter.format_models.assert_called_once()

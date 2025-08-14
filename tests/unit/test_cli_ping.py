@@ -62,7 +62,7 @@ def test_ping_model_only_uses_headers_provider(monkeypatch):
         out = result.output
 
         assert (
-            "Pinging https://openrouter.ai/api/v1/chat/completions/openai/o4-mini@Chutes with 5 input tokens:"
+            "Pinging https://openrouter.ai/api/v1/chat/completions/openai/o4-mini with OpenRouter API:"
             in out
         )
         assert (
