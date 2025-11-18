@@ -18,12 +18,16 @@ class ListCommand(HintsMixin, BaseCommand):
         super().__init__(*args, **kwargs)
         self.cache = ListCommandCache()
 
-    async def execute(
+    async def execute(  # pylint: disable=too-many-arguments,too-many-locals
         self,
         filters: tuple[str, ...] | None = None,
         min_context: int | None = None,
         tools: bool | None = None,
         no_tools: bool | None = None,
+        reasoning: bool | None = None,
+        no_reasoning: bool | None = None,
+        img: bool | None = None,
+        no_img: bool | None = None,
         output_format: str = "table",
         with_providers: bool = False,
         sort_by: str = "id",
@@ -38,6 +42,10 @@ class ListCommand(HintsMixin, BaseCommand):
             min_context: Minimum context window size.
             tools: Filter to models supporting tool calling.
             no_tools: Filter to models NOT supporting tool calling.
+            reasoning: Filter to models supporting reasoning features.
+            no_reasoning: Filter to models without reasoning features.
+            img: Filter to models supporting image input.
+            no_img: Filter to models without image input support.
             output_format: Output format ('table' or 'json').
             with_providers: Show count of active providers per model.
             sort_by: Sort column ('id', 'name', 'context', 'providers').
@@ -47,32 +55,23 @@ class ListCommand(HintsMixin, BaseCommand):
         Returns:
             Formatted output string.
         """
-        # Resolve tool support filter value
-        tool_support_value: bool | None = None
-        if tools is True:
-            tool_support_value = True
-        elif no_tools is True:
-            tool_support_value = False
-
-        # Build search filters
-        search_filters = SearchFilters(
+        (
+            search_filters,
+            cache_params,
+        ) = self._prepare_search_filters_and_cache_params(
+            filters=filters,
             min_context=min_context,
-            supports_tools=tool_support_value,
-            reasoning_only=None,
-            max_price_per_token=None,
+            tools=tools,
+            no_tools=no_tools,
+            reasoning=reasoning,
+            no_reasoning=no_reasoning,
+            img=img,
+            no_img=no_img,
+            output_format=output_format,
+            with_providers=with_providers,
+            sort_by=sort_by,
+            desc=desc,
         )
-
-        # Create cache key from all parameters
-        cache_params = {
-            "filters": filters,
-            "min_context": min_context,
-            "tools": tools,
-            "no_tools": no_tools,
-            "output_format": output_format,
-            "with_providers": with_providers,
-            "sort_by": sort_by,
-            "desc": desc,
-        }
 
         # Get previous response from cache for comparison
         previous_data = self.cache.get_previous_response(**cache_params)
@@ -151,3 +150,59 @@ class ListCommand(HintsMixin, BaseCommand):
             else:
                 formatted = self._format_output(models, output_format)
                 return cast(str, await self._maybe_await(formatted))
+
+    def _prepare_search_filters_and_cache_params(  # pylint: disable=too-many-arguments,too-many-locals
+        self,
+        *,
+        filters: tuple[str, ...] | None,
+        min_context: int | None,
+        tools: bool | None,
+        no_tools: bool | None,
+        reasoning: bool | None,
+        no_reasoning: bool | None,
+        img: bool | None,
+        no_img: bool | None,
+        output_format: str,
+        with_providers: bool,
+        sort_by: str,
+        desc: bool,
+    ) -> tuple[SearchFilters, dict[str, Any]]:
+        """Build the Pydantic filter object and cache parameters map."""
+        tool_support_value = self._resolve_flag_pair(tools, no_tools)
+        reasoning_filter_value = self._resolve_flag_pair(reasoning, no_reasoning)
+        image_support_value = self._resolve_flag_pair(img, no_img)
+
+        search_filters = SearchFilters(
+            min_context=min_context,
+            supports_tools=tool_support_value,
+            reasoning_only=reasoning_filter_value,
+            supports_image_input=image_support_value,
+            max_price_per_token=None,
+        )
+
+        cache_params = {
+            "filters": filters,
+            "min_context": min_context,
+            "tools": tools,
+            "no_tools": no_tools,
+            "reasoning": reasoning,
+            "no_reasoning": no_reasoning,
+            "img": img,
+            "no_img": no_img,
+            "output_format": output_format,
+            "with_providers": with_providers,
+            "sort_by": sort_by,
+            "desc": desc,
+        }
+        return search_filters, cache_params
+
+    @staticmethod
+    def _resolve_flag_pair(
+        include_flag: bool | None, exclude_flag: bool | None
+    ) -> bool | None:
+        """Resolve mutually exclusive include/exclude flags into a tri-state value."""
+        if include_flag is True:
+            return True
+        if exclude_flag is True:
+            return False
+        return None

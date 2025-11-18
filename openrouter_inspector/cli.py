@@ -122,6 +122,34 @@ class DefaultCommandGroup(click.Group):
     help="Filter to models NOT supporting tool calling",
 )
 @click.option(
+    "--reasoning",
+    "reasoning_flag",
+    is_flag=True,
+    default=None,
+    help="Filter to models supporting reasoning features",
+)
+@click.option(
+    "--no-reasoning",
+    "no_reasoning_flag",
+    is_flag=True,
+    default=None,
+    help="Filter to models without reasoning support",
+)
+@click.option(
+    "--img",
+    "img_flag",
+    is_flag=True,
+    default=None,
+    help="Filter to models supporting image input",
+)
+@click.option(
+    "--no-img",
+    "no_img_flag",
+    is_flag=True,
+    default=None,
+    help="Filter to models without image input support",
+)
+@click.option(
     "--format",
     "output_format",
     type=click.Choice(["table", "json"], case_sensitive=False),
@@ -162,11 +190,15 @@ class DefaultCommandGroup(click.Group):
     envvar="OPENROUTER_LOG_LEVEL",
 )
 @click.pass_context
-def cli(
+def cli(  # pylint: disable=too-many-arguments,too-many-locals,too-complex
     ctx: click.Context,
     list_flag: bool,
     tools_flag: bool | None,
     no_tools_flag: bool | None,
+    reasoning_flag: bool | None,
+    no_reasoning_flag: bool | None,
+    img_flag: bool | None,
+    no_img_flag: bool | None,
     output_format: str,
     with_providers: bool,
     no_hints: bool,
@@ -223,6 +255,12 @@ def cli(
         # Validate mutually exclusive flags
         if tools_flag is True and no_tools_flag is True:
             raise click.UsageError("--tools and --no-tools cannot be used together")
+        if reasoning_flag is True and no_reasoning_flag is True:
+            raise click.UsageError(
+                "--reasoning and --no-reasoning cannot be used together"
+            )
+        if img_flag is True and no_img_flag is True:
+            raise click.UsageError("--img and --no-img cannot be used together")
 
         async def _run_lightweight() -> None:
             client, model_service, table_formatter, json_formatter = (
@@ -245,6 +283,10 @@ def cli(
                     filters=filters_tuple,
                     tools=tools_flag,
                     no_tools=no_tools_flag,
+                    reasoning=reasoning_flag,
+                    no_reasoning=no_reasoning_flag,
+                    img=img_flag,
+                    no_img=no_img_flag,
                     output_format=output_format,
                     with_providers=with_providers,
                     no_hints=no_hints,
@@ -285,12 +327,16 @@ def cli(
 )
 @common_sort_options
 @click.pass_context
-def list_models(
+def list_models(  # pylint: disable=too-many-arguments,too-many-locals
     ctx: click.Context,
     filters: tuple[str, ...],
     min_context: int | None,
     tools: bool | None,
     no_tools: bool | None,
+    reasoning: bool | None,
+    no_reasoning: bool | None,
+    img: bool | None,
+    no_img: bool | None,
     output_format: str,
     with_providers: bool,
     no_hints: bool,
@@ -305,6 +351,10 @@ def list_models(
     # Validate mutually exclusive flags
     if tools is True and no_tools is True:
         raise click.UsageError("--tools and --no-tools cannot be used together")
+    if reasoning is True and no_reasoning is True:
+        raise click.UsageError("--reasoning and --no-reasoning cannot be used together")
+    if img is True and no_img is True:
+        raise click.UsageError("--img and --no-img cannot be used together")
 
     @async_command_with_error_handling
     async def _run() -> None:
@@ -322,6 +372,10 @@ def list_models(
                 min_context=min_context,
                 tools=tools,
                 no_tools=no_tools,
+                reasoning=reasoning,
+                no_reasoning=no_reasoning,
+                img=img,
+                no_img=no_img,
                 output_format=output_format,
                 with_providers=with_providers,
                 no_hints=no_hints,
@@ -421,7 +475,7 @@ def list_models(
 )
 @click.option("--desc", is_flag=True, help="Sort in descending order")
 @click.pass_context
-def endpoints(
+def endpoints(  # pylint: disable=too-many-arguments,too-many-locals
     ctx: click.Context,
     model_id: str,
     output_format: str,
@@ -620,7 +674,7 @@ def check_command(
 )
 @common_sort_options
 @click.pass_context
-def search_command(
+def search_command(  # pylint: disable=too-many-arguments,too-many-locals
     ctx: click.Context,
     filters: tuple[str, ...],
     output_format: str,
@@ -690,7 +744,7 @@ def search_command(
 @extended_format_options
 @model_provider_argument_parser
 @click.pass_context
-def ping_command(
+def ping_command(  # pylint: disable=too-many-arguments
     ctx: click.Context,
     model_id: str,
     provider_name: str | None,
@@ -801,7 +855,7 @@ def ping_command(
 @extended_format_options
 @model_provider_argument_parser
 @click.pass_context
-def benchmark_command(
+def benchmark_command(  # pylint: disable=too-many-arguments,too-many-locals,too-complex
     ctx: click.Context,
     model_id: str,
     provider_name: str | None,
@@ -829,7 +883,7 @@ def benchmark_command(
         timeout_seconds = 120
 
     @async_command_with_error_handling
-    async def _run() -> int | None:
+    async def _run() -> int | None:  # pylint: disable=too-many-locals
         client, model_service, table_formatter, json_formatter = (
             utils.create_command_dependencies(api_key)
         )

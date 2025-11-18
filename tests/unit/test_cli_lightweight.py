@@ -257,6 +257,94 @@ class TestCliLightweightMode:
                     call_args = mock_service.search_models.call_args
                     assert call_args[0][1].supports_tools is False
 
+    def test_list_with_reasoning_flag(self, runner, sample_models):
+        """Test --list with --reasoning flag."""
+        with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
+            with patch(
+                "openrouter_inspector.client.OpenRouterClient"
+            ) as mock_client_class:
+                mock_client = AsyncMock()
+                mock_client_class.return_value.__aenter__.return_value = mock_client
+
+                with patch(
+                    "openrouter_inspector.services.ModelService"
+                ) as mock_service_class:
+                    mock_service = AsyncMock()
+                    mock_service_class.return_value = mock_service
+                    mock_service.search_models.return_value = sample_models
+
+                    result = runner.invoke(cli, ["--list", "--reasoning"])
+
+                    assert result.exit_code == 0
+                    call_args = mock_service.search_models.call_args
+                    assert call_args[0][1].reasoning_only is True
+
+    def test_list_with_no_reasoning_flag(self, runner, sample_models):
+        """Test --list with --no-reasoning flag."""
+        with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
+            with patch(
+                "openrouter_inspector.client.OpenRouterClient"
+            ) as mock_client_class:
+                mock_client = AsyncMock()
+                mock_client_class.return_value.__aenter__.return_value = mock_client
+
+                with patch(
+                    "openrouter_inspector.services.ModelService"
+                ) as mock_service_class:
+                    mock_service = AsyncMock()
+                    mock_service_class.return_value = mock_service
+                    mock_service.search_models.return_value = sample_models
+
+                    result = runner.invoke(cli, ["--list", "--no-reasoning"])
+
+                    assert result.exit_code == 0
+                    call_args = mock_service.search_models.call_args
+                    assert call_args[0][1].reasoning_only is False
+
+    def test_list_with_img_flag(self, runner, sample_models):
+        """Test --list with --img flag."""
+        with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
+            with patch(
+                "openrouter_inspector.client.OpenRouterClient"
+            ) as mock_client_class:
+                mock_client = AsyncMock()
+                mock_client_class.return_value.__aenter__.return_value = mock_client
+
+                with patch(
+                    "openrouter_inspector.services.ModelService"
+                ) as mock_service_class:
+                    mock_service = AsyncMock()
+                    mock_service_class.return_value = mock_service
+                    mock_service.search_models.return_value = sample_models
+
+                    result = runner.invoke(cli, ["--list", "--img"])
+
+                    assert result.exit_code == 0
+                    call_args = mock_service.search_models.call_args
+                    assert call_args[0][1].supports_image_input is True
+
+    def test_list_with_no_img_flag(self, runner, sample_models):
+        """Test --list with --no-img flag."""
+        with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
+            with patch(
+                "openrouter_inspector.client.OpenRouterClient"
+            ) as mock_client_class:
+                mock_client = AsyncMock()
+                mock_client_class.return_value.__aenter__.return_value = mock_client
+
+                with patch(
+                    "openrouter_inspector.services.ModelService"
+                ) as mock_service_class:
+                    mock_service = AsyncMock()
+                    mock_service_class.return_value = mock_service
+                    mock_service.search_models.return_value = sample_models
+
+                    result = runner.invoke(cli, ["--list", "--no-img"])
+
+                    assert result.exit_code == 0
+                    call_args = mock_service.search_models.call_args
+                    assert call_args[0][1].supports_image_input is False
+
     def test_list_with_tools_and_no_tools_error(self, runner):
         """Test that using both --tools and --no-tools flags raises an error."""
         with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
@@ -264,3 +352,22 @@ class TestCliLightweightMode:
 
             assert result.exit_code != 0
             assert "--tools and --no-tools cannot be used together" in result.output
+
+    def test_list_with_reasoning_and_no_reasoning_error(self, runner):
+        """Test that using both reasoning flags raises an error."""
+        with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
+            result = runner.invoke(cli, ["--list", "--reasoning", "--no-reasoning"])
+
+            assert result.exit_code != 0
+            assert (
+                "--reasoning and --no-reasoning cannot be used together"
+                in result.output
+            )
+
+    def test_list_with_img_and_no_img_error(self, runner):
+        """Test that using both image flags raises an error."""
+        with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
+            result = runner.invoke(cli, ["--list", "--img", "--no-img"])
+
+            assert result.exit_code != 0
+            assert "--img and --no-img cannot be used together" in result.output

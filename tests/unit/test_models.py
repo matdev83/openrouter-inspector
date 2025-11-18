@@ -199,12 +199,14 @@ class TestSearchFilters:
             "min_context": 4096,
             "supports_tools": True,
             "reasoning_only": False,
+            "supports_image_input": True,
             "max_price_per_token": 0.01,
         }
 
         filters = SearchFilters(**filters_data)
         assert filters.min_context == 4096
         assert filters.supports_tools is True
+        assert filters.supports_image_input is True
         assert filters.max_price_per_token == 0.01
 
     def test_empty_search_filters(self):
@@ -213,6 +215,7 @@ class TestSearchFilters:
         assert filters.min_context is None
         assert filters.supports_tools is None
         assert filters.reasoning_only is None
+        assert filters.supports_image_input is None
         assert filters.max_price_per_token is None
 
     def test_invalid_min_context_too_large(self):
@@ -387,4 +390,5 @@ class TestModelSerialization:
         json_data = filters.model_dump(exclude_none=True)
         assert json_data == {"min_context": 4096, "supports_tools": True}
         assert "reasoning_only" not in json_data
+        assert "supports_image_input" not in json_data
         assert "max_price_per_token" not in json_data

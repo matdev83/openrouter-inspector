@@ -65,11 +65,12 @@ class TestModelService:
                     context_window=8192,
                     supports_tools=True,
                     is_reasoning_model=True,
+                    supports_image_input=True,
                     quantization="fp16",
                     uptime_30min=99.5,
                     pricing={"prompt": 0.00001, "completion": 0.00002},
                     max_completion_tokens=4096,
-                    supported_parameters=["tools", "reasoning"],
+                    supported_parameters=["tools", "reasoning", "image"],
                     status="active",
                     performance_tps=100.0,
                 ),
@@ -234,6 +235,7 @@ class TestModelService:
             min_context=None,
             supports_tools=None,
             reasoning_only=True,
+            supports_image_input=None,
             max_price_per_token=None,
         )
         await service.search_models("", filters)
@@ -241,6 +243,62 @@ class TestModelService:
         # Should call get_model_providers for each candidate
         assert mock_client.get_model_providers.call_count >= 1
         # model1 should match because it has reasoning providers
+
+    @pytest.mark.asyncio
+    async def test_search_models_non_reasoning_filter(
+        self, mock_client, sample_models, sample_providers
+    ):
+        """Test search_models with reasoning_only set to False."""
+        mock_client.get_models.return_value = sample_models
+        reasoning_only_list = [sample_providers[0]]
+        mock_client.get_model_providers.side_effect = [
+            sample_providers,
+            reasoning_only_list,
+            reasoning_only_list,
+        ]
+        service = ModelService(mock_client)
+
+        filters = SearchFilters(
+            min_context=None,
+            supports_tools=None,
+            reasoning_only=False,
+            supports_image_input=None,
+            max_price_per_token=None,
+        )
+        results = await service.search_models("", filters)
+
+        assert len(results) == 1
+        assert results[0].id == "model1"
+        mock_client.get_model_providers.side_effect = None
+        mock_client.get_model_providers.return_value = sample_providers
+
+    @pytest.mark.asyncio
+    async def test_search_models_supports_image_filter(
+        self, mock_client, sample_models, sample_providers
+    ):
+        """Test search_models with supports_image_input filter."""
+        mock_client.get_models.return_value = sample_models
+        no_image_list = [sample_providers[1]]
+        mock_client.get_model_providers.side_effect = [
+            sample_providers,
+            no_image_list,
+            no_image_list,
+        ]
+        service = ModelService(mock_client)
+
+        filters = SearchFilters(
+            min_context=None,
+            supports_tools=None,
+            reasoning_only=None,
+            supports_image_input=True,
+            max_price_per_token=None,
+        )
+        results = await service.search_models("", filters)
+
+        assert len(results) == 1
+        assert results[0].id == "model1"
+        mock_client.get_model_providers.side_effect = None
+        mock_client.get_model_providers.return_value = sample_providers
 
     @pytest.mark.asyncio
     async def test_get_model_providers(self, mock_client, sample_providers):

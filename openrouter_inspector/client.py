@@ -69,7 +69,9 @@ class OpenRouterClient(APIClient):
         self.max_delay: float = 60.0  # Maximum delay between retries
 
     @staticmethod
-    def _parse_datetime(value: Any) -> datetime:
+    def _parse_datetime(  # pylint: disable=too-many-return-statements,too-complex
+        value: Any,
+    ) -> datetime:
         """Parse various datetime representations robustly.
 
         Accepts ISO strings (with optional trailing 'Z'), integer/float timestamps in
@@ -123,7 +125,7 @@ class OpenRouterClient(APIClient):
         if self.client:
             await self.client.aclose()
 
-    async def _make_request(
+    async def _make_request(  # pylint: disable=too-many-branches,too-many-statements,too-complex
         self,
         method: str,
         endpoint: str,
@@ -247,7 +249,7 @@ class OpenRouterClient(APIClient):
         # This should never be reached, but just in case
         raise APIError("Maximum retries exceeded")
 
-    async def create_chat_completion(
+    async def create_chat_completion(  # pylint: disable=too-many-arguments,too-many-locals
         self,
         *,
         model: str,
@@ -313,7 +315,7 @@ class OpenRouterClient(APIClient):
         except (ValueError, TypeError) as e:
             raise APIError(f"Invalid JSON response: {e}") from e
 
-    async def create_chat_completion_stream(
+    async def create_chat_completion_stream(  # pylint: disable=too-many-arguments
         self,
         *,
         model: str,
@@ -377,7 +379,9 @@ class OpenRouterClient(APIClient):
 
         return response, dict(response.headers)
 
-    async def get_models(self) -> list[ModelInfo]:
+    async def get_models(  # pylint: disable=too-many-branches,too-many-locals,too-complex
+        self,
+    ) -> list[ModelInfo]:
         """Retrieve all available models from OpenRouter API.
 
         Returns:
@@ -453,7 +457,9 @@ class OpenRouterClient(APIClient):
                 raise
             raise APIError(f"Failed to retrieve models: {e}") from e
 
-    async def get_model_providers(self, model_name: str) -> list[ProviderDetails]:
+    async def get_model_providers(  # pylint: disable=too-many-branches,too-many-locals,too-many-nested-blocks,too-many-statements,too-complex
+        self, model_name: str
+    ) -> list[ProviderDetails]:
         """Get all providers for a specific model.
 
         Args:
@@ -521,21 +527,66 @@ class OpenRouterClient(APIClient):
                     sp = provider_data.get("supported_parameters")
                     tools_supported = False
                     reasoning_supported = False
+                    image_supported = False
+                    image_aliases = {
+                        "image",
+                        "images",
+                        "image_input",
+                        "input_image",
+                        "input_images",
+                        "vision",
+                        "vision_input",
+                        "multimodal",
+                        "multimodal_vision",
+                    }
                     if isinstance(sp, list):
-                        tools_supported = "tools" in sp
+                        normalized_params = [
+                            x.lower() for x in sp if isinstance(x, str)
+                        ]
+                        tools_supported = "tools" in normalized_params
                         reasoning_supported = any(
-                            isinstance(x, str)
-                            and x.startswith("reasoning")
-                            or x == "reasoning"
-                            for x in sp
+                            param.startswith("reasoning") or param == "reasoning"
+                            for param in normalized_params
+                        )
+                        image_supported = any(
+                            param in image_aliases
+                            or param.startswith("image")
+                            or param.startswith("vision")
+                            for param in normalized_params
                         )
                     elif isinstance(sp, dict):
                         tools_supported = bool(sp.get("tools", False))
                         reasoning_supported = bool(sp.get("reasoning", False))
+                        for key, value in sp.items():
+                            if (
+                                isinstance(key, str)
+                                and key.lower() in image_aliases
+                                and bool(value)
+                            ):
+                                image_supported = True
+                                break
+
                     # Legacy boolean field support
                     if not tools_supported:
                         tools_supported = bool(
                             provider_data.get("supports_tools", False)
+                        )
+                    if not reasoning_supported:
+                        reasoning_supported = bool(
+                            provider_data.get("is_reasoning_model", False)
+                        )
+                    if not image_supported:
+                        image_supported = any(
+                            bool(provider_data.get(field))
+                            for field in [
+                                "supports_images",
+                                "supports_image_input",
+                                "image_input",
+                                "vision",
+                                "vision_support",
+                                "multimodal",
+                                "image_support",
+                            ]
                         )
 
                     # Pricing may be numeric strings; coerce to float where possible
@@ -594,6 +645,7 @@ class OpenRouterClient(APIClient):
                         or provider_data.get("context_window", 0),
                         supports_tools=tools_supported,
                         is_reasoning_model=reasoning_supported,
+                        supports_image_input=image_supported,
                         quantization=provider_data.get("quantization"),
                         uptime_30min=uptime_pct,
                         performance_tps=provider_data.get("performance_tps")

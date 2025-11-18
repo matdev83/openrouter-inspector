@@ -51,6 +51,7 @@ class ModelService(ModelServiceInterface):
                 min_context=None,
                 supports_tools=None,
                 reasoning_only=None,
+                supports_image_input=None,
                 max_price_per_token=None,
             )
 
@@ -78,40 +79,58 @@ class ModelService(ModelServiceInterface):
         candidates: list[ModelInfo] = [m for m in all_models if matches_basic(m)]
 
         # If provider-dependent filters are set, fetch providers per candidate
-        requires_providers = (filters.supports_tools is not None) or (
-            filters.reasoning_only is True
+        requires_providers = any(
+            value is not None
+            for value in (
+                filters.supports_tools,
+                filters.reasoning_only,
+                filters.supports_image_input,
+            )
         )
         if not requires_providers:
             return candidates
 
         results: list[ModelInfo] = []
         for model in candidates:
-            providers: list[ProviderDetails] = await self.client.get_model_providers(
-                model.id
-            )
-            if not providers:
-                continue
-            any_ok = False
-            for pd in providers:
-                if (
-                    filters.supports_tools is not None
-                    and pd.provider.supports_tools != filters.supports_tools
-                ):
-                    continue
-                if (
-                    filters.reasoning_only is True
-                    and not pd.provider.is_reasoning_model
-                ):
-                    continue
-                any_ok = True
-                break
-            if any_ok:
+            if await self._providers_match_filters(model, filters):
                 results.append(model)
         return results
 
     async def get_model_providers(self, model_name: str) -> list[ProviderDetails]:
         """Return detailed provider information for a given model id/name."""
         return await self.client.get_model_providers(model_name)
+
+    async def _providers_match_filters(
+        self,
+        model: ModelInfo,
+        filters: SearchFilters,
+    ) -> bool:
+        """Return True if the model has at least one provider matching the filters."""
+        providers: list[ProviderDetails] = await self.client.get_model_providers(
+            model.id
+        )
+        if not providers:
+            return False
+
+        for pd in providers:
+            provider = pd.provider
+            if (
+                filters.supports_tools is not None
+                and provider.supports_tools != filters.supports_tools
+            ):
+                continue
+            if (
+                filters.reasoning_only is not None
+                and provider.is_reasoning_model != filters.reasoning_only
+            ):
+                continue
+            if (
+                filters.supports_image_input is not None
+                and provider.supports_image_input != filters.supports_image_input
+            ):
+                continue
+            return True
+        return False
 
     # All web-scraping-related methods removed
 

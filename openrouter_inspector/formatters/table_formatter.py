@@ -22,7 +22,9 @@ class TableFormatter(BaseFormatter):
         """
         self.console = console or Console(width=200)
 
-    def format_models(self, models: list[ModelInfo], **kwargs: Any) -> str:
+    def format_models(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-complex
+        self, models: list[ModelInfo], **kwargs: Any
+    ) -> str:
         """Format models as a Rich table.
 
         Args:
@@ -171,7 +173,9 @@ class TableFormatter(BaseFormatter):
 
         return output
 
-    def format_providers(self, providers: list[ProviderDetails], **kwargs: Any) -> str:
+    def format_providers(  # pylint: disable=too-many-locals
+        self, providers: list[ProviderDetails], **kwargs: Any
+    ) -> str:
         """Format provider details as a Rich table.
 
         Args:
@@ -186,22 +190,38 @@ class TableFormatter(BaseFormatter):
         model_id = kwargs.get("model_id", "Unknown Model")
         kwargs.get("no_hints", False)
 
-        table = Table(title=f"Endpoints for {model_id}", box=box.SIMPLE_HEAVY)
-        table.add_column("Provider", style="cyan")
-        table.add_column(
-            "Model", style="white", no_wrap=False, overflow="ellipsis", max_width=30
+        table = Table(
+            title=f"Endpoints for {model_id}",
+            box=box.SIMPLE_HEAVY,
+            expand=True,
+            pad_edge=False,
         )
-        table.add_column("Reason", justify="center")
-        table.add_column("Img", justify="center")
-        table.add_column("Tools", justify="center")
-        table.add_column("Quant", justify="left")
-        table.add_column("Context", justify="right")
-        table.add_column("Max Out", justify="right")
-        table.add_column("Input", justify="right", no_wrap=True)
-        table.add_column("Output", justify="right", no_wrap=True)
-        table.add_column("Uptime", justify="right")
-        table.add_column("Status", justify="center")
+        table.add_column(
+            "Provider",
+            style="cyan",
+            min_width=12,
+            overflow="fold",
+        )
+        table.add_column(
+            "Model",
+            style="white",
+            no_wrap=False,
+            overflow="fold",
+            min_width=18,
+            max_width=40,
+        )
+        table.add_column("Reason", justify="center", min_width=6, no_wrap=True)
+        table.add_column("Img", justify="center", min_width=3, no_wrap=True)
+        table.add_column("Tools", justify="center", min_width=5, no_wrap=True)
+        table.add_column("Quant", justify="left", min_width=6, overflow="fold")
+        table.add_column("Context", justify="right", min_width=7)
+        table.add_column("Max Out", justify="right", min_width=8)
+        table.add_column("Input", justify="right", no_wrap=True, min_width=8)
+        table.add_column("Output", justify="right", no_wrap=True, min_width=8)
+        table.add_column("Uptime", justify="right", min_width=6)
+        table.add_column("Status", justify="center", min_width=8)
 
+        summary_lines: list[str] = []
         for provider_detail in providers:
             p = provider_detail.provider
 
@@ -264,6 +284,19 @@ class TableFormatter(BaseFormatter):
                 ),
             )
 
+            summary_lines.append(
+                " - ".join(
+                    [
+                        f"Provider {p.provider_name}",
+                        f"Model '{model_cell}'",
+                        f"Input {price_in_str}",
+                        f"Output {price_out_str}",
+                        f"Uptime {uptime_str}",
+                        f"Status {status_str}",
+                    ]
+                )
+            )
+
         # Capture table output as string
         with self.console.capture() as capture:
             self.console.print(table)
@@ -273,8 +306,17 @@ class TableFormatter(BaseFormatter):
                 "[dim]Status: [green]●[/green] Excellent (99%+), [yellow]●[/yellow] Good (95-99%), [red]●[/red] Poor (<95%), [red]✗[/red] Error[/dim]"
             )
 
-            # Note: Hints are now handled by the command layer using the hint system
-        return capture.get()
+        summary_text = ""
+        if summary_lines:
+            summary_text = (
+                "\n"
+                + f"Endpoints for {model_id}\n"
+                + "Plain summary:\n"
+                + "\n".join(f"  {line}" for line in summary_lines)
+                + "\n"
+            )
+
+        return capture.get() + summary_text
 
     def format_benchmark_result(
         self, result: Any, model_id: str, provider_name: str | None = None
@@ -407,7 +449,7 @@ class TableFormatter(BaseFormatter):
             return bool(supported_parameters.get("image", False))
         return False
 
-    def format_model_details(
+    def format_model_details(  # pylint: disable=too-many-locals
         self,
         provider_detail: Any,
         model_id: str,
@@ -425,6 +467,7 @@ class TableFormatter(BaseFormatter):
         Returns:
             Formatted table string with details and command hints
         """
+        del no_hints  # Handled by command layer via hint system
         p = provider_detail.provider
 
         # Create main details table
@@ -552,7 +595,7 @@ class TableFormatter(BaseFormatter):
 
         return capture.get()
 
-    def _format_status(
+    def _format_status(  # pylint: disable=too-many-return-statements
         self, status: str | None, uptime: float
     ) -> tuple[str, str | None]:
         """Format endpoint status with appropriate styling.

@@ -100,6 +100,9 @@ Options:
 - `--with-providers` add a Providers column (makes extra API calls per model)
 - `--sort-by [id|name|context|providers]` (default: id)
 - `--desc` sort descending
+- `--tools / --no-tools` filter to models that do or do not support tool calling
+- `--reasoning / --no-reasoning` filter to models that require (or exclude) reasoning-capable providers
+- `--img / --no-img` filter to models that accept (or exclude) image input
 
 #### endpoints
 

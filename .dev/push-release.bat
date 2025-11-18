@@ -1,6 +1,13 @@
 @echo off
 setlocal enabledelayedexpansion
 
+REM Check for --dry-run parameter
+set "IS_DRY_RUN="
+if "%1"=="--dry-run" (
+  set "IS_DRY_RUN=1"
+  echo [DRY RUN] This is a dry run. No changes will be made.
+)
+
 REM Ensure we are in a git repo
 git rev-parse --is-inside-work-tree >nul 2>&1
 if errorlevel 1 (
@@ -13,7 +20,7 @@ git fetch --tags --force --prune >nul 2>&1
 
 REM Determine latest semver tag starting with v
 set "LATEST_TAG="
-for /f "usebackq delims=" %%i in (`git tag --list "v*" --sort=-v:refname`) do (
+for /f "usebackq delims=" %%i in (`git tag --list "v*" --sort=-version:refname`) do (
   set "LATEST_TAG=%%i"
   goto :got_latest
 )
@@ -27,6 +34,7 @@ if not defined LATEST_TAG (
   goto :compute_new
 )
 
+echo Latest tag found: %LATEST_TAG%
 set "VER=%LATEST_TAG%"
 set "VER=%VER:v=%"
 
@@ -41,6 +49,10 @@ if not defined MINOR set MINOR=1
 if not defined PATCH set PATCH=0
 
 :compute_new
+REM Convert to numbers to ensure proper increment
+set /a MAJOR=%MAJOR% >nul
+set /a MINOR=%MINOR% >nul
+set /a PATCH=%PATCH% >nul
 set /a PATCH=PATCH+1 >nul
 set "NEW_TAG=v%MAJOR%.%MINOR%.%PATCH%"
 
@@ -51,6 +63,16 @@ if not errorlevel 1 (
   exit /b 1
 )
 
+echo Current version: %LATEST_TAG%
+echo New version: %NEW_TAG%
+
+if defined IS_DRY_RUN (
+  echo.
+  echo [DRY RUN] Would create version %NEW_TAG% from %LATEST_TAG%
+  echo [DRY RUN] No changes will be made to the repository.
+  exit /b 0
+)
+
 echo Preparing release %NEW_TAG%
 
 REM Stage all changes
@@ -59,22 +81,22 @@ git add -A
 REM If there are staged changes, ask for a commit message and commit
 git diff --cached --quiet
 if errorlevel 1 (
-set /p COMMIT_MSG=Enter commit message [default: chore: prep release %NEW_TAG%]: 
+  set /p COMMIT_MSG=Enter commit message [default: chore: prep release %NEW_TAG%]: 
 
-REM Trim spaces-only messages
-set "_TMP=%COMMIT_MSG%"
-set "_TRIM=!_TMP: =!"
-if "!_TRIM!"=="" set "COMMIT_MSG=chore: prep release %NEW_TAG%"
+  REM Trim spaces-only messages
+  set "_TMP=%COMMIT_MSG%"
+  set "_TRIM=!_TMP: =!"
+  if "!_TRIM!"=="" set "COMMIT_MSG=chore: prep release %NEW_TAG%"
 
-git commit -m "%COMMIT_MSG%"
+  git commit -m "%COMMIT_MSG%"
   if errorlevel 1 (
-  echo Commit failed. You may have commit hooks enforcing a format.
-  echo Retrying with default message: chore: prep release %NEW_TAG%
-  git commit -m "chore: prep release %NEW_TAG%"
-  if errorlevel 1 (
-    echo Commit failed again. Aborting.
-    exit /b 1
-  )
+    echo Commit failed. You may have commit hooks enforcing a format.
+    echo Retrying with default message: chore: prep release %NEW_TAG%
+    git commit -m "chore: prep release %NEW_TAG%"
+    if errorlevel 1 (
+      echo Commit failed again. Aborting.
+      exit /b 1
+    )
   )
 ) else (
   echo No staged changes to commit. Continuing.
@@ -105,5 +127,3 @@ echo.
 echo Release %NEW_TAG% pushed. GitHub Actions will build and publish from the tag.
 echo Check: https://github.com/%GITHUB_USER%/%GITHUB_REPOSITORY%/actions (or your repo Actions page)
 exit /b 0
-
-

@@ -50,6 +50,9 @@ class ProviderInfo(BaseModel):
     is_reasoning_model: bool = Field(
         default=False, description="Whether this is a reasoning model"
     )
+    supports_image_input: bool = Field(
+        default=False, description="Whether the provider accepts image input"
+    )
     quantization: str | None = Field(None, description="Quantization method used")
     uptime_30min: float = Field(
         ..., ge=0, le=100, description="Uptime percentage for last 30 minutes"
@@ -88,7 +91,14 @@ class SearchFilters(BaseModel):
         None, description="Filter by tool calling support"
     )
     reasoning_only: bool | None = Field(
-        None, description="Filter for reasoning models only"
+        None,
+        description=(
+            "Filter by reasoning support (True requires reasoning, False excludes)"
+        ),
+    )
+    supports_image_input: bool | None = Field(
+        None,
+        description="Filter by image input support (True requires it, False excludes it)",
     )
     max_price_per_token: float | None = Field(
         None, gt=0, description="Maximum price per token"

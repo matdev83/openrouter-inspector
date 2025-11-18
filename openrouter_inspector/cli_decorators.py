@@ -77,6 +77,30 @@ def common_filter_options(f: F) -> F:
         help="Filter to models NOT supporting tool calling",
     )(f)
     f = click.option(
+        "--reasoning",
+        is_flag=True,
+        default=None,
+        help="Filter to models supporting reasoning features",
+    )(f)
+    f = click.option(
+        "--no-reasoning",
+        is_flag=True,
+        default=None,
+        help="Filter to models without reasoning support",
+    )(f)
+    f = click.option(
+        "--img",
+        is_flag=True,
+        default=None,
+        help="Filter to models supporting image input",
+    )(f)
+    f = click.option(
+        "--no-img",
+        is_flag=True,
+        default=None,
+        help="Filter to models without image input support",
+    )(f)
+    f = click.option(
         "--no-hints",
         is_flag=True,
         help="Do not display helpful command hints below the table output",
